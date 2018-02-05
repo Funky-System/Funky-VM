@@ -40,7 +40,7 @@ INSTR(conv_int) {
         case VM_TYPE_REF:
             // TODO
             //break;
-        case VM_TYPE_OBJECT:
+        case VM_TYPE_MAP:
             // TODO
             //break;
         case VM_TYPE_UNKNOWN:
@@ -84,7 +84,7 @@ INSTR(conv_uint) {
         case VM_TYPE_REF:
             // TODO
             //break;
-        case VM_TYPE_OBJECT:
+        case VM_TYPE_MAP:
             // TODO
             //break;
         case VM_TYPE_UNKNOWN:
@@ -128,7 +128,7 @@ INSTR(conv_float) {
         case VM_TYPE_REF:
             // TODO
             //break;
-        case VM_TYPE_OBJECT:
+        case VM_TYPE_MAP:
             // TODO
             //break;
         case VM_TYPE_UNKNOWN:

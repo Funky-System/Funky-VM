@@ -72,10 +72,15 @@ INSTR(trap) {
                     vm_type_t len = *(reserved_mem + 1);
 
                     printf("| array (%4d)  | Array of length %-4d          |\n", ref_count, len);
+                } else if (val.type == VM_TYPE_MAP) {
+                    vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value, vm_type_t*);
+                    vm_type_t ref_count = *(reserved_mem);
+
+                    printf("| map (%4d)    | Map                           |\n", ref_count);
                 } else if (val.type == VM_TYPE_EMPTY) {
                     printf("| Empty         |                               |\n");
                 } else {
-                    printf("| %-10s | %-#30x|\n", "CURRUPTED!", val.uint_value);
+                    printf("| %-10s | %-#30x|\n", "CORRUPTED!   ", val.uint_value);
                 }
             }
             printf("+--------+----+------+---------------+-------------------------------+\n\n");
@@ -144,6 +149,64 @@ INSTR(trap) {
             printf("+------+---------------+-------------------------------+\n\n");
             break;
 
+        case 5: {
+            printf("Trap 5: Print map\n");
+            if (stack->type != VM_TYPE_MAP) {
+                printf("Top of stack is not of type map!\n");
+                break;
+            }
+            printf("+---------------------+---------------+-------------------------------+\n");
+            printf("| name                | type          | value                         |\n");
+            printf("|---------------------|---------------|-------------------------------|\n");
+            vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, stack->pointer_value, vm_type_t*);
+            vm_pointer_t *first_ptr = reserved_mem + 1;
+            if (*first_ptr > 0) {
+                vm_map_elem_t *item = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
+
+                while (1) {
+                    char *name = cstr_pointer_from_vm_pointer_t(state, item->name);
+                    printf("| %-19.19s | ", name);
+                    vm_value_t val = item->value;
+                    if (val.type == VM_TYPE_UINT) {
+                        printf("%-13s | %-30u|\n", "unsigned", val.uint_value);
+                    } else if (val.type == VM_TYPE_INT) {
+                        printf("%-13s | %-30i|\n", "integer", val.int_value);
+                    } else if (val.type == VM_TYPE_FLOAT) {
+                        printf("%-13s | %-30f|\n", "float", val.float_value);
+                    } else if (val.type == VM_TYPE_REF) {
+                        printf("%-13s | %-#30x|\n", "reference", val.uint_value);
+                    } else if (val.type == VM_TYPE_STRING) {
+                        int offset = 0;
+                        offset = sizeof(vm_type_t);
+                        vm_type_t *str_reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value,
+                                                                           vm_type_t*);
+                        vm_type_t ref_count = *(str_reserved_mem);
+                        if (ref_count == VM_UNSIGNED_MAX) ref_count = 0;
+                        char str[strlen(cstr_pointer_from_vm_value(state, &val)) + 3];
+                        strcpy(str, "\"");
+                        strcat(str, cstr_pointer_from_vm_value(state, &val));
+                        strcat(str, "\"");
+                        printf("string (%4d) | %-29.29s |\n", ref_count, str);
+                    } else if (val.type == VM_TYPE_ARRAY) {
+                        vm_type_t *arr_reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value,
+                                                                           vm_type_t*);
+                        vm_type_t arr_ref_count = *(arr_reserved_mem);
+                        vm_type_t arr_len = *(arr_reserved_mem + 1);
+
+                        printf("array (%4d)  | Array of length %-4d          |\n", arr_ref_count, arr_len);
+                    } else if (val.type == VM_TYPE_EMPTY) {
+                        printf("Empty         |                               |\n");
+                    } else {
+                        printf("%-10s | %-#30x|\n", "CURRUPTED!", val.uint_value);
+                    }
+
+                    if (item->next == 0) break;
+                    item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
+                }
+            }
+            printf("+---------------------+---------------+-------------------------------+\n\n");
+            break;
+        }
         case 4:
             printf("Trap 4: Print modules\n");
             for (int i = 0; i < state->num_modules; i++) {

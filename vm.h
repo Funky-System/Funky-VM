@@ -46,7 +46,7 @@ enum vm_value_type_t {
     VM_TYPE_FLOAT,
     VM_TYPE_STRING,
     VM_TYPE_REF,    // address of a vm_value_t somewhere
-    VM_TYPE_OBJECT, // address of a custom type (vm_obj_t)
+    VM_TYPE_MAP, // address of a custom type (vm_obj_t)
     VM_TYPE_ARRAY,
     VM_TYPE_EMPTY,
     VM_TYPE_UNKNOWN
@@ -66,9 +66,12 @@ typedef struct {
 } vm_value_t;
 
 typedef struct {
-    vm_type_t size;
-    // todo: name, etc
-} vm_obj_t;
+    vm_pointer_t name;
+    vm_value_t value;
+
+    vm_pointer_t next;
+    vm_pointer_t prev;
+} vm_map_elem_t;
 
 #include "cpu.h"
 #include "modules.h"

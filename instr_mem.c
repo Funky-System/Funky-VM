@@ -8,7 +8,7 @@
 #include "memory.h"
 
 void release(CPU_State *state, vm_value_t *val) {
-    if (val->type != VM_TYPE_STRING && val->type != VM_TYPE_OBJECT && val->type != VM_TYPE_ARRAY) {
+    if (val->type != VM_TYPE_STRING && val->type != VM_TYPE_MAP && val->type != VM_TYPE_ARRAY) {
         return;
     }
 
@@ -37,7 +37,7 @@ void release(CPU_State *state, vm_value_t *val) {
 }
 
 void retain(CPU_State *state, vm_value_t *val) {
-    if (val->type != VM_TYPE_STRING && val->type != VM_TYPE_OBJECT && val->type != VM_TYPE_ARRAY) {
+    if (val->type != VM_TYPE_STRING && val->type != VM_TYPE_MAP && val->type != VM_TYPE_ARRAY) {
         return;
     }
 
@@ -84,8 +84,6 @@ INSTR(ld_str) {
     stack->pointer_value = get_current_module(state)->addr + GET_OPERAND();
     stack->type = VM_TYPE_STRING;
 }
-
-INSTR_NOT_IMPLEMENTED(ld_obj);
 
 /// Load Local. Pushes a value relative to the markpointer.
 INSTR(ld_local) {
@@ -181,7 +179,7 @@ INSTR(ld_deref) {
     AJS_STACK(+1);
     USE_STACK();
 
-    *stack = *((vm_value_t*)(state->memory->main_memory + GET_OPERAND()));
+    *stack = *vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND(), vm_value_t*);
     retain(state, stack);
 }
 
@@ -239,7 +237,7 @@ INSTR(st_local) {
 /// Store into memory. Pops a value from the stack and stores it at absolute address.
 INSTR(st_addr) {
     USE_STACK();
-    vm_value_t *dst = (vm_value_t*)(state->memory->main_memory + GET_OPERAND());
+    vm_value_t *dst = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND(), vm_value_t*);
     release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
@@ -358,10 +356,10 @@ INSTR(is_arr) {
     *stack = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = (stack - 1)->type == VM_TYPE_ARRAY };
 }
 
-INSTR(is_obj) {
+INSTR(is_map) {
     AJS_STACK(+1);
     USE_STACK();
-    *stack = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = (stack - 1)->type == VM_TYPE_OBJECT };
+    *stack = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = (stack - 1)->type == VM_TYPE_MAP };
 }
 
 INSTR(is_ref) {

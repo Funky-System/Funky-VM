@@ -23,6 +23,7 @@ extern Instruction_Implementation instruction_implementations[256];
 int is_ptr_in_static_memory(CPU_State *state, vm_value_t *val);
 void retain(CPU_State *state, vm_value_t *ptr);
 void release(CPU_State *state, vm_value_t *ptr);
+char *cstr_pointer_from_vm_pointer_t(CPU_State* state, vm_pointer_t ptr);
 char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val);
 void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel);
 
@@ -43,7 +44,7 @@ INSTR(ld_int);
 INSTR(ld_uint);
 INSTR(ld_float);
 INSTR(ld_str);
-INSTR(ld_obj);
+INSTR(ld_map);
 INSTR(ld_local);
 INSTR(ld_reg);
 INSTR(ld_stack);
@@ -144,8 +145,20 @@ INSTR(is_uint);
 INSTR(is_float);
 INSTR(is_str);
 INSTR(is_arr);
-INSTR(is_obj);
+INSTR(is_map);
 INSTR(is_ref);
 INSTR(is_empty);
+
+INSTR(ld_mapitem);
+INSTR(ld_mapitem_pop);
+INSTR(st_mapitem);
+INSTR(st_mapitem_pop);
+INSTR(del_mapitem);
+INSTR(del_mapitem_pop);
+INSTR(has_mapitem);
+INSTR(has_mapitem_pop);
+INSTR(map_len);
+INSTR(map_merge);
+INSTR(map_copy);
 
 #endif //PROCESSOR_INSTRUCTIONS_H
