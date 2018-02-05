@@ -8,7 +8,7 @@
 
 #define OPTPARSE_IMPLEMENTATION
 #define OPTPARSE_API static
-#include "../optparse.h"
+#include "optparse.h"
 
 int main(int argc, char **argv) {
     static_assert(sizeof(vm_type_t) == sizeof(vm_type_signed_t), "vm_type_t and vm_type_signed_t must be of equal size");
