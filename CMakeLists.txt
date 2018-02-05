@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(vm)
+project(funky-vm)
 
 set(CMAKE_CXX_STANDARD 11)
 

@@ -19,7 +19,7 @@ Module module_load(Memory *mem, const char* name) {
 
     char* filename = malloc(strlen(name) + 1 + 4);
     strcpy(filename, name);
-    strcat(filename, ".bin");
+    strcat(filename, ".funk");
 
     FILE *fp;
     fp = fopen(filename, "r");
