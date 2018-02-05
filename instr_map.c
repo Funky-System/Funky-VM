@@ -348,3 +348,14 @@ INSTR(map_merge) {
     *(stack - 1) = mapval;
     AJS_STACK(-1);
 }
+
+/*
+ * Boxing promotes a native type (int, uint, float, string, array, map) to an object that contains the value.
+ * Unboxing unwraps that value back again.
+ */
+
+// TODO: boxing
+INSTR_NOT_IMPLEMENTED(box);
+
+// TODO: unboxing
+INSTR_NOT_IMPLEMENTED(unbox);

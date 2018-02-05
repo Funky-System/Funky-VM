@@ -51,6 +51,7 @@ INSTR(ld_stack);
 INSTR(ld_sref);
 INSTR(ld_lref);
 INSTR(ld_ref);
+INSTR(ld_empty);
 INSTR(pop);
 INSTR(st_reg);
 INSTR(st_stack);
@@ -160,5 +161,7 @@ INSTR(has_mapitem_pop);
 INSTR(map_len);
 INSTR(map_merge);
 INSTR(map_copy);
+INSTR(box);
+INSTR(unbox);
 
 #endif //PROCESSOR_INSTRUCTIONS_H
