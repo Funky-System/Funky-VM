@@ -1,7 +1,3 @@
-//
-// Created by Bas du Pré on 21-01-18.
-//
-
 #include "cpu.h"
 #include "instructions.h"
 #include "liballoc_1_1.h"

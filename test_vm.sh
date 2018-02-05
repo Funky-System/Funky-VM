@@ -5,8 +5,8 @@ run_test_expect() {
     cat /dev/stdin > .tmp_test.asm
     echo -e "\ntrap 2\n" >> .tmp_test.asm
     printf "%-50s" "$1"
-    ${DIR}/assembler .tmp_test.asm -o .tmp_test.bin
-    output=$(${DIR}/vm .tmp_test)
+    ${DIR}/funky-as .tmp_test.asm -o .tmp_test.bin
+    output=$(${DIR}/funky-vm .tmp_test)
     if [ "$2" == "$output" ]; then
         echo -e "[  \033[32mOK\033[0m  ] ${output//$'\n'/\\\\n}"
     else
