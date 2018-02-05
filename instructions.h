@@ -18,6 +18,7 @@ extern Instruction_Implementation instruction_implementations[256];
 #define USE_STACK() vm_value_t *stack = ((vm_value_t *)(state->memory->main_memory + state->sp))
 #define AJS_STACK(n) { state->sp += sizeof(vm_value_t) * (n); }
 #define USE_MARK() vm_value_t *mark = ((vm_value_t *)(state->memory->main_memory + state->mp))
+#define USE_ARGS() vm_value_t *args = ((vm_value_t *)(state->memory->main_memory + state->ap))
 
 int is_ptr_in_static_memory(CPU_State *state, vm_value_t *val);
 void retain(CPU_State *state, vm_value_t *ptr);
@@ -117,6 +118,8 @@ INSTR(jmp_pop);
 INSTR(ret);
 INSTR(args_accept);
 INSTR(args_cleanup);
+INSTR(ld_arg);
+INSTR(st_arg);
 
 INSTR(strcat);
 INSTR(substr);

@@ -124,6 +124,8 @@ INSTR(args_accept) {
     USE_STACK();
     assert(stack->type == VM_TYPE_UINT); // num passed
 
+    vm_value_t AP_pre = { .uint_value = state->ap, .type = VM_TYPE_REF };
+
     vm_type_signed_t num_args = GET_OPERAND();
     vm_type_signed_t passed_args = stack->uint_value;
     vm_value_t ret_ref = *(stack - 1);
@@ -133,21 +135,48 @@ INSTR(args_accept) {
     }
 
     *(stack - 1 + (num_args - passed_args)) = ret_ref;
-    *(stack - 0 + (num_args - passed_args)) = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = num_args };
+    *(stack - 0 + (num_args - passed_args)) = AP_pre;
+    *(stack + 1 + (num_args - passed_args)) = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = num_args };
 
-    AJS_STACK(num_args - passed_args);
+    state->ap = state->sp - sizeof(vm_value_t) * (passed_args + 1);
+
+    AJS_STACK(num_args - passed_args + 1);
 }
 
 INSTR(args_cleanup) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_UINT); // num_args
-    assert((stack - 1)->type == VM_TYPE_REF); // return address
+    assert(stack->type == VM_TYPE_UINT);      // num_args
+    assert((stack - 1)->type == VM_TYPE_REF); // old AP
+    assert((stack - 2)->type == VM_TYPE_REF); // return address
 
     vm_type_t num_args = stack->uint_value;
-    vm_value_t ret_ref = *(stack - 1);
+    state->ap = (stack - 1)->uint_value;
+    vm_value_t ret_ref = *(stack - 2);
 
-    *(stack - num_args) = *stack;
-    *(stack - num_args - 1) = ret_ref;
+    for (int i = 0; i < num_args; i++) {
+        release(state, stack - 3 - i);
+    }
 
-    AJS_STACK(-num_args);
+    *(stack - num_args - 1) = *stack;
+    *(stack - num_args - 2) = ret_ref;
+
+    AJS_STACK(-num_args - 1);
+}
+
+INSTR(ld_arg) {
+    AJS_STACK(+1);
+    USE_STACK();
+    USE_ARGS();
+    *stack = *(args + GET_OPERAND_SIGNED());
+
+    retain(state, stack);
+}
+
+INSTR(st_arg) {
+    USE_STACK();
+    USE_ARGS();
+    vm_value_t *dst = args + GET_OPERAND_SIGNED();
+    release(state, dst);
+    *dst = *stack;
+    AJS_STACK(-1);
 }

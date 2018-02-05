@@ -11,6 +11,7 @@ CPU_State cpu_init(Memory* memory) {
     state.pc = 0;
     state.mp = state.stack_base - sizeof(vm_type_signed_t);
     state.sp = state.stack_base - sizeof(vm_type_signed_t);
+    state.ap = state.stack_base - sizeof(vm_type_signed_t);
     state.rr = (vm_value_t) { 0 };
     state.r0 = (vm_value_t) { 0 };
     state.r1 = (vm_value_t) { 0 };
