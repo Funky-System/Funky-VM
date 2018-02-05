@@ -15,8 +15,12 @@
 // Strings are refcounted
 // Strings are immutable, e.g. when changing a string or extracting a portion, a new copy is created
 
-char * cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val) {
-    return vm_pointer_to_native(state->memory, val->pointer_value, char*) + sizeof(vm_type_t);
+char *cstr_pointer_from_vm_pointer_t(CPU_State* state, vm_pointer_t ptr) {
+    return vm_pointer_to_native(state->memory, ptr, char*);
+}
+
+char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val) {
+    return cstr_pointer_from_vm_pointer_t(state, val->pointer_value + sizeof(vm_type_t));
 }
 
 INSTR(strcat) {
@@ -124,7 +128,7 @@ void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
         case VM_TYPE_REF:
             // TODO
             //break;
-        case VM_TYPE_OBJECT:
+        case VM_TYPE_MAP:
             // TODO
             //break;
         case VM_TYPE_ARRAY:

@@ -21,6 +21,7 @@ extern void    *k_calloc(Memory *,size_t, size_t);		///< The standard function.
 extern void     k_free(Memory *,void *);	        	///< The standard function.
 
 #define vm_pointer_to_native(MEMORY, POINTER, TYPE) ( (TYPE) (MEMORY->main_memory + (vm_pointer_t)(POINTER)) )
+#define native_to_vm_pointer(MEMORY, POINTER) ( (vm_pointer_t) ((unsigned char*)(POINTER) - MEMORY->main_memory) )
 #define vm_malloc(MEMORY, SIZE) ((vm_pointer_t) ((unsigned char *)k_malloc(MEMORY, SIZE) - MEMORY->main_memory))
 #define vm_realloc(MEMORY, POINTER, SIZE) ((vm_pointer_t) ((unsigned char*)k_realloc(MEMORY, vm_pointer_to_native(MEMORY, POINTER, void*), SIZE) - MEMORY->main_memory))
 #define vm_calloc(MEMORY, NUM, SIZE) ((vm_pointer_t) ((unsigned char *)k_calloc(MEMORY, NUM, SIZE) - MEMORY->main_memory))
