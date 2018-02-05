@@ -3,6 +3,8 @@ project(vm)
 
 set(CMAKE_CXX_STANDARD 11)
 
+add_definitions(-DVM_ARCH_BITS=32)
+
 add_library(vm
         cpu.c  instructions.c instr_cpu.c instr_mem.c instr_computation.c instr_branching.c
         instr_convert.c instr_string.c memory.c instr_array.c

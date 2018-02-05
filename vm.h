@@ -7,13 +7,35 @@
 
 #include <stdint.h>
 
-typedef uint32_t vm_type_t;
-typedef int32_t vm_type_signed_t;
-typedef float vm_type_float_t;
-typedef vm_type_t vm_pointer_t;
+#ifndef VM_ARCH_BITS
+#define VM_ARCH_BITS 32
+#endif
 
-#define VM_SIGNED_MAX INT32_MAX
-#define VM_UNSIGNED_MAX UINT32_MAX
+#if VM_ARCH_BITS == 16
+typedef uint16_t vm_type_t;
+    typedef uint16_t vm_type_t;
+    typedef int16_t vm_type_signed_t;
+    typedef __fp16 vm_type_float_t;
+    typedef vm_type_t vm_pointer_t;
+    #define VM_UNSIGNED_MAX UINT16_MAX
+    #define VM_SIGNED_MAX INT16_MAX
+#elif VM_ARCH_BITS == 32
+    typedef uint32_t vm_type_t;
+    typedef int32_t vm_type_signed_t;
+    typedef float vm_type_float_t;
+    typedef vm_type_t vm_pointer_t;
+    #define VM_UNSIGNED_MAX UINT32_MAX
+    #define VM_SIGNED_MAX INT32_MAX
+#elif VM_ARCH_BITS == 64
+    typedef uint64_t vm_type_t;
+    typedef int64_t vm_type_signed_t;
+    typedef float vm_type_float_t;
+    typedef vm_type_t vm_pointer_t;
+    #define VM_UNSIGNED_MAX UINT64_MAX
+    #define VM_SIGNED_MAX INT64_MAX
+#else
+    #error Value for VM_ARCH_BITS is unsupported
+#endif
 
 #define VM_MEMORY_LIMIT (1024 * 1024) // one whole meg!
 #define VM_STACK_SIZE (sizeof(vm_value_t) * 1024)
