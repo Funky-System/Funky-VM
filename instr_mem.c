@@ -85,6 +85,12 @@ INSTR(ld_str) {
     stack->type = VM_TYPE_STRING;
 }
 
+INSTR(ld_empty) {
+    AJS_STACK(+1);
+    USE_STACK();
+    stack->type = VM_TYPE_EMPTY;
+}
+
 /// Load Local. Pushes a value relative to the markpointer.
 INSTR(ld_local) {
     // SP_post = SP_pre + 1
