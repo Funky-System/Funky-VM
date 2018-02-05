@@ -10,7 +10,7 @@ typedef struct CPU_State CPU_State;
 
 typedef struct CPU_State {
     // registers
-    vm_type_t pc, sp, mp;
+    vm_type_t pc, sp, mp, ap;
     vm_value_t rr, r0, r1, r2, r3, r4, r5, r6, r7;
     vm_type_t stack_base;
 

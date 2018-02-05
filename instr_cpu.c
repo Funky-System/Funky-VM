@@ -45,6 +45,7 @@ INSTR(trap) {
                 vm_type_t addr = (state->sp - i * sizeof(vm_value_t));
                 if (addr == state->sp) note = "SP";
                 if (addr == state->mp) note = "MP";
+                if (addr == state->ap) note = "AP";
                 printf("| 0x%04X | %2s | %4d ", addr, note, -i);
                 vm_value_t val = *(stack - i);
                 if (val.type == VM_TYPE_UINT) {

@@ -109,6 +109,7 @@ INSTR(ld_reg) {
         case 0: *stack = (vm_value_t) { .uint_value = state->pc, .type = VM_TYPE_INT }; break;
         case 1: *stack = (vm_value_t) { .uint_value = state->sp, .type = VM_TYPE_INT }; break;
         case 2: *stack = (vm_value_t) { .uint_value = state->mp, .type = VM_TYPE_INT }; break;
+        case 3: *stack = (vm_value_t) { .uint_value = state->ap, .type = VM_TYPE_INT }; break;
         case 4: *stack = state->rr; break;
         case 5: *stack = state->r0; break;
         case 6: *stack = state->r1; break;
@@ -198,6 +199,7 @@ INSTR(st_reg) {
         case 0: state->pc = stack->uint_value; break;
         case 1: state->sp = stack->uint_value; break;
         case 2: state->mp = stack->uint_value; break;
+        case 3: state->ap = stack->uint_value; break;
         case 4: release(state, &state->rr); state->rr = *stack; break;
         case 5: release(state, &state->r0); state->r0 = *stack; break;
         case 6: release(state, &state->r1); state->r1 = *stack; break;
