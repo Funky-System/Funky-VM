@@ -62,14 +62,17 @@ int main(int argc, char **argv) {
     Memory memory;
     memory_init(&memory, main_memory);
     Module kernel;
-    int kernelSet = 0;
+    int kernel_set = 0;
 
     CPU_State state = cpu_init(&memory);
 
     char *filename;
     while ((filename = optparse_arg(&options))) {
         Module module = module_load(&memory, filename);
-        if (!kernelSet) kernel = module;
+        if (!kernel_set) {
+            kernel = module;
+            kernel_set = 1;
+        }
         module_register(&state, module);
     }
 

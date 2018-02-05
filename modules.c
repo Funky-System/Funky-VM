@@ -35,7 +35,7 @@ Module module_load(Memory *mem, const char* name) {
 
     // Get the number of bytes
     fseek(fp, 0L, SEEK_END);
-    long numbytes = ftell(fp);
+    size_t numbytes = (size_t)ftell(fp);
 
     // reset the file position indicator to the beginning of the file
     fseek(fp, 0L, SEEK_SET);
@@ -49,8 +49,8 @@ Module module_load(Memory *mem, const char* name) {
 
     fread(&header, sizeof(char), sizeof(header), fp);
 
-    if (header[0] != 'b' || header[1] != 's' || header[2] != 'm' | header[3] != 'b') {
-        printf("%s is not a valid BSMB file\n", filename);
+    if (header[0] != 'f' || header[1] != 'u' || header[2] != 'n' | header[3] != 'k') {
+        printf("%s is not a valid Funky bytecode file\n", filename);
         exit(EXIT_FAILURE);
     }
 
@@ -88,7 +88,7 @@ Module module_load(Memory *mem, const char* name) {
     module_addr[numbytes] = 0x01; // halt
     numbytes++;
 
-    module.size = numbytes;
+    module.size = (vm_type_t)numbytes;
 
     return module;
 }
