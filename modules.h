@@ -1,0 +1,29 @@
+//
+// Created by Bas du Pré on 01-02-18.
+//
+
+#ifndef VM_MODULES_H
+#define VM_MODULES_H
+
+typedef struct Module Module;
+
+#include "vm.h"
+#include "memory.h"
+#include "cpu.h"
+
+typedef struct Module {
+    char* name;
+    vm_pointer_t addr;
+    vm_type_t num_exports;
+    vm_type_t start_of_code;
+    vm_type_t size;
+} Module;
+
+Module module_load(Memory *mem, const char* name);
+void module_unload(Memory *mem, const char* name);
+int module_register(CPU_State *state, Module module);
+int module_release(CPU_State *state, const char* name);
+
+Module* get_current_module(CPU_State *state);
+
+#endif //VM_MODULES_H
