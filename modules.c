@@ -1,0 +1,118 @@
+//
+// Created by Bas du Pré on 01-02-18.
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+
+#include "modules.h"
+#include "memory.h"
+#include "cpu.h"
+
+#define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
+#define FLAG_LITTLE_ENDIAN 1
+
+Module module_load(Memory *mem, const char* name) {
+    Module module;
+
+    char* filename = malloc(strlen(name) + 1 + 4);
+    strcpy(filename, name);
+    strcat(filename, ".bin");
+
+    FILE *fp;
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        int errnum = errno;
+        printf("Error: Could not open file %s\n", filename);
+        printf("%s\n", strerror(errnum));
+        exit(EXIT_FAILURE);
+    }
+
+    module.name = k_malloc(mem, strlen(name) + 1);
+    strcpy(module.name, name);
+
+    // Get the number of bytes
+    fseek(fp, 0L, SEEK_END);
+    long numbytes = ftell(fp);
+
+    // reset the file position indicator to the beginning of the file
+    fseek(fp, 0L, SEEK_SET);
+
+    char header[6];
+
+    if (numbytes < (long) sizeof(header)) {
+        printf("%s is not a valid BSMB file\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    fread(&header, sizeof(char), sizeof(header), fp);
+
+    if (header[0] != 'b' || header[1] != 's' || header[2] != 'm' | header[3] != 'b') {
+        printf("%s is not a valid BSMB file\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((header[4] & FLAG_LITTLE_ENDIAN) == 0 && !IS_BIG_ENDIAN) {
+        printf("%s is compiled for big endian systems. This system is little endian.\n", filename);
+        exit(EXIT_FAILURE);
+    }
+
+    if (header[5] != sizeof(vm_type_t)) {
+        printf("%s is compiled for %d virtual bits. This system is %u virtual bits.\n", filename, header[5] * 8,
+               (unsigned int) sizeof(vm_type_t) * 8);
+        exit(EXIT_FAILURE);
+    }
+
+    vm_type_t num_exports, start_of_code;
+    fread(&num_exports, sizeof(vm_type_t), 1, fp);
+    fread(&start_of_code, sizeof(vm_type_t), 1, fp);
+
+    module.num_exports = num_exports;
+    module.start_of_code = start_of_code;
+
+    numbytes -= sizeof(header) + sizeof(vm_type_t) * 2;
+
+    // grab sufficient memory for the buffer to hold the text
+    unsigned char *module_addr = k_calloc(mem, numbytes, sizeof(unsigned char));
+    module.addr = (vm_type_t) (module_addr - mem->main_memory);
+
+    if (module_addr == NULL) {
+        printf("Memory allocation error\nDo you have enough free memory?\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fread(module_addr, sizeof(char), numbytes, fp);
+    fclose(fp);
+    module_addr[numbytes] = 0x01; // halt
+    numbytes++;
+
+    module.size = numbytes;
+
+    return module;
+}
+
+void module_unload(Memory *mem, const char* name) {
+    // TODO
+}
+
+int module_register(CPU_State *state, Module module) {
+    state->num_modules++;
+    state->modules = k_realloc(state->memory, state->modules, sizeof(Module) * state->num_modules);
+    state->modules[state->num_modules - 1] = module;
+    return state->num_modules;
+}
+
+int module_release(CPU_State *state, const char* name) {
+    // TODO
+}
+
+Module* get_current_module(CPU_State *state) {
+    for (int i = 0; i < state->num_modules; i++) {
+        if (state->pc >= state->modules[i].addr && state->pc < state->modules[i].addr + state->modules[i].size) {
+            return &state->modules[i];
+        }
+    }
+    return NULL;
+}
