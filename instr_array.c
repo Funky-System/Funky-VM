@@ -356,8 +356,8 @@ INSTR(arr_copy) {
     stack->pointer_value = reserved_mem;
 }
 
-void arr_release(CPU_State* state, vm_value_t *ptr) {
-    vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, ptr->pointer_value, vm_type_t*);
+void arr_release(CPU_State* state, vm_pointer_t ptr) {
+    vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, ptr, vm_type_t*);
     vm_type_t *len = reserved_mem + 1;
     vm_pointer_t *array_ptr = reserved_mem + 2;
     vm_value_t *array = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);

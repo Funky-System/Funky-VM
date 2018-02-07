@@ -23,15 +23,18 @@ extern Instruction_Implementation instruction_implementations[256];
 int is_ptr_in_static_memory(CPU_State *state, vm_value_t *val);
 void retain(CPU_State *state, vm_value_t *ptr);
 void release(CPU_State *state, vm_value_t *ptr);
+void release_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr);
+void retain_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr);
 char *cstr_pointer_from_vm_pointer_t(CPU_State* state, vm_pointer_t ptr);
 char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val);
 void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel);
 
-void arr_release(CPU_State* state, vm_value_t *ptr);
+void arr_release(CPU_State* state, vm_pointer_t ptr);
 void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm_type_signed_t index);
 vm_type_t arr_len(CPU_State *state, vm_value_t *arrayval);
 void instr_conv_arr_rel(CPU_State* state, vm_type_signed_t rel);
 
+void map_release(CPU_State* state, vm_pointer_t ptr);
 
 INSTR(nop);
 INSTR(halt);
@@ -161,6 +164,8 @@ INSTR(has_mapitem_pop);
 INSTR(map_len);
 INSTR(map_merge);
 INSTR(map_copy);
+INSTR(map_getprototype);
+INSTR(map_setprototype);
 INSTR(box);
 INSTR(unbox);
 
