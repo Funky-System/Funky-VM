@@ -7,6 +7,32 @@
 #include "vm.h"
 #include "memory.h"
 
+void release_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr) {
+    vm_type_t *ref_count = vm_pointer_to_native(state->memory, ptr, vm_type_t*);
+
+    // do not free constants from code or null pointers
+    if (*ref_count == VM_UNSIGNED_MAX) {
+        //printf("Not released string \"%s\", it is in static memory.\n", cstr_pointer_from_vm_value(state, val));
+        return;
+    }
+
+    (*ref_count)--;
+
+    //printf("Released string \"%s\". Refcount from %d to %d.", cstr_pointer_from_vm_value(state, val), *ref_count + 1, *ref_count);
+
+    if (*ref_count == 0) {
+        if (type == VM_TYPE_ARRAY) {
+            arr_release(state, ptr);
+        } else if (type == VM_TYPE_MAP) {
+            map_release(state, ptr);
+        }
+
+        //printf(" Refcount is 0, so free memory.");
+        vm_free(state->memory, ptr);
+    }
+
+}
+
 void release(CPU_State *state, vm_value_t *val) {
     if (val->type != VM_TYPE_STRING && val->type != VM_TYPE_MAP && val->type != VM_TYPE_ARRAY) {
         return;
@@ -26,7 +52,9 @@ void release(CPU_State *state, vm_value_t *val) {
 
     if (*ref_count == 0) {
         if (val->type == VM_TYPE_ARRAY) {
-            arr_release(state, val);
+            arr_release(state, val->pointer_value);
+        } else if (val->type == VM_TYPE_MAP) {
+            map_release(state, val->pointer_value);
         }
 
         //printf(" Refcount is 0, so free memory.");
@@ -34,6 +62,21 @@ void release(CPU_State *state, vm_value_t *val) {
     }
 
     //printf("\n");
+}
+
+void retain_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr) {
+    if (type != VM_TYPE_STRING && type != VM_TYPE_MAP && type != VM_TYPE_ARRAY) {
+        return;
+    }
+
+    vm_type_t *ref_count = vm_pointer_to_native(state->memory, ptr, vm_type_t*);
+
+    // do not retain constants from code or null pointers
+    if (*ref_count == VM_UNSIGNED_MAX) {
+        return;
+    }
+
+    (*ref_count)++;
 }
 
 void retain(CPU_State *state, vm_value_t *val) {
