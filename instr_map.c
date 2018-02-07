@@ -48,7 +48,11 @@ vm_map_elem_t* ld_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* na
 
 INSTR(ld_mapitem) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_MAP);
+    if (stack->type != VM_TYPE_MAP) {
+        // TODO: boxing
+        fprintf(stderr, "Error: Not a map type\n");
+        exit(EXIT_FAILURE);
+    }
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND();
     const char *name = cstr_pointer_from_vm_pointer_t(state, name_ptr) + sizeof(vm_type_t);
     vm_value_t val = ld_mapitem(state, stack->pointer_value, name)->value;
