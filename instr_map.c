@@ -9,13 +9,14 @@ INSTR(ld_map) {
     vm_value_t mapval;
     mapval.type = VM_TYPE_MAP;
 
-    vm_pointer_t reserved_mem = vm_malloc(state->memory, sizeof(vm_type_t) * 2); // first for refcount, second for first item
-    vm_type_t *ref_count      = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
-    vm_pointer_t *first_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 1;
+    vm_pointer_t reserved_mem     = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for first item
+    vm_type_t *ref_count          = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
+    vm_pointer_t *first_ptr       = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 1;
+    vm_pointer_t *prototype_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 2;
 
     *ref_count = 1;
-
     *first_ptr = 0;
+    *prototype_ptr = 0;
 
     mapval.pointer_value = reserved_mem;
 
@@ -26,23 +27,30 @@ INSTR(ld_map) {
 
 vm_map_elem_t* ld_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name) {
     vm_pointer_t *first_ptr = vm_pointer_to_native(state->memory, map_ptr, vm_pointer_t*) + 1;
+    vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, map_ptr, vm_pointer_t*) + 2;
 
     if (*first_ptr == 0) {
-        fprintf(stderr, "Error: map is empty\n");
-        exit(EXIT_FAILURE);
-    }
-
-    vm_map_elem_t *item = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
-    while (1) {
-        if (strcmp(name, vm_pointer_to_native(state->memory, item->name, char*)) == 0) {
-            return item;
+        if (*prototype_ptr == 0) {
+            return NULL;
+        } else {
+            return ld_mapitem(state, *prototype_ptr, name);
         }
-        if (item->next == 0) break;
-        item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
-    }
+    } else {
+        vm_map_elem_t *item = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
+        while (1) {
+            if (strcmp(name, vm_pointer_to_native(state->memory, item->name, char*)) == 0) {
+                return item;
+            }
+            if (item->next == 0) break;
+            item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
+        }
 
-    fprintf(stderr, "Error: map does not contain element with key '%s'\n", name);
-    exit(EXIT_FAILURE);
+        if (*prototype_ptr == 0) {
+            return NULL;
+        } else {
+            return ld_mapitem(state, *prototype_ptr, name);
+        }
+    }
 }
 
 
@@ -55,8 +63,16 @@ INSTR(ld_mapitem) {
     }
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND();
     const char *name = cstr_pointer_from_vm_pointer_t(state, name_ptr) + sizeof(vm_type_t);
-    vm_value_t val = ld_mapitem(state, stack->pointer_value, name)->value;
-    retain(state, &val);
+    vm_value_t val;
+
+    vm_map_elem_t *elem = ld_mapitem(state, stack->pointer_value, name);
+    if (elem == NULL) {
+        val.type = VM_TYPE_EMPTY;
+    } else {
+        val = elem->value;
+        retain(state, &val);
+    }
+
     release(state, stack); // release the map
     *stack = val;
 }
@@ -66,30 +82,21 @@ INSTR(ld_mapitem_pop) {
     assert((stack - 1)->type == VM_TYPE_MAP);
     assert(stack->type == VM_TYPE_STRING);
     const char *name = cstr_pointer_from_vm_value(state, stack);
-    vm_value_t val = ld_mapitem(state, (stack - 1)->pointer_value, name)->value;
-    retain(state, &val);
+
+    vm_value_t val;
+
+    vm_map_elem_t *elem = ld_mapitem(state, stack->pointer_value, name);
+    if (elem == NULL) {
+        val.type = VM_TYPE_EMPTY;
+    } else {
+        val = elem->value;
+        retain(state, &val);
+    }
+
     release(state, stack - 1); // release the map
     release(state, stack); // release the name
     *(stack - 1) = val;
     AJS_STACK(-1);
-}
-
-vm_type_t map_contains_key(CPU_State *state, vm_pointer_t map_ptr, const char* name) {
-    vm_pointer_t *item_ptr = vm_pointer_to_native(state->memory, map_ptr, vm_pointer_t*) + 1;
-
-    if (*item_ptr == 0) return 0;
-
-    vm_map_elem_t *item = vm_pointer_to_native(state->memory, *item_ptr, vm_map_elem_t*);
-
-    while (item != 0) {
-        if (strcmp(name, vm_pointer_to_native(state->memory, item->name, const char*)) == 0) {
-            return 1;
-        }
-        if (item->next == 0) break;
-        item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
-    }
-
-    return 0;
 }
 
 void st_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name, vm_value_t* value) {
@@ -215,6 +222,24 @@ INSTR(del_mapitem_pop) {
     AJS_STACK(-2);
 }
 
+vm_type_t map_contains_key(CPU_State *state, vm_pointer_t map_ptr, const char* name) {
+    vm_pointer_t *item_ptr = vm_pointer_to_native(state->memory, map_ptr, vm_pointer_t*) + 1;
+
+    if (*item_ptr == 0) return 0;
+
+    vm_map_elem_t *item = vm_pointer_to_native(state->memory, *item_ptr, vm_map_elem_t*);
+
+    while (item != 0) {
+        if (strcmp(name, vm_pointer_to_native(state->memory, item->name, const char*)) == 0) {
+            return 1;
+        }
+        if (item->next == 0) break;
+        item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
+    }
+
+    return 0;
+}
+
 INSTR(has_mapitem) {
     USE_STACK();
     assert((stack)->type == VM_TYPE_MAP);
@@ -250,15 +275,17 @@ INSTR(map_copy) {
     vm_value_t mapval;
     mapval.type = VM_TYPE_MAP;
 
-    vm_pointer_t reserved_mem = vm_malloc(state->memory, sizeof(vm_type_t) * 2); // first for refcount, second for first item
-    vm_type_t *ref_count      = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
-    vm_pointer_t *first_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 1;
+    vm_pointer_t reserved_mem     = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for first item
+    vm_type_t *ref_count          = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
+    vm_pointer_t *first_ptr       = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 1;
+    vm_pointer_t *prototype_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 2;
 
     *ref_count = 1;
-
     *first_ptr = 0;
 
     mapval.pointer_value = reserved_mem;
+
+    *prototype_ptr = *(vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 2);
 
     vm_pointer_t *item_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 1;
 
@@ -310,13 +337,14 @@ INSTR(map_merge) {
     vm_value_t mapval;
     mapval.type = VM_TYPE_MAP;
 
-    vm_pointer_t reserved_mem = vm_malloc(state->memory, sizeof(vm_type_t) * 2); // first for refcount, second for first item
-    vm_type_t *ref_count      = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
-    vm_pointer_t *first_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 1;
+    vm_pointer_t reserved_mem   = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for first item
+    vm_type_t *ref_count        = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
+    vm_pointer_t *first_ptr     = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 1;
+    vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 2;
 
     *ref_count = 1;
-
     *first_ptr = 0;
+    *prototype_ptr = 0;
 
     mapval.pointer_value = reserved_mem;
 
@@ -351,6 +379,58 @@ INSTR(map_merge) {
 
     *(stack - 1) = mapval;
     AJS_STACK(-1);
+}
+
+void map_release(CPU_State* state, vm_pointer_t ptr) {
+    vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, ptr, vm_type_t*);
+    vm_pointer_t *first_ptr = reserved_mem + 2;
+    vm_pointer_t *prototype_ptr = reserved_mem + 2;
+    vm_map_elem_t *elem = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
+
+    while (1) {
+        release(state, &elem->value);
+        if (elem->next == 0) break;
+        elem = vm_pointer_to_native(state->memory, elem->next, vm_map_elem_t*);
+    }
+
+    if (*prototype_ptr != 0) {
+        release_pointer(state, VM_TYPE_MAP, *prototype_ptr);
+    }
+}
+
+INSTR(map_setprototype) {
+    USE_STACK();
+    assert(stack->type == VM_TYPE_MAP); // the map
+    assert((stack - 1)->type == VM_TYPE_MAP); // the prototype
+
+    vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 2;
+
+    if (*prototype_ptr != 0) {
+        release_pointer(state, VM_TYPE_MAP, *prototype_ptr);
+    }
+
+    *prototype_ptr = (stack - 1)->pointer_value;
+
+    // do not release/retain prototype, as it stays equal
+    release(state, stack);
+
+    AJS_STACK(-2);
+}
+
+INSTR(map_getprototype) {
+    USE_STACK();
+    assert(stack->type == VM_TYPE_MAP); // the map
+
+    vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 2;
+
+    if (*prototype_ptr == 0) {
+        release(state, stack);
+        *stack = (vm_value_t) { .type = VM_TYPE_EMPTY };
+    } else {
+        retain_pointer(state, VM_TYPE_MAP, *prototype_ptr);
+        release(state, stack);
+        *stack = (vm_value_t) { .type = VM_TYPE_MAP, .pointer_value = *prototype_ptr };
+    }
 }
 
 /*
