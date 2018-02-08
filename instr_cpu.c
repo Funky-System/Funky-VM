@@ -248,6 +248,26 @@ INSTR(int) {
 
 }
 
-INSTR(break) {
+INSTR(debug_break) {
     printf("breakpoint!\n");
+}
+
+INSTR(debug_setcontext) {
+    state->debug_context.filename = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND() + 4, const char*);
+    state->debug_context.line = GET_OPERAND_SIGNED();
+    state->debug_context.col = GET_OPERAND_SIGNED();
+}
+
+INSTR(debug_enterscope) {
+    state->debug_context.num_stacktrace++;
+    state->debug_context.stacktrace = realloc(state->debug_context.stacktrace, sizeof(const char*) * state->debug_context.num_stacktrace);
+    state->debug_context.stacktrace[state->debug_context.num_stacktrace - 1] =
+        vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND() + 4, const char*);
+}
+
+INSTR(debug_leavescope) {
+    state->debug_context.num_stacktrace--;
+    if (state->debug_context.num_stacktrace < 0)
+        state->debug_context.num_stacktrace = 0;
+    state->debug_context.stacktrace = realloc(state->debug_context.stacktrace, sizeof(const char*) * state->debug_context.num_stacktrace);
 }

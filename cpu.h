@@ -8,6 +8,15 @@ typedef struct CPU_State CPU_State;
 #include "memory.h"
 #include "modules.h"
 
+typedef struct Debug_Context {
+    const char* filename;
+    int line;
+    int col;
+
+    const char** stacktrace;
+    int num_stacktrace;
+} Debug_Context;
+
 typedef struct CPU_State {
     // registers
     vm_type_t pc, sp, mp, ap;
@@ -21,6 +30,8 @@ typedef struct CPU_State {
 
     Module* modules;
     vm_type_t num_modules;
+
+    Debug_Context debug_context;
 
 } CPU_State;
 

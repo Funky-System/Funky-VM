@@ -40,8 +40,11 @@ INSTR(nop);
 INSTR(halt);
 INSTR(trap);
 INSTR(int);
-INSTR(break);
 INSTR(link);
+INSTR(debug_break);
+INSTR(debug_setcontext);
+INSTR(debug_enterscope);
+INSTR(debug_leavescope);
 
 INSTR(ld_int);
 INSTR(ld_uint);
