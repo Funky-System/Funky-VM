@@ -22,6 +22,9 @@ CPU_State cpu_init(Memory* memory) {
     state.r6 = (vm_value_t) { 0 };
     state.r7 = (vm_value_t) { 0 };
 
+    state.debug_context = (Debug_Context) { .filename = NULL, .line = -1, .col = -1, .num_stacktrace = 0 };
+    state.debug_context.stacktrace = malloc(0);
+
     state.modules = k_malloc(memory, 0);
     state.num_modules = 0;
 

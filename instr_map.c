@@ -383,7 +383,7 @@ INSTR(map_merge) {
 
 void map_release(CPU_State* state, vm_pointer_t ptr) {
     vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, ptr, vm_type_t*);
-    vm_pointer_t *first_ptr = reserved_mem + 2;
+    vm_pointer_t *first_ptr = reserved_mem + 1;
     vm_pointer_t *prototype_ptr = reserved_mem + 2;
     vm_map_elem_t *elem = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
 
