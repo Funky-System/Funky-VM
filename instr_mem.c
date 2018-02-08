@@ -142,7 +142,7 @@ INSTR(ld_local) {
     AJS_STACK(+1);
     USE_STACK();
     USE_MARK();
-    *stack = *(mark + GET_OPERAND_SIGNED());
+    *stack = *(mark + 1 + GET_OPERAND_SIGNED());
 
     retain(state, stack);
 }
@@ -188,7 +188,7 @@ INSTR(ld_sref) {
     AJS_STACK(+1);
     USE_STACK();
     *stack = (vm_value_t) {
-            .uint_value = state->sp + GET_OPERAND_SIGNED() * sizeof(vm_value_t),
+            .uint_value = state->sp + (GET_OPERAND_SIGNED() - 1) * sizeof(vm_value_t),
             .type = VM_TYPE_REF
     };
 }
@@ -201,7 +201,7 @@ INSTR(ld_lref) {
     USE_STACK();
     USE_MARK();
     *stack = (vm_value_t) {
-            .uint_value = state->mp + GET_OPERAND_SIGNED() * sizeof(vm_value_t),
+            .uint_value = state->mp + (GET_OPERAND_SIGNED() + 1) * sizeof(vm_value_t),
             .type = VM_TYPE_REF
     };
 }
@@ -268,6 +268,7 @@ INSTR(st_reg) {
 INSTR(st_stack) {
     USE_STACK();
     vm_value_t *dst = stack + GET_OPERAND_SIGNED();
+    if (dst == stack) return;
     release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
@@ -277,7 +278,7 @@ INSTR(st_stack) {
 INSTR(st_local) {
     USE_STACK();
     USE_MARK();
-    vm_value_t *dst = mark + GET_OPERAND_SIGNED();
+    vm_value_t *dst = mark + 1 + GET_OPERAND_SIGNED();
     release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);

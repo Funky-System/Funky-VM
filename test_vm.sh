@@ -102,21 +102,21 @@ run_test_expect "Simple subroutine and loop" 720 << EOF
 	jmp	main
 Fac:	locals.res	1	# fac( int n )
 	LD.int	    1	# int res = 1 ;
-	st.local	1
-FacTst:	ld.local	-3	# while ( n > 1 )
+	st.local	0
+FacTst:	ld.local	-4	# while ( n > 1 )
 	LD.int	1
 	gt
 	brfalse	FacEnd
-	ld.local	-3	# res = res * n
-	ld.local	1
+	ld.local	-4	# res = res * n
+	ld.local	0
 	mul
-	st.local	1
-	ld.local	-3	# n = n - 1
+	st.local	0
+	ld.local	-4	# n = n - 1
 	LD.int	1
 	sub
-	st.local	-3
+	st.local	-4
 	jmp	FacTst
-FacEnd:	ld.local	1	# return( res )
+FacEnd:	ld.local	0	# return( res )
 	st.reg	%RR
 	locals.cleanup
 	ret
@@ -128,12 +128,12 @@ EOF
 run_test_expect "Simple recursion" 5040 << EOF
 	jmp	main
 Fac:	locals.res	0	# fac( int n )
-	ld.local	-3	# if ( n <= 1 )
+	ld.local	-4	# if ( n <= 1 )
 	LD.int	1
 	le
 	brtrue	FacTh
-	ld.local	-3	# else return( n * fac( n-1 ) ) ;
-	ld.local	-3
+	ld.local	-4	# else return( n * fac( n-1 ) ) ;
+	ld.local	-4
 	LD.int	1
 	sub
 	call	Fac, 0
@@ -153,7 +153,7 @@ EOF
 run_test_expect "If branch" 1 << EOF
 	jmp	Main
 DoIf:	locals.res	1
-	LD.local	-3
+	LD.local	-4
 	LD.int	2
 	MOD
 	LD.int	0
@@ -174,7 +174,7 @@ EOF
 run_test_expect "Else branch" 0 << EOF
 	jmp	Main
 DoIf:	locals.res	1
-	LD.local	-3
+	LD.local	-4
 	LD.int	2
 	MOD
 	LD.int	0
@@ -202,7 +202,7 @@ ld.int 'o'
 ld.int '!'
 ld.int '\n'
 ld.int '\0'
-ld.sref -8
+ld.sref -7
 int 10
 ajs -8
 ld.int 1
@@ -235,24 +235,24 @@ EOF
 run_test_expect "Arrays" 22 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
-ld.local 1
+ld.local 0
 ld.int 2
 ld.arrelem
 EOF
@@ -277,52 +277,52 @@ EOF
 run_test_expect "Arrays (length)" 4 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
-ld.local 1
+ld.local 0
 arr.len
 EOF
 
 run_test_expect "Arrays (delete)" 33 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
-ld.local 1
+ld.local 0
 ld.int 2
 del.arrelem
 
-ld.local 1
+ld.local 0
 ld.int 2
 ld.arrelem
 EOF
@@ -330,29 +330,29 @@ EOF
 run_test_expect "Arrays (insert 1)" 666 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
 ld.int 666
-ld.local 1
+ld.local 0
 ld.int 3
 arr.insert
 
-ld.local 1
+ld.local 0
 ld.int 3
 ld.arrelem
 EOF
@@ -360,29 +360,29 @@ EOF
 run_test_expect "Arrays (insert 2)" 33 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
 ld.int 666
-ld.local 1
+ld.local 0
 ld.int 3
 arr.insert
 
-ld.local 1
+ld.local 0
 ld.int 4
 ld.arrelem
 EOF
@@ -390,29 +390,29 @@ EOF
 run_test_expect "Arrays (insert 3)" 44 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
 ld.int 44
-ld.local 1
+ld.local 0
 ld.int 5
 arr.insert
 
-ld.local 1
+ld.local 0
 ld.int 5
 ld.arrelem
 EOF
@@ -420,29 +420,29 @@ EOF
 run_test_expect "Arrays (slice)" 22 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
 ld.int 44
-ld.local 1
+ld.local 0
 ld.int 5
 arr.insert
 
-ld.local 1
+ld.local 0
 ld.int 1
 ld.int 3
 arr.slice
@@ -453,29 +453,29 @@ EOF
 run_test_expect "Arrays (slice)" 4 << EOF
 locals.res 1
 ld.arr 0
-st.local 1
+st.local 0
 
 ld.int 11
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 22
-ld.local 1
+ld.local 0
 ld.int 2
 st.arrelem
 
 ld.int 33
-ld.local 1
+ld.local 0
 ld.int 3
 st.arrelem
 
 ld.int 44
-ld.local 1
+ld.local 0
 ld.int 5
 arr.insert
 
-ld.local 1
+ld.local 0
 ld.int 1
 ld.int -2
 arr.slice
@@ -485,32 +485,32 @@ EOF
 run_test_expect "Arrays (concat 1)" 4 << EOF
 locals.res 2
 ld.arr 0
-st.local 1
+st.local 0
 ld.arr 0
-st.local 2
+st.local 1
 
 ld.int 1
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 2
-ld.local 1
+ld.local 0
 ld.int 1
 st.arrelem
 
 ld.int 3
-ld.local 2
+ld.local 1
 ld.int 0
 st.arrelem
 
 ld.int 4
-ld.local 2
+ld.local 1
 ld.int 1
 st.arrelem
 
+ld.local 0
 ld.local 1
-ld.local 2
 arr.concat
 arr.len
 EOF
@@ -518,32 +518,32 @@ EOF
 run_test_expect "Arrays (concat 2)" 3 << EOF
 locals.res 2
 ld.arr 0
-st.local 1
+st.local 0
 ld.arr 0
-st.local 2
+st.local 1
 
 ld.int 1
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 2
-ld.local 1
+ld.local 0
 ld.int 1
 st.arrelem
 
 ld.int 3
-ld.local 2
+ld.local 1
 ld.int 0
 st.arrelem
 
 ld.int 4
-ld.local 2
+ld.local 1
 ld.int 1
 st.arrelem
 
+ld.local 0
 ld.local 1
-ld.local 2
 arr.concat
 ld.int 2
 ld.arrelem
@@ -552,78 +552,78 @@ EOF
 run_test_expect "Arrays (+ operator)" 3 << EOF
 locals.res 2
 ld.arr 0
-st.local 1
+st.local 0
 ld.arr 0
-st.local 2
+st.local 1
 
 ld.int 1
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 2
-ld.local 1
+ld.local 0
 ld.int 1
 st.arrelem
 
 ld.int 3
-ld.local 2
+ld.local 1
 ld.int 0
 st.arrelem
 
 ld.int 4
-ld.local 2
+ld.local 1
 ld.int 1
 st.arrelem
 
+ld.local 0
 ld.local 1
-ld.local 2
 add
 ld.int 2
 ld.arrelem
 EOF
 
 run_test_expect "Arrays (+ operator, length)" 3 << EOF
-locals.res 1
+locals.res 2
+ld.arr 0
+st.local 0
 ld.arr 0
 st.local 1
-ld.arr 0
-st.local 2
 
 ld.int 1
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 2
-ld.local 1
+ld.local 0
 ld.int 1
 st.arrelem
 
 ld.int 88
-ld.local 1
+ld.local 0
 add
 arr.len
 EOF
 
 run_test_expect "Arrays (+ operator, append)" 88 << EOF
-locals.res 1
+locals.res 2
+ld.arr 0
+st.local 0
 ld.arr 0
 st.local 1
-ld.arr 0
-st.local 2
 
 ld.int 1
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 2
-ld.local 1
+ld.local 0
 ld.int 1
 st.arrelem
 
-ld.local 1
+ld.local 0
 ld.int 88
 add
 
@@ -634,30 +634,30 @@ EOF
 run_test_expect "Arrays (copy)" 2 << EOF
 locals.res 2
 ld.arr 0
-st.local 1
+st.local 0
 ld.arr 0
-st.local 2
+st.local 1
 
 ld.int 1
-ld.local 1
+ld.local 0
 ld.int 0
 st.arrelem
 
 ld.int 2
-ld.local 1
+ld.local 0
 ld.int 1
 st.arrelem
 
-ld.local 1
+ld.local 0
 arr.copy
-st.local 2
+st.local 1
 
 ld.int 9
-ld.local 1
+ld.local 0
 ld.int 1
 st.arrelem
 
-ld.local 2
+ld.local 1
 ld.int 1
 ld.arrelem
 EOF
