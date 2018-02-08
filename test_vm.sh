@@ -2,10 +2,10 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 run_test_expect() {
-    cat /dev/stdin > .tmp_test.asm
-    echo -e "\ntrap 2\n" >> .tmp_test.asm
+    cat /dev/stdin > .tmp_test.fasm
+    echo -e "\ntrap 2\n" >> .tmp_test.fasm
     printf "%-50s" "$1"
-    ${DIR}/funky-as .tmp_test.asm -o .tmp_test.bin
+    ${DIR}/funky-as .tmp_test.fasm -o .tmp_test.funk
     output=$(${DIR}/funky-vm .tmp_test)
     if [ "$2" == "$output" ]; then
         echo -e "[  \033[32mOK\033[0m  ] ${output//$'\n'/\\\\n}"
@@ -13,7 +13,7 @@ run_test_expect() {
         echo -e "[ \033[31mFAIL\033[0m ] ${output//$'\n'/\\\\n}"
     fi
 
-    rm .tmp_test.asm .tmp_test.bin
+    rm .tmp_test.fasm .tmp_test.funk
 }
 
 run_test_expect "simple ldc 1" 4 << EOF
