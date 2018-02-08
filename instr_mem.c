@@ -247,15 +247,15 @@ INSTR(st_reg) {
         case 1: state->sp = stack->uint_value; break;
         case 2: state->mp = stack->uint_value; break;
         case 3: state->ap = stack->uint_value; break;
-        case 4: release(state, &state->rr); state->rr = *stack; break;
-        case 5: release(state, &state->r0); state->r0 = *stack; break;
-        case 6: release(state, &state->r1); state->r1 = *stack; break;
-        case 7: release(state, &state->r2); state->r2 = *stack; break;
-        case 8: release(state, &state->r3); state->r3 = *stack; break;
-        case 9: release(state, &state->r4); state->r4 = *stack; break;
-        case 10: release(state, &state->r5); state->r5 = *stack; break;
-        case 11: release(state, &state->r6); state->r6 = *stack; break;
-        case 12: release(state, &state->r7); state->r7 = *stack; break;
+        case 4: if (stack->pointer_value != state->rr.pointer_value) release(state, &state->rr); state->rr = *stack; break;
+        case 5: if (stack->pointer_value != state->r0.pointer_value) release(state, &state->r0); state->r0 = *stack; break;
+        case 6: if (stack->pointer_value != state->r1.pointer_value) release(state, &state->r1); state->r1 = *stack; break;
+        case 7: if (stack->pointer_value != state->r2.pointer_value) release(state, &state->r2); state->r2 = *stack; break;
+        case 8: if (stack->pointer_value != state->r3.pointer_value) release(state, &state->r3); state->r3 = *stack; break;
+        case 9: if (stack->pointer_value != state->r4.pointer_value) release(state, &state->r4); state->r4 = *stack; break;
+        case 10: if (stack->pointer_value != state->r5.pointer_value) release(state, &state->r5); state->r5 = *stack; break;
+        case 11: if (stack->pointer_value != state->r6.pointer_value) release(state, &state->r6); state->r6 = *stack; break;
+        case 12: if (stack->pointer_value != state->r7.pointer_value) release(state, &state->r7); state->r7 = *stack; break;
         default:
             printf("Register id %d is not defined\n", rid);
             break;
@@ -279,7 +279,8 @@ INSTR(st_local) {
     USE_STACK();
     USE_MARK();
     vm_value_t *dst = mark + 1 + GET_OPERAND_SIGNED();
-    release(state, dst);
+    if (dst->pointer_value != stack->pointer_value)
+        release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
 }
@@ -288,7 +289,8 @@ INSTR(st_local) {
 INSTR(st_addr) {
     USE_STACK();
     vm_value_t *dst = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND(), vm_value_t*);
-    release(state, dst);
+    if (dst->pointer_value != stack->pointer_value)
+        release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
 }

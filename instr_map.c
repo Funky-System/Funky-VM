@@ -388,6 +388,7 @@ void map_release(CPU_State* state, vm_pointer_t ptr) {
     vm_map_elem_t *elem = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
 
     while (1) {
+        vm_free(state->memory, elem->name);
         release(state, &elem->value);
         if (elem->next == 0) break;
         elem = vm_pointer_to_native(state->memory, elem->next, vm_map_elem_t*);
@@ -405,7 +406,7 @@ INSTR(map_setprototype) {
 
     vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 2;
 
-    if (*prototype_ptr != 0) {
+    if (*prototype_ptr != 0 && *prototype_ptr != (stack - 1)->pointer_value) {
         release_pointer(state, VM_TYPE_MAP, *prototype_ptr);
     }
 
