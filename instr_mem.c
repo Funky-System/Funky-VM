@@ -210,7 +210,16 @@ INSTR(ld_ref) {
     AJS_STACK(+1);
     USE_STACK();
     *stack = (vm_value_t) {
-            .uint_value = get_current_module(state)->addr + GET_OPERAND(),
+            .pointer_value = get_current_module(state)->addr + GET_OPERAND(),
+            .type = VM_TYPE_REF
+    };
+}
+
+INSTR(ld_addr) {
+    AJS_STACK(+1);
+    USE_STACK();
+    *stack = (vm_value_t) {
+            .pointer_value = GET_OPERAND(),
             .type = VM_TYPE_REF
     };
 }
@@ -219,7 +228,8 @@ INSTR(deref) {
     USE_STACK();
 
     assert(stack->type == VM_TYPE_REF);
-    *stack = *((vm_value_t*)(state->memory->main_memory + stack->uint_value));
+    //*stack = *((vm_value_t*)(state->memory->main_memory + stack->uint_value));
+    *stack = *vm_pointer_to_native(state->memory, stack->pointer_value, vm_value_t*);
 
     retain(state, stack);
 }
@@ -285,26 +295,22 @@ INSTR(st_local) {
     AJS_STACK(-1);
 }
 
-/// Store into memory. Pops a value from the stack and stores it at absolute address.
 INSTR(st_addr) {
     USE_STACK();
-    vm_value_t *dst = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND(), vm_value_t*);
+    vm_value_t *dst = vm_pointer_to_native(state->memory, GET_OPERAND(), vm_value_t*);
     if (dst->pointer_value != stack->pointer_value)
         release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
 }
 
-/// Store via Address. Pops 2 values from the stack and stores the second popped value in the location pointed to by the first. The pointer value is offset by a constant offset.
 INSTR(st_ref) {
     USE_STACK();
-
-    assert((stack - 1)->type == VM_TYPE_REF);
-    vm_type_t addr = (stack - 1)->uint_value;
-    vm_value_t *dst = (vm_value_t*)(state->memory->main_memory + addr + GET_OPERAND_SIGNED());
-    release(state, dst);
+    vm_value_t *dst = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND(), vm_value_t*);
+    if (dst->pointer_value != stack->pointer_value)
+        release(state, dst);
     *dst = *stack;
-    AJS_STACK(-2);
+    AJS_STACK(-1);
 }
 
 /// Adjust Stack. Adjusts the stack pointer with fixed amount.

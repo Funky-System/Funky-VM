@@ -57,6 +57,7 @@ INSTR(ld_stack);
 INSTR(ld_sref);
 INSTR(ld_lref);
 INSTR(ld_ref);
+INSTR(ld_addr);
 INSTR(ld_empty);
 INSTR(pop);
 INSTR(st_reg);

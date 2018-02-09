@@ -135,7 +135,7 @@ Instruction_Implementation instruction_implementations[256] = {
         /* 0x76 */    &instr_ge_id,
         /* 0x77 */    &instr_st_addr,
         /* 0x78 */    &instr_swp,
-        /* 0x79 */    &NOT_IMPLEMENTED,
+        /* 0x79 */    &instr_ld_addr,
         /* 0x7A */    &instr_st_arg,
         /* 0x7B */    &NOT_IMPLEMENTED,
         /* 0x7C */    &NOT_IMPLEMENTED,

@@ -45,8 +45,8 @@ enum vm_value_type_t {
     VM_TYPE_UINT,
     VM_TYPE_FLOAT,
     VM_TYPE_STRING,
-    VM_TYPE_REF,    // address of a vm_value_t somewhere
-    VM_TYPE_MAP, // address of a custom type (vm_obj_t)
+    VM_TYPE_REF,      // address of a vm_value_t somewhere
+    VM_TYPE_MAP,      // address of a custom type (vm_obj_t)
     VM_TYPE_ARRAY,
     VM_TYPE_EMPTY,
     VM_TYPE_UNKNOWN
