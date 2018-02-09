@@ -75,17 +75,20 @@ Module module_load(Memory *mem, const char* name) {
     numbytes -= sizeof(header) + sizeof(vm_type_t) * 2;
 
     // grab sufficient memory for the buffer to hold the text
-    unsigned char *module_addr = k_calloc(mem, numbytes, sizeof(unsigned char));
-    module.addr = (vm_type_t) (module_addr - mem->main_memory);
+    //unsigned char *module_addr = k_calloc(mem, numbytes, sizeof(unsigned char));
+    //module.addr = (vm_type_t) (module_addr - mem->main_memory);
+    vm_pointer_t module_addr = vm_calloc(mem, numbytes, sizeof(unsigned char));
+    unsigned char* native_module_addr = vm_pointer_to_native(mem, module_addr, unsigned char*);
+    module.addr = module_addr;
 
-    if (module_addr == NULL) {
+    if (module_addr == 0) {
         printf("Memory allocation error\nDo you have enough free memory?\n");
         exit(EXIT_FAILURE);
     }
 
-    fread(module_addr, sizeof(char), numbytes, fp);
+    fread(native_module_addr, sizeof(char), numbytes, fp);
     fclose(fp);
-    module_addr[numbytes] = 0x01; // halt
+    native_module_addr[numbytes] = 0x01; // halt
     numbytes++;
 
     module.size = (vm_type_t)numbytes;
@@ -93,8 +96,8 @@ Module module_load(Memory *mem, const char* name) {
     return module;
 }
 
-void module_unload(Memory *mem, const char* name) {
-    // TODO
+void module_unload(Memory *mem, Module* module) {
+    vm_free(mem, module->addr);
 }
 
 int module_register(CPU_State *state, Module module) {
@@ -105,7 +108,20 @@ int module_register(CPU_State *state, Module module) {
 }
 
 int module_release(CPU_State *state, const char* name) {
-    // TODO
+    for (int i = 0; i < state->num_modules; i++) {
+        if (strcmp(state->modules[i].name, name) == 0) {
+            k_free(state->memory, state->modules[i].name);
+            vm_free(state->memory, state->modules[i].addr);
+            for (int j = i + 1; j < state->num_modules; j++) {
+                state->modules[j - 1] = state->modules[j];
+            }
+            state->num_modules--;
+            state->modules = k_realloc(state->memory, state->modules, sizeof(Module) * state->num_modules);
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 Module* get_current_module(CPU_State *state) {
