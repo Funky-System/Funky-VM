@@ -20,7 +20,7 @@ typedef struct Module {
 } Module;
 
 Module module_load(Memory *mem, const char* name);
-void module_unload(Memory *mem, const char* name);
+void module_unload(Memory *mem, Module* module);
 int module_register(CPU_State *state, Module module);
 int module_release(CPU_State *state, const char* name);
 
