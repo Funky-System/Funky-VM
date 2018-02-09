@@ -57,9 +57,9 @@ vm_map_elem_t* ld_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* na
 INSTR(ld_mapitem) {
     USE_STACK();
     if (stack->type != VM_TYPE_MAP) {
-        // TODO: boxing
-        fprintf(stderr, "Error: Not a map type\n");
-        exit(EXIT_FAILURE);
+        instr_box(state);
+        //fprintf(stderr, "Error: Not a map type\n");
+        //exit(EXIT_FAILURE);
     }
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND();
     const char *name = cstr_pointer_from_vm_pointer_t(state, name_ptr) + sizeof(vm_type_t);
@@ -433,14 +433,4 @@ INSTR(map_getprototype) {
         *stack = (vm_value_t) { .type = VM_TYPE_MAP, .pointer_value = *prototype_ptr };
     }
 }
-
-/*
- * Boxing promotes a native type (int, uint, float, string, array, map) to an object that contains the value.
- * Unboxing unwraps that value back again.
- */
-
-// TODO: boxing
-INSTR_NOT_IMPLEMENTED(box);
-
-// TODO: unboxing
-INSTR_NOT_IMPLEMENTED(unbox);
+;

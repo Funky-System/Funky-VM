@@ -205,7 +205,7 @@ Instruction_Implementation instruction_implementations[256] = {
         /* 0xBC */    &instr_map_setprototype,
         /* 0xBD */    &instr_box,
         /* 0xBE */    &instr_unbox,
-        /* 0xBF */    &NOT_IMPLEMENTED,
+        /* 0xBF */    &instr_ld_boxingproto,
         /* 0xC0 */    &NOT_IMPLEMENTED,
         /* 0xC1 */    &NOT_IMPLEMENTED,
         /* 0xC2 */    &NOT_IMPLEMENTED,

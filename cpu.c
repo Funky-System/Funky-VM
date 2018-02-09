@@ -2,6 +2,7 @@
 #include "instructions.h"
 #include "liballoc_1_1.h"
 #include "memory.h"
+#include "boxing.h"
 
 CPU_State cpu_init(Memory* memory) {
     CPU_State state;
@@ -27,6 +28,8 @@ CPU_State cpu_init(Memory* memory) {
 
     state.modules = k_malloc(memory, 0);
     state.num_modules = 0;
+
+    initialize_boxing_prototypes(&state);
 
     return state;
 }

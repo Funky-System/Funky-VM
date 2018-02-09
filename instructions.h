@@ -171,5 +171,6 @@ INSTR(map_getprototype);
 INSTR(map_setprototype);
 INSTR(box);
 INSTR(unbox);
+INSTR(ld_boxingproto);
 
 #endif //PROCESSOR_INSTRUCTIONS_H
