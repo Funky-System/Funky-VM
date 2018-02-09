@@ -31,6 +31,15 @@ typedef struct CPU_State {
     Module* modules;
     vm_type_t num_modules;
 
+    struct boxing {
+        vm_pointer_t proto_int;
+        vm_pointer_t proto_uint;
+        vm_pointer_t proto_float;
+        vm_pointer_t proto_string;
+        vm_pointer_t proto_array;
+        vm_pointer_t proto_map;
+    } boxing;
+
     Debug_Context debug_context;
 
 } CPU_State;
