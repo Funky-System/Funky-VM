@@ -17,11 +17,6 @@ INSTR(halt) {
     state->running = 0;
 }
 
-INSTR(link) {
-    char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
-    module_register(state, module_load(state->memory, name));
-}
-
 INSTR(trap) {
     vm_type_t operand = GET_OPERAND();
     USE_STACK();

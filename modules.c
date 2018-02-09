@@ -10,6 +10,7 @@
 #include "modules.h"
 #include "memory.h"
 #include "cpu.h"
+#include "instructions.h"
 
 #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
 #define FLAG_LITTLE_ENDIAN 1
