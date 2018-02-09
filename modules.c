@@ -89,7 +89,7 @@ Module module_load(Memory *mem, const char* name) {
 
     fread(native_module_addr, sizeof(char), numbytes, fp);
     fclose(fp);
-    native_module_addr[numbytes] = 0x01; // halt
+    native_module_addr[numbytes] = 0x5C; // ret
     numbytes++;
 
     module.size = (vm_type_t)numbytes;

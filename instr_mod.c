@@ -37,6 +37,9 @@ INSTR(link) {
         addr += sizeof(vm_type_t);
     }
 
+    vm_value_t refval = (vm_value_t) {.type = VM_TYPE_REF, .pointer_value = module.addr + module.start_of_code};
+    st_mapitem(state, reserved_mem, "@init", &refval);
+
     AJS_STACK(+1);
     USE_STACK();
     *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = reserved_mem};

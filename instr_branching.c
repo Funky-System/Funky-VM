@@ -113,6 +113,11 @@ INSTR(ret) {
     // SP_post = SP_pre - 1
     // PC_post = M_pre[SP_pre]
 
+    if (state->sp <= state->stack_base) {
+        instr_halt(state);
+        return;
+    }
+
     AJS_STACK(-1); // num_args, we do nothing with it
     USE_STACK();
     assert(stack->type == VM_TYPE_REF);
