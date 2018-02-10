@@ -119,7 +119,9 @@ void st_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name, vm_val
     vm_map_elem_t *item = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
     while (1) {
         if (strcmp(name, vm_pointer_to_native(state->memory, item->name, char*)) == 0) {
+            vm_value_t oldval = item->value;
             item->value = *value;
+            release(state, &oldval);
             return;
         }
         if (item->next == 0) break;
@@ -390,8 +392,10 @@ void map_release(CPU_State* state, vm_pointer_t ptr) {
     while (1) {
         vm_free(state->memory, elem->name);
         release(state, &elem->value);
-        if (elem->next == 0) break;
-        elem = vm_pointer_to_native(state->memory, elem->next, vm_map_elem_t*);
+        vm_pointer_t next = elem->next;
+        k_free(state->memory, elem);
+        if (next == 0) break;
+        elem = vm_pointer_to_native(state->memory, next, vm_map_elem_t*);
     }
 
     if (*prototype_ptr != 0) {
@@ -433,4 +437,3 @@ INSTR(map_getprototype) {
         *stack = (vm_value_t) { .type = VM_TYPE_MAP, .pointer_value = *prototype_ptr };
     }
 }
-;
