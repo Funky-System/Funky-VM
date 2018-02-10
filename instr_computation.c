@@ -4,6 +4,7 @@
 
 #include "instructions.h"
 #include "vm.h"
+#include "error_handling.h"
 
 #define ARITH_OPERATOR(OP) { \
     USE_STACK(); \
@@ -31,8 +32,8 @@
         else if (stack->type == VM_TYPE_FLOAT) \
             *(stack - 1) = (vm_value_t) { .float_value = (vm_type_float_t) ((stack - 1)->float_value OP stack->float_value), .type = VM_TYPE_FLOAT }; \
     } else { \
-        printf("Operator %s has not been defined for stack type %d\n", #OP, (stack - 1)->type); \
-        exit(1); \
+        vm_error(state, "Operator %s has not been defined for stack type %d", #OP, (stack - 1)->type); \
+        vm_exit(state, 1); \
     } \
 }
 
@@ -116,8 +117,8 @@ INSTR(mod) {
         else if (stack->type == VM_TYPE_FLOAT)
             *(stack - 1) = (vm_value_t) { .float_value = (vm_type_float_t) fmodf((stack - 1)->float_value, stack->float_value), .type = VM_TYPE_FLOAT };
     } else {
-        printf("Operator %% has not been defined for stack type %d\n", (stack - 1)->type);
-        exit(1);
+        vm_error(state, "Operator %% has not been defined for stack type %d", (stack - 1)->type);
+        vm_exit(state, 1);
     }
 }
 INSTR(pow) {
@@ -146,8 +147,8 @@ INSTR(pow) {
         else if (stack->type == VM_TYPE_FLOAT)
             (stack - 1)->float_value = (vm_type_float_t) powf((stack - 1)->float_value, stack->float_value);
     } else {
-        printf("Operator pow has not been defined for stack type %d\n", (stack - 1)->type);
-        exit(1);
+        vm_error(state, "Operator pow has not been defined for stack type %d", (stack - 1)->type);
+        vm_exit(state, 1);
     }
     (stack - 1)->type = VM_TYPE_FLOAT;
 }
@@ -162,8 +163,8 @@ INSTR(neg) {
     } else if ((stack - 1)->type == VM_TYPE_FLOAT) {
         stack->float_value = (vm_type_float_t) -stack->float_value;
     } else {
-        printf("Unary operator - has not been defined for stack type %d\n", (stack - 1)->type);
-        exit(1);
+        vm_error(state, "Unary operator - has not been defined for stack type %d", (stack - 1)->type);
+        vm_exit(state, 1);
     }
 }
 
@@ -175,8 +176,8 @@ INSTR(not) {
     } else if ((stack - 1)->type == VM_TYPE_INT) {
         stack->int_value = (vm_type_signed_t) ~stack->int_value;
     } else {
-        printf("Unary operator - has not been defined for stack type %d\n", (stack - 1)->type);
-        exit(1);
+        vm_error(state, "Unary operator - has not been defined for stack type %d", (stack - 1)->type);
+        vm_exit(state, 1);
     }
 }
 
@@ -195,8 +196,8 @@ INSTR(not) {
         else if (stack->type == VM_TYPE_INT) \
             *(stack - 1) = (vm_value_t) { .int_value = (vm_type_signed_t) ((stack - 1)->int_value OP stack->int_value), .type = VM_TYPE_INT }; \
     } else { \
-        printf("Operator %s has not been defined for stack type %d\n", #OP, (stack - 1)->type); \
-        exit(1); \
+        vm_error(state, "Operator %s has not been defined for stack type %d", #OP, (stack - 1)->type); \
+        vm_exit(state, 1); \
     } \
 }
 
@@ -242,8 +243,8 @@ INSTR(rsh) {
         else if (stack->type == VM_TYPE_FLOAT) \
             (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->float_value OP stack->float_value); \
     } else { \
-        printf("Operator %s has not been defined for stack type %d\n", #OP, (stack - 1)->type); \
-        exit(1); \
+        vm_error(state, "Operator %s has not been defined for stack type %d", #OP, (stack - 1)->type); \
+        vm_exit(state, 1); \
     } \
     (stack - 1)->type = VM_TYPE_UINT; \
 }

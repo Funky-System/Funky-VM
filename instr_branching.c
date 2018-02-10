@@ -83,7 +83,7 @@ INSTR(call_pop) {
 
     AJS_STACK(+1);
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_REF);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_REF, "Not a function");
     vm_type_t jmp_addr = (stack - 1)->uint_value;
 
     (stack - 1)->uint_value = state->pc;
@@ -102,7 +102,7 @@ INSTR(jmp_pop) {
     // M_post[SP_post] = PC_pre + 1
 
     USE_STACK();
-    assert(stack->type == VM_TYPE_REF);
+    vm_assert(state, stack->type == VM_TYPE_REF, "Not a function");
     state->pc = stack->uint_value;
 
     AJS_STACK(-1);
@@ -120,14 +120,14 @@ INSTR(ret) {
 
     AJS_STACK(-1); // num_args, we do nothing with it
     USE_STACK();
-    assert(stack->type == VM_TYPE_REF);
+    vm_assert(state, stack->type == VM_TYPE_REF, "Junk on the stack, return address is lost");
     state->pc = stack->uint_value;
     AJS_STACK(-1);
 }
 
 INSTR(args_accept) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_UINT); // num passed
+    vm_assert(state, stack->type == VM_TYPE_UINT, "Number of arguments must be an unsigned integer"); // num passed
 
     vm_value_t AP_pre = { .uint_value = state->ap, .type = VM_TYPE_REF };
 
@@ -150,9 +150,9 @@ INSTR(args_accept) {
 
 INSTR(args_cleanup) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_UINT);      // num_args
-    assert((stack - 1)->type == VM_TYPE_REF); // old AP
-    assert((stack - 2)->type == VM_TYPE_REF); // return address
+    vm_assert(state, stack->type == VM_TYPE_UINT, "Number of arguments must be an unsigned integer");      // num_args
+    vm_assert(state, (stack - 1)->type == VM_TYPE_REF, "Junk on stack, AP lost"); // old AP
+    vm_assert(state, (stack - 2)->type == VM_TYPE_REF, "Junk on stack, return address lost"); // return address
 
     vm_type_t num_args = stack->uint_value;
     state->ap = (stack - 1)->uint_value;

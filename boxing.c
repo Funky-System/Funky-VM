@@ -2,6 +2,7 @@
 #include "vm.h"
 #include "instructions.h"
 #include "boxing.h"
+#include "error_handling.h"
 
 /*
  * Boxing promotes a native type (int, uint, float, string, array, map) to an object that contains the value.
@@ -52,8 +53,8 @@ INSTR(box) {
     else if (stack->type == VM_TYPE_ARRAY) *prototype_ptr = state->boxing.proto_array;
     else if (stack->type == VM_TYPE_MAP) *prototype_ptr = state->boxing.proto_map;
     else {
-        fprintf(stderr, "Can't box type %d\n", stack->type);
-        exit(EXIT_FAILURE);
+        vm_error(state, "Can't box type %d", stack->type);
+        vm_exit(state, EXIT_FAILURE);
     }
 
     st_mapitem(state, reserved_mem, "@value", &unboxed_value);
@@ -63,11 +64,11 @@ INSTR(box) {
 
 INSTR(unbox) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_MAP);
+    vm_assert(state, stack->type == VM_TYPE_MAP, "value is not an unboxable type");
     vm_map_elem_t *box_value = ld_mapitem(state, stack->pointer_value, "@value");
     if (box_value == NULL) {
-        fprintf(stderr, "Value is not a boxed type\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Value is not a boxed type");
+        vm_exit(state, EXIT_FAILURE);
     }
     vm_value_t unboxed = box_value->value;
     release(state, stack);
@@ -86,7 +87,7 @@ INSTR(ld_boxingproto) {
     else if (type == VM_TYPE_ARRAY) stack->pointer_value = state->boxing.proto_array;
     else if (type == VM_TYPE_MAP) stack->pointer_value = state->boxing.proto_map;
     else {
-        fprintf(stderr, "Can't get boxing prototype for type %d\n", type);
-        exit(EXIT_FAILURE);
+        vm_error(state, "Can't get boxing prototype for type %d", type);
+        vm_exit(state, EXIT_FAILURE);
     }
 }

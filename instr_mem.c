@@ -6,6 +6,7 @@
 #include "cpu.h"
 #include "vm.h"
 #include "memory.h"
+#include "error_handling.h"
 
 void release_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr) {
     vm_type_t *ref_count = vm_pointer_to_native(state->memory, ptr, vm_type_t*);
@@ -167,7 +168,8 @@ INSTR(ld_reg) {
         case 11: *stack = state->r6; break;
         case 12: *stack = state->r7; break;
         default:
-            printf("Register id %d is not defined\n", rid);
+            vm_error(state, "Register id %d is not defined", rid);
+            vm_exit(state, EXIT_FAILURE);
             break;
     }
 
@@ -227,7 +229,7 @@ INSTR(ld_addr) {
 INSTR(deref) {
     USE_STACK();
 
-    assert(stack->type == VM_TYPE_REF);
+    vm_assert(state, stack->type == VM_TYPE_REF, "Can't dereference value");
     //*stack = *((vm_value_t*)(state->memory->main_memory + stack->uint_value));
     *stack = *vm_pointer_to_native(state->memory, stack->pointer_value, vm_value_t*);
 
@@ -267,7 +269,8 @@ INSTR(st_reg) {
         case 11: if (stack->pointer_value != state->r6.pointer_value) release(state, &state->r6); state->r6 = *stack; break;
         case 12: if (stack->pointer_value != state->r7.pointer_value) release(state, &state->r7); state->r7 = *stack; break;
         default:
-            printf("Register id %d is not defined\n", rid);
+            vm_error(state, "Register id %d is not defined", rid);
+            vm_exit(state, EXIT_FAILURE);
             break;
     }
 
@@ -355,7 +358,7 @@ INSTR(locals_cleanup) {
     USE_MARK();
     unsigned int num_lost = (state->sp - state->mp) / sizeof(vm_value_t);
     state->sp = state->mp - sizeof(vm_value_t);
-    assert(mark->type == VM_TYPE_REF);
+    vm_assert(state, mark->type == VM_TYPE_REF, "Junk on stack, MP lost.");
     state->mp = mark->uint_value;
 
     for (int i = 1; i <= num_lost; i++) {

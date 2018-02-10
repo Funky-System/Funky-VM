@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "liballoc_1_1.h"
 #include "cpu.h"
+#include "error_handling.h"
 
 #define SET_BIT(var, bit) var |= (1 << bit)
 #define CLEAR_BIT(var, bit) var &= ~(1 << bit)
@@ -79,8 +80,8 @@ vm_type_t memory_alloc(Memory* mem, vm_type_t num_pages) {
         }
     }
 
-    fprintf(stderr, "Memory exhausted\n");
-    exit(EXIT_FAILURE);
+    vm_error(NULL, "Memory exhausted");
+    vm_exit(NULL, EXIT_FAILURE);
 }
 
 void memory_free(Memory *mem, vm_type_t addr, vm_type_t num_pages) {

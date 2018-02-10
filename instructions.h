@@ -4,12 +4,13 @@
 #include <stdio.h>
 
 #include "cpu.h"
+#include "error_handling.h"
 
 typedef void (*Instruction_Implementation)(CPU_State *state);    /* A pointer to a handler function */
 
 extern Instruction_Implementation instruction_implementations[256];
 
-#define INSTR_NOT_IMPLEMENTED(name) void instr_##name (CPU_State* s) { printf("Fatal: opcode '%s' is not implemented\n", #name); exit(EXIT_FAILURE); }
+#define INSTR_NOT_IMPLEMENTED(name) void instr_##name (CPU_State* s) { vm_error(s, "Fatal: opcode '%s' is not implemented", #name); vm_exit(s, EXIT_FAILURE); }
 #define INSTR(name) void instr_##name (CPU_State* state)
 #define GET_OPERAND() (state->pc += sizeof(vm_type_t), *(vm_type_t*)(state->memory->main_memory + state->pc - sizeof(vm_type_t)))
 #define GET_OPERAND_SIGNED() (state->pc += sizeof(vm_type_signed_t), *(vm_type_signed_t*)(state->memory->main_memory + state->pc - sizeof(vm_type_signed_t)))
@@ -45,6 +46,8 @@ INSTR(debug_break);
 INSTR(debug_setcontext);
 INSTR(debug_enterscope);
 INSTR(debug_leavescope);
+INSTR(syscall);
+INSTR(syscall_getindex);
 
 INSTR(ld_int);
 INSTR(ld_uint);

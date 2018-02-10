@@ -5,6 +5,7 @@
 #include "instructions.h"
 #include "vm.h"
 #include "cpu.h"
+#include "error_handling.h"
 
 /* -- Strings --
  * Arrays are saved in memory as a packed tuple:
@@ -25,8 +26,8 @@ char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val) {
 
 INSTR(strcat) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_STRING);
-    assert((stack - 1)->type == VM_TYPE_STRING);
+    vm_assert(state, stack->type == VM_TYPE_STRING, "String concatenation with non-string left operand");
+    vm_assert(state, (stack - 1)->type == VM_TYPE_STRING, "String concatenation with non-string right operand");
 
     vm_pointer_t reserved_mem = vm_malloc(state->memory,
             sizeof(vm_type_t)
@@ -49,7 +50,7 @@ INSTR(strcat) {
 }
 INSTR(substr) {
     USE_STACK();
-    assert((stack - 2)->type == VM_TYPE_STRING);
+    vm_assert(state, (stack - 2)->type == VM_TYPE_STRING, "Substring on non-string value");
 
     vm_type_signed_t start = (stack - 1)->int_value;
     vm_type_signed_t length = stack->int_value;
@@ -84,7 +85,7 @@ INSTR(substr) {
 
 INSTR(strlen) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_STRING);
+    vm_assert(state, stack->type == VM_TYPE_STRING, "Can't get string length from non-string value");
 
     vm_type_t len = (vm_type_t) strlen(cstr_pointer_from_vm_value(state, stack));
     release(state, stack);
@@ -137,8 +138,8 @@ void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
         case VM_TYPE_UNKNOWN:
         default:
             vm_free(state->memory, reserved_mem);
-            printf("Top of stack is of unknown type, can't convert to INT");
-            exit(EXIT_FAILURE);
+            vm_error(state, "Top of stack is of unknown type, can't convert to INT");
+            vm_exit(state, EXIT_FAILURE);
     }
     (stack + rel)->type = VM_TYPE_STRING;
 }

@@ -5,6 +5,7 @@
 #include "instructions.h"
 #include "cpu.h"
 #include "vm.h"
+#include "error_handling.h"
 
 INSTR(conv_int) {
     USE_STACK();
@@ -45,8 +46,8 @@ INSTR(conv_int) {
             //break;
         case VM_TYPE_UNKNOWN:
         default:
-            printf("Top of stack is of unknown type, can't convert to INT");
-            exit(EXIT_FAILURE);
+            vm_error(state, "Top of stack is of unknown type, can't convert to INT");
+            vm_exit(state, EXIT_FAILURE);
     }
 }
 
@@ -89,8 +90,8 @@ INSTR(conv_uint) {
             //break;
         case VM_TYPE_UNKNOWN:
         default:
-            printf("Top of stack is of unknown type, can't convert to INT");
-            exit(EXIT_FAILURE);
+            vm_error(state, "Top of stack is of unknown type, can't convert to INT");
+            vm_exit(state, EXIT_FAILURE);
     }
 }
 
@@ -133,8 +134,8 @@ INSTR(conv_float) {
             //break;
         case VM_TYPE_UNKNOWN:
         default:
-            printf("Top of stack is of unknown type, can't convert to INT");
-            exit(EXIT_FAILURE);
+            vm_error(state, "Top of stack is of unknown type, can't convert to INT");
+            vm_exit(state, EXIT_FAILURE);
     }
 }
 

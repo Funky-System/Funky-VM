@@ -76,5 +76,6 @@ typedef struct {
 #include "cpu.h"
 #include "modules.h"
 #include "memory.h"
+#include "syscall.h"
 
 #endif //VM_H

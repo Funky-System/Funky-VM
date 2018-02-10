@@ -11,6 +11,7 @@
 #include "memory.h"
 #include "cpu.h"
 #include "instructions.h"
+#include "error_handling.h"
 
 #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
 #define FLAG_LITTLE_ENDIAN 1
@@ -26,9 +27,9 @@ Module module_load(Memory *mem, const char* name) {
     fp = fopen(filename, "r");
     if (fp == NULL) {
         int errnum = errno;
-        printf("Error: Could not open file %s\n", filename);
-        printf("%s\n", strerror(errnum));
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Error: Could not open file %s\n", filename);
+        vm_error(NULL, "%s", strerror(errnum));
+        vm_exit(state, EXIT_FAILURE);
     }
 
     module.name = k_malloc(mem, strlen(name) + 1);
@@ -45,25 +46,25 @@ Module module_load(Memory *mem, const char* name) {
 
     if (numbytes < (long) sizeof(header)) {
         printf("%s is not a valid BSMB file\n", filename);
-        exit(EXIT_FAILURE);
+        vm_exit(state, EXIT_FAILURE);
     }
 
     fread(&header, sizeof(char), sizeof(header), fp);
 
     if (header[0] != 'f' || header[1] != 'u' || header[2] != 'n' | header[3] != 'k') {
         printf("%s is not a valid Funky bytecode file\n", filename);
-        exit(EXIT_FAILURE);
+        vm_exit(state, EXIT_FAILURE);
     }
 
     if ((header[4] & FLAG_LITTLE_ENDIAN) == 0 && !IS_BIG_ENDIAN) {
         printf("%s is compiled for big endian systems. This system is little endian.\n", filename);
-        exit(EXIT_FAILURE);
+        vm_exit(state, EXIT_FAILURE);
     }
 
     if (header[5] != sizeof(vm_type_t)) {
         printf("%s is compiled for %d virtual bits. This system is %u virtual bits.\n", filename, header[5] * 8,
                (unsigned int) sizeof(vm_type_t) * 8);
-        exit(EXIT_FAILURE);
+        vm_exit(state, EXIT_FAILURE);
     }
 
     vm_type_t num_exports, start_of_code;
@@ -83,8 +84,8 @@ Module module_load(Memory *mem, const char* name) {
     module.addr = module_addr;
 
     if (module_addr == 0) {
-        printf("Memory allocation error\nDo you have enough free memory?\n");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Memory allocation error\nDo you have enough free memory?\n");
+        vm_exit(state, EXIT_FAILURE);
     }
 
     fread(native_module_addr, sizeof(char), numbytes, fp);

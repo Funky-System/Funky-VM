@@ -8,7 +8,7 @@ add_definitions(-DVM_ARCH_BITS=32)
 add_library(funky-vm
         cpu.c  instructions.c instr_cpu.c instr_mem.c instr_computation.c instr_branching.c
         instr_convert.c instr_string.c memory.c instr_array.c
-        liballoc_1_1.c modules.c instr_mod.c instr_map.c boxing.c boxing.h)
+        liballoc_1_1.c modules.c instr_mod.c instr_map.c boxing.c boxing.h error_handling.c error_handling.h syscall.c syscall.h)
 
 add_executable(funky-vm-bin vm.c)
 target_link_libraries(funky-vm-bin m funky-vm)

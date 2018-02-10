@@ -43,7 +43,7 @@ INSTR(ld_arr) {
 
 INSTR(ld_arrelem) {
     USE_STACK();
-    assert((stack-1)->type == VM_TYPE_ARRAY);
+    vm_assert(state, (stack-1)->type == VM_TYPE_ARRAY, "value is not an array");
     instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
 
     vm_type_signed_t index = stack->int_value;
@@ -55,8 +55,8 @@ INSTR(ld_arrelem) {
     if (index < 0) index = len + index;
 
     if (index > len - 1 || index < 0) {
-        fprintf(stderr, "Error: index is out of range\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
     }
     vm_pointer_t *array_ptr = reserved_mem + 2;
     vm_value_t *array = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
@@ -72,7 +72,7 @@ INSTR(ld_arrelem) {
 
 INSTR(st_arrelem) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_ARRAY);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "value is not an array");
     instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
 
     vm_type_signed_t index = stack->int_value;
@@ -83,8 +83,8 @@ INSTR(st_arrelem) {
     // Negative index is index from end
     if (index < 0) index = *len + index;
     if (index < 0) {
-        fprintf(stderr, "Error: index is out of range\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
     }
 
     vm_pointer_t *array_ptr = reserved_mem + 2;
@@ -108,7 +108,7 @@ INSTR(st_arrelem) {
 
 INSTR(del_arrelem) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_ARRAY);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "value is not an array");
     instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
 
     vm_type_signed_t index = stack->int_value;
@@ -120,8 +120,8 @@ INSTR(del_arrelem) {
     if (index < 0) index = *len + index;
 
     if (index > *len - 1 || index < 0) {
-        fprintf(stderr, "Error: index is out of range\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
     }
 
     vm_pointer_t *array_ptr = reserved_mem + 2;
@@ -152,7 +152,7 @@ INSTR(del_arrelem) {
 
 INSTR(arr_len) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_ARRAY);
+    vm_assert(state, stack->type == VM_TYPE_ARRAY, "value is not an array");
 
     vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, stack->pointer_value, vm_type_t*);
     vm_type_t len = *(reserved_mem + 1);
@@ -162,7 +162,7 @@ INSTR(arr_len) {
 }
 
 vm_type_t arr_len(CPU_State *state, vm_value_t *arrayval) {
-    assert(arrayval->type == VM_TYPE_ARRAY);
+    vm_assert(state, arrayval->type == VM_TYPE_ARRAY, "value is not an array");
 
     vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, arrayval->pointer_value, vm_type_t*);
     vm_type_t *len = reserved_mem + 1;
@@ -172,7 +172,7 @@ vm_type_t arr_len(CPU_State *state, vm_value_t *arrayval) {
 
 
 void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm_type_signed_t index) {
-    assert(arrayval->type == VM_TYPE_ARRAY);
+    vm_assert(state, arrayval->type == VM_TYPE_ARRAY, "value is not an array");
 
     vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, arrayval->pointer_value, vm_type_t*);
     vm_type_t *len = reserved_mem + 1;
@@ -180,8 +180,8 @@ void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm
     // Negative index is index from end
     if (index < 0) index = *len + index;
     if (index < 0) {
-        fprintf(stderr, "Error: index is out of range\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
     }
 
     if (index > *len - 1) {
@@ -217,7 +217,7 @@ void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm
 
 INSTR(arr_insert) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_ARRAY);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "value is not an array");
     instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
 
     vm_type_signed_t index = stack->int_value;
@@ -231,7 +231,7 @@ INSTR(arr_insert) {
 
 INSTR(arr_slice) {
     USE_STACK();
-    assert((stack - 2)->type == VM_TYPE_ARRAY);
+    vm_assert(state, (stack - 2)->type == VM_TYPE_ARRAY, "value is not an array");
 
     vm_type_t *orig_reserved_mem = vm_pointer_to_native(state->memory, (stack - 2)->pointer_value, vm_type_t*);
     vm_type_t *orig_len = orig_reserved_mem + 1;
@@ -246,18 +246,18 @@ INSTR(arr_slice) {
 
     if (start < 0) start = *orig_len + start;
     if (start < 0 || start > *orig_len - 1) {
-        fprintf(stderr, "Error: index is out of range\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
     }
     if (end < 0) end = *orig_len + end;
     if (end < 0 || end > *orig_len - 1) {
-        fprintf(stderr, "Error: index is out of range\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
     }
 
     if (start > end) {
-        fprintf(stderr, "Error: slice has negative length\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "Error: slice has negative length");
+        vm_exit(state, EXIT_FAILURE);
     }
 
     vm_type_t reserved_mem = vm_malloc(state->memory, sizeof(vm_type_t) * 3);
@@ -285,8 +285,8 @@ INSTR(arr_slice) {
 
 INSTR(arr_concat) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_ARRAY);
-    assert(stack->type == VM_TYPE_ARRAY);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "left operand is not an array");
+    vm_assert(state, stack->type == VM_TYPE_ARRAY, "right operand is not an array");
 
     vm_type_t *first_reserved_mem = vm_pointer_to_native(state->memory, (stack - 1)->pointer_value, vm_type_t*);
     vm_type_t *first_len = first_reserved_mem + 1;
@@ -329,7 +329,7 @@ INSTR(arr_concat) {
 
 INSTR(arr_copy) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_ARRAY);
+    vm_assert(state, stack->type == VM_TYPE_ARRAY, "value is not an array");
 
     vm_type_t *orig_reserved_mem = vm_pointer_to_native(state->memory, (stack)->pointer_value, vm_type_t*);
     vm_type_t *orig_len = orig_reserved_mem + 1;

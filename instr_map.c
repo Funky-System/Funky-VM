@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "instructions.h"
 #include "vm.h"
+#include "error_handling.h"
 
 INSTR(ld_map) {
     USE_STACK();
@@ -58,7 +59,7 @@ INSTR(ld_mapitem) {
     USE_STACK();
     if (stack->type != VM_TYPE_MAP) {
         instr_box(state);
-        //fprintf(stderr, "Error: Not a map type\n");
+        //vm_error(state, "Error: Not a map type\n");
         //exit(EXIT_FAILURE);
     }
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND();
@@ -79,8 +80,8 @@ INSTR(ld_mapitem) {
 
 INSTR(ld_mapitem_pop) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_MAP);
-    assert(stack->type == VM_TYPE_STRING);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_MAP, "value is not a map type");
+    vm_assert(state, stack->type == VM_TYPE_STRING, "map reference is not of string type");
     const char *name = cstr_pointer_from_vm_value(state, stack);
 
     vm_value_t val;
@@ -145,7 +146,7 @@ void st_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name, vm_val
 
 INSTR(st_mapitem) {
     USE_STACK();
-    assert((stack)->type == VM_TYPE_MAP);
+    vm_assert(state, (stack)->type == VM_TYPE_MAP, "value is not a map type");
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
     const char *name = cstr_pointer_from_vm_pointer_t(state, name_ptr);
     st_mapitem(state, stack->pointer_value, name, stack - 1);
@@ -156,8 +157,8 @@ INSTR(st_mapitem) {
 
 INSTR(st_mapitem_pop) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_MAP);
-    assert((stack)->type == VM_TYPE_STRING);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_MAP, "value is not a map type");
+    vm_assert(state, (stack)->type == VM_TYPE_STRING, "map reference is not of string type");
     const char *name = cstr_pointer_from_vm_value(state, stack);
     st_mapitem(state, (stack - 1)->pointer_value, name, stack - 2);
     release(state, stack - 1); // release the map
@@ -170,8 +171,8 @@ void del_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name) {
     vm_pointer_t *first_ptr = vm_pointer_to_native(state->memory, map_ptr, vm_pointer_t*) + 1;
 
     if (*first_ptr == 0) {
-        fprintf(stderr, "Error: map is empty\n");
-        exit(EXIT_FAILURE);
+        vm_error(state, "map is empty");
+        vm_exit(state, EXIT_FAILURE);
     }
 
     vm_map_elem_t *item = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
@@ -198,13 +199,13 @@ void del_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name) {
     }
 
     // If we're here, this is a new item
-    fprintf(stderr, "Error: map does not contain element with key '%s'\n", name);
-    exit(EXIT_FAILURE);
+    vm_error(state, "map does not contain element with key '%s'", name);
+    vm_exit(state, EXIT_FAILURE);
 }
 
 INSTR(del_mapitem) {
     USE_STACK();
-    assert((stack)->type == VM_TYPE_MAP);
+    vm_assert(state, (stack)->type == VM_TYPE_MAP, "value is not a map type");
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
     const char *name = cstr_pointer_from_vm_pointer_t(state, name_ptr);
     del_mapitem(state, stack->pointer_value, name);
@@ -214,8 +215,8 @@ INSTR(del_mapitem) {
 
 INSTR(del_mapitem_pop) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_MAP);
-    assert((stack)->type == VM_TYPE_STRING);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_MAP, "value is not a map type");
+    vm_assert(state, (stack)->type == VM_TYPE_STRING, "map reference is not of string type");
     const char *name = cstr_pointer_from_vm_value(state, stack);
     del_mapitem(state, (stack - 1)->pointer_value, name);
     release(state, stack - 1); // release the map
@@ -244,7 +245,8 @@ vm_type_t map_contains_key(CPU_State *state, vm_pointer_t map_ptr, const char* n
 
 INSTR(has_mapitem) {
     USE_STACK();
-    assert((stack)->type == VM_TYPE_MAP);
+    vm_assert(state, (stack)->type == VM_TYPE_MAP, "value is not a map type");
+
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
     const char *name = cstr_pointer_from_vm_pointer_t(state, name_ptr);
 
@@ -257,8 +259,8 @@ INSTR(has_mapitem) {
 
 INSTR(has_mapitem_pop) {
     USE_STACK();
-    assert((stack - 1)->type == VM_TYPE_MAP);
-    assert((stack)->type == VM_TYPE_STRING);
+    vm_assert(state, (stack - 1)->type == VM_TYPE_MAP, "value is not a map type");
+    vm_assert(state, (stack)->type == VM_TYPE_STRING, "map reference is not of string type");
     const char *name = cstr_pointer_from_vm_value(state, stack);
 
     vm_type_t contains = map_contains_key(state, (stack - 1)->pointer_value, name);
@@ -272,7 +274,7 @@ INSTR(has_mapitem_pop) {
 
 INSTR(map_copy) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_MAP);
+    vm_assert(state, stack->type == VM_TYPE_MAP, "value is not a map type");
 
     vm_value_t mapval;
     mapval.type = VM_TYPE_MAP;
@@ -310,7 +312,7 @@ INSTR(map_copy) {
 
 INSTR(map_len) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_MAP);
+    vm_assert(state, stack->type == VM_TYPE_MAP, "value is not a map type");
 
     vm_pointer_t *item_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 1;
     vm_type_t len = 0;
@@ -333,8 +335,8 @@ INSTR(map_len) {
 
 INSTR(map_merge) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_MAP);
-    assert((stack - 1)->type == VM_TYPE_MAP);
+    vm_assert(state, stack->type == VM_TYPE_MAP, "right operand value is not a map type");
+    vm_assert(state, (stack - 1)->type == VM_TYPE_MAP, "left operand value is not a map type");
 
     vm_value_t mapval;
     mapval.type = VM_TYPE_MAP;
@@ -405,8 +407,8 @@ void map_release(CPU_State* state, vm_pointer_t ptr) {
 
 INSTR(map_setprototype) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_MAP); // the map
-    assert((stack - 1)->type == VM_TYPE_MAP); // the prototype
+    vm_assert(state, stack->type == VM_TYPE_MAP, "value is not a map type"); // the map
+    vm_assert(state, (stack - 1)->type == VM_TYPE_MAP, "value is not a map type"); // the prototype
 
     vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 2;
 
@@ -424,7 +426,7 @@ INSTR(map_setprototype) {
 
 INSTR(map_getprototype) {
     USE_STACK();
-    assert(stack->type == VM_TYPE_MAP); // the map
+    vm_assert(state, stack->type == VM_TYPE_MAP, "value is not a map type"); // the map
 
     vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 2;
 

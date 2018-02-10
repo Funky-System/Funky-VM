@@ -6,11 +6,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "instructions.h"
+#include "error_handling.h"
 
 void NOT_IMPLEMENTED(CPU_State* s) {
     int opcode = 0; // TODO
-    printf("Fatal: opcode %#02X is not implemented\n", opcode);
-    exit(EXIT_FAILURE);
+    vm_error(s, "Fatal: opcode %#02X is not implemented", opcode);
+    vm_exit(s, EXIT_FAILURE);
 }
 
 Instruction_Implementation instruction_implementations[256] = {
@@ -28,8 +29,8 @@ Instruction_Implementation instruction_implementations[256] = {
         /* 0x0B */    &NOT_IMPLEMENTED,
         /* 0x0C */    &NOT_IMPLEMENTED,
         /* 0x0D */    &NOT_IMPLEMENTED,
-        /* 0x0E */    &NOT_IMPLEMENTED,
-        /* 0x0F */    &NOT_IMPLEMENTED,
+        /* 0x0E */    &instr_syscall_getindex,
+        /* 0x0F */    &instr_syscall,
         /* 0x10 */    &instr_ld_int,
         /* 0x11 */    &instr_ld_uint,
         /* 0x12 */    &instr_ld_float,

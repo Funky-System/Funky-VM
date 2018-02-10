@@ -8,12 +8,19 @@ typedef struct CPU_State CPU_State;
 #include "memory.h"
 #include "modules.h"
 
+typedef struct Stacktrace_Frame {
+    const char* name;
+    const char* filename;
+    int line;
+    int col;
+} Stacktrace_Frame;
+
 typedef struct Debug_Context {
     const char* filename;
     int line;
     int col;
 
-    const char** stacktrace;
+    Stacktrace_Frame* stacktrace;
     int num_stacktrace;
 } Debug_Context;
 
