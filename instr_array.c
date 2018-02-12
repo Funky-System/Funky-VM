@@ -43,6 +43,12 @@ INSTR(ld_arr) {
 
 INSTR(ld_arrelem) {
     USE_STACK();
+
+    if ((stack-1)->type == VM_TYPE_STRING) {
+        ld_arrelem_str(state);
+        return;
+    }
+
     vm_assert(state, (stack-1)->type == VM_TYPE_ARRAY, "value is not an array");
     instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
 
@@ -72,6 +78,12 @@ INSTR(ld_arrelem) {
 
 INSTR(st_arrelem) {
     USE_STACK();
+
+    if ((stack-1)->type == VM_TYPE_STRING) {
+        st_arrelem_str(state);
+        return;
+    }
+
     vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "value is not an array");
     instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
 
@@ -231,6 +243,12 @@ INSTR(arr_insert) {
 
 INSTR(arr_slice) {
     USE_STACK();
+
+    if ((stack-2)->type == VM_TYPE_STRING) {
+        arr_slice_str(state);
+        return;
+    }
+
     vm_assert(state, (stack - 2)->type == VM_TYPE_ARRAY, "value is not an array");
 
     vm_type_t *orig_reserved_mem = vm_pointer_to_native(state->memory, (stack - 2)->pointer_value, vm_type_t*);

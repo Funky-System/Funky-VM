@@ -25,6 +25,9 @@ int is_ptr_in_static_memory(CPU_State *state, vm_value_t *val);
 void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel);
 void str_eq(CPU_State *state);
 void str_ne(CPU_State *state);
+void ld_arrelem_str(CPU_State *state);
+void st_arrelem_str(CPU_State *state);
+void arr_slice_str(CPU_State *state);
 
 void arr_release(CPU_State* state, vm_pointer_t ptr);
 void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm_type_signed_t index);

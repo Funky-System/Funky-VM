@@ -193,3 +193,69 @@ void str_ne(CPU_State *state) {
     (stack - 1)->int_value = ne;
     AJS_STACK(-1);
 }
+
+void ld_arrelem_str(CPU_State *state) {
+    USE_STACK();
+
+    vm_assert(state, (stack-1)->type == VM_TYPE_STRING, "value is not a string");
+    instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
+
+    vm_type_signed_t index = stack->int_value;
+
+    const char *str = (const char*)cstr_pointer_from_vm_value(state, stack - 1);
+    vm_type_t len = (vm_type_t)strlen(str);
+
+    // Negative index is index from end
+    if (index < 0) index = len + index;
+
+    if (index > len - 1 || index < 0) {
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
+    }
+
+    vm_value_t val = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = ((const unsigned char *)str)[index] };
+    release(state, stack - 1); // release the string
+
+    *(stack - 1) = val;
+
+    AJS_STACK(-1);
+}
+
+void st_arrelem_str(CPU_State *state) {
+    USE_STACK();
+
+    vm_assert(state, (stack-1)->type == VM_TYPE_STRING, "value is not a string");
+    instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
+
+    vm_type_signed_t index = stack->int_value;
+
+    char *str = cstr_pointer_from_vm_value(state, stack - 1);
+    vm_type_t len = (vm_type_t)strlen(str);
+
+    // Negative index is index from end
+    if (index < 0) index = len + index;
+    if (index < 0) {
+        vm_error(state, "Error: index is out of range");
+        vm_exit(state, EXIT_FAILURE);
+    }
+
+    str[index] = (char)((stack - 2)->uint_value);
+
+    release(state, stack - 1); // release the string
+    AJS_STACK(-3);
+
+}
+
+void arr_slice_str(CPU_State *state) {
+    // str.substr expects a start position and length, but arr.slice expects a start position and an inclusive
+    // end position
+
+    USE_STACK();
+
+    vm_value_t* start = stack - 1;
+    vm_value_t* end = stack;
+
+    end->int_value -= start->int_value - 1;
+
+    instr_substr(state);
+}
