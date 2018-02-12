@@ -17,12 +17,14 @@ typedef struct Module {
     vm_type_t num_exports;
     vm_type_t start_of_code;
     vm_type_t size;
+    vm_pointer_t ref_map;
 } Module;
 
 Module module_load(Memory *mem, const char* name);
 void module_unload(Memory *mem, Module* module);
 int module_register(CPU_State *state, Module module);
 int module_release(CPU_State *state, const char* name);
+Module *module_get(CPU_State *state, const char* name);
 
 Module* get_current_module(CPU_State *state);
 

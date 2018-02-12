@@ -12,8 +12,16 @@
 
 INSTR(link) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
+
+    Module *existing = module_get(state, name);
+    if (existing != NULL) {
+        AJS_STACK(+1);
+        USE_STACK();
+        *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = existing->ref_map};
+        return;
+    }
+
     Module module = module_load(state->memory, name);
-    module_register(state, module);
 
     vm_pointer_t reserved_mem     = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for first item
     vm_type_t *ref_count          = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
@@ -43,6 +51,10 @@ INSTR(link) {
     AJS_STACK(+1);
     USE_STACK();
     *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = reserved_mem};
+
+    module.ref_map = reserved_mem;
+
+    module_register(state, module);
 }
 
 INSTR_NOT_IMPLEMENTED(unlink);

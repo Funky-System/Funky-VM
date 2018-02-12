@@ -126,6 +126,17 @@ int module_release(CPU_State *state, const char* name) {
     return 0;
 }
 
+Module *module_get(CPU_State *state, const char* name) {
+    for (int i = 0; i < state->num_modules; i++) {
+        if (strcmp(state->modules[i].name, name) == 0) {
+            return &state->modules[i];
+        }
+    }
+
+    return NULL;
+
+}
+
 Module* get_current_module(CPU_State *state) {
     for (int i = 0; i < state->num_modules; i++) {
         if (state->pc >= state->modules[i].addr && state->pc < state->modules[i].addr + state->modules[i].size) {
