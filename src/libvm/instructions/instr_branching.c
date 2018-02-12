@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "vm.h"
+#include "../../../include/funkyvm/funkyvm.h"
 
 #include "instructions.h"
 

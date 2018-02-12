@@ -7,7 +7,7 @@
 
 typedef struct Module Module;
 
-#include "vm.h"
+#include "funkyvm.h"
 #include "memory.h"
 #include "cpu.h"
 

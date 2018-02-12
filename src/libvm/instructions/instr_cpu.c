@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <memory.h>
 #include "instructions.h"
-#include "cpu.h"
-#include "vm.h"
-#include "memory.h"
+#include "../../../include/funkyvm/cpu.h"
+#include "../../../include/funkyvm/funkyvm.h"
+#include "../../../include/funkyvm/memory.h"
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))

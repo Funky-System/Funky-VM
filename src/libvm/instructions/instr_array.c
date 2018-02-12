@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "instructions.h"
-#include "vm.h"
+#include "../../../include/funkyvm/funkyvm.h"
 
 /* -- Arrays --
  * Arrays are saved in memory as a packed tuple:

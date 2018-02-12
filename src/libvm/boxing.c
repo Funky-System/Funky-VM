@@ -1,6 +1,6 @@
 #include <assert.h>
-#include "vm.h"
-#include "instructions.h"
+#include "funkyvm/funkyvm.h"
+#include "instructions/instructions.h"
 #include "boxing.h"
 #include "error_handling.h"
 

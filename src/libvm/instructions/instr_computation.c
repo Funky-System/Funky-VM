@@ -3,8 +3,8 @@
 #include <math.h>
 
 #include "instructions.h"
-#include "vm.h"
-#include "error_handling.h"
+#include "../../../include/funkyvm/funkyvm.h"
+#include "../error_handling.h"
 
 #define ARITH_OPERATOR(OP) { \
     USE_STACK(); \

@@ -5,7 +5,7 @@
 #ifndef FUNKY_VM_BOXING_H
 #define FUNKY_VM_BOXING_H
 
-#include "cpu.h"
+#include "../../include/funkyvm/cpu.h"
 
 void initialize_boxing_prototypes(CPU_State *state);
 void st_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name, vm_value_t* value);

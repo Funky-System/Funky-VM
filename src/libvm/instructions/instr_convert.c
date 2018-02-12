@@ -3,9 +3,8 @@
 #include <assert.h>
 
 #include "instructions.h"
-#include "cpu.h"
-#include "vm.h"
-#include "error_handling.h"
+#include "funkyvm/funkyvm.h"
+#include "../error_handling.h"
 
 INSTR(conv_int) {
     USE_STACK();

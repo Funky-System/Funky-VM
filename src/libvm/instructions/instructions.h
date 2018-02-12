@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#include "cpu.h"
-#include "error_handling.h"
+#include "../../../include/funkyvm/cpu.h"
+#include "../error_handling.h"
 
 typedef void (*Instruction_Implementation)(CPU_State *state);    /* A pointer to a handler function */
 

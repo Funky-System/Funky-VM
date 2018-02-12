@@ -5,7 +5,7 @@
 #ifndef FUNKY_VM_BINDINGS_H
 #define FUNKY_VM_BINDINGS_H
 
-#include "cpu.h"
+#include "../../include/funkyvm/cpu.h"
 
 void register_bindings(CPU_State *state);
 

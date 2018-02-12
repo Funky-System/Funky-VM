@@ -3,10 +3,10 @@
 #include <assert.h>
 
 #include "instructions.h"
-#include "cpu.h"
-#include "vm.h"
-#include "memory.h"
-#include "error_handling.h"
+#include "../../../include/funkyvm/cpu.h"
+#include "../../../include/funkyvm/funkyvm.h"
+#include "../../../include/funkyvm/memory.h"
+#include "../error_handling.h"
 
 void release_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr) {
     vm_type_t *ref_count = vm_pointer_to_native(state->memory, ptr, vm_type_t*);

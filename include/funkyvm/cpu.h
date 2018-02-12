@@ -4,7 +4,7 @@
 typedef struct CPU_State CPU_State;
 
 #include <stdint.h>
-#include "vm.h"
+#include "funkyvm.h"
 #include "memory.h"
 #include "modules.h"
 #include "syscall.h"

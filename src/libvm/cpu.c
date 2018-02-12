@@ -1,7 +1,7 @@
-#include "cpu.h"
-#include "instructions.h"
+#include "funkyvm/cpu.h"
+#include "instructions/instructions.h"
 #include "liballoc_1_1.h"
-#include "memory.h"
+#include "funkyvm/memory.h"
 #include "boxing.h"
 
 CPU_State cpu_init(Memory* memory) {

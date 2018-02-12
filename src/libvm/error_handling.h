@@ -5,7 +5,7 @@
 #ifndef FUNKY_VM_ERROR_HANDLING_H
 #define FUNKY_VM_ERROR_HANDLING_H
 
-#include "vm.h"
+#include "funkyvm/funkyvm.h"
 
 #define vm_exit(state, res) exit(res)
 

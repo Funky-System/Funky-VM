@@ -1,6 +1,6 @@
 #include <string.h>
-#include "instructions.h"
-#include "vm.h"
+#include "instructions/instructions.h"
+#include "funkyvm/funkyvm.h"
 
 int register_syscall(CPU_State* state, const char* name, vm_syscall_t fn) {
     state->num_syscalls++;

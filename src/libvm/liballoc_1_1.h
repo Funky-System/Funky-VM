@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 
-#include "cpu.h"
+#include "funkyvm/cpu.h"
 
 
 // If we are told to not define our own size_t, then we skip the define.

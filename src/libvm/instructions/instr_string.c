@@ -3,9 +3,9 @@
 #include <assert.h>
 #include <memory.h>
 #include "instructions.h"
-#include "vm.h"
-#include "cpu.h"
-#include "error_handling.h"
+#include "../../../include/funkyvm/funkyvm.h"
+#include "../../../include/funkyvm/cpu.h"
+#include "../error_handling.h"
 
 /* -- Strings --
  * Arrays are saved in memory as a packed tuple:

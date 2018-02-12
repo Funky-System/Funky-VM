@@ -1,8 +1,8 @@
 #include <memory.h>
 #include <assert.h>
 #include "instructions.h"
-#include "vm.h"
-#include "error_handling.h"
+#include "../../../include/funkyvm/funkyvm.h"
+#include "../error_handling.h"
 
 INSTR(ld_map) {
     USE_STACK();

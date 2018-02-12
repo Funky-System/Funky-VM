@@ -7,10 +7,10 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "modules.h"
-#include "memory.h"
-#include "cpu.h"
-#include "instructions.h"
+#include "funkyvm/modules.h"
+#include "funkyvm/memory.h"
+#include "funkyvm/cpu.h"
+#include "instructions/instructions.h"
 #include "error_handling.h"
 
 #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})

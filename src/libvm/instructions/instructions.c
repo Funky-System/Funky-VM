@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "instructions.h"
-#include "error_handling.h"
+#include "../error_handling.h"
 
 void NOT_IMPLEMENTED(CPU_State* s) {
     int opcode = 0; // TODO

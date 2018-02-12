@@ -5,7 +5,7 @@
 #ifndef FUNKY_VM_SYSCALL_H
 #define FUNKY_VM_SYSCALL_H
 
-#include "vm.h"
+#include "funkyvm.h"
 
 #define STACK_VALUE(STATE, i) ((vm_value_t *)(STATE->memory->main_memory + STATE->sp + i * sizeof(vm_value_t)))
 

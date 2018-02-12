@@ -4,12 +4,12 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "vm.h"
+#include "funkyvm/funkyvm.h"
 
 #define OPTPARSE_IMPLEMENTATION
 #define OPTPARSE_API static
 #include "optparse.h"
-#include "bindings.h"
+#include "libvm/bindings.h"
 
 int main(int argc, char **argv) {
     static_assert(sizeof(vm_type_t) == sizeof(vm_type_signed_t), "vm_type_t and vm_type_signed_t must be of equal size");

@@ -5,10 +5,8 @@
 #include <strings.h>
 
 #include "instructions.h"
-#include "modules.h"
-#include "memory.h"
-#include "vm.h"
-#include "boxing.h"
+#include "funkyvm/funkyvm.h"
+#include "../boxing.h"
 
 INSTR(link) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
