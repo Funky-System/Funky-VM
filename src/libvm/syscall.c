@@ -57,6 +57,28 @@ INSTR(syscall_getindex) {
     };
 }
 
+INSTR(syscall_getindex_pop) {
+    USE_STACK();
+
+    char *name = cstr_pointer_from_vm_value(state, stack);
+
+    for (int i = 0; i < state->num_syscalls; i++) {
+        if (strcmp(state->syscall_table[i].name, name) == 0) {
+            release(state, stack);
+            *stack = (vm_value_t) {
+                    .type = VM_TYPE_INT,
+                    .int_value = i
+            };
+            return;
+        }
+    }
+
+    *stack = (vm_value_t) {
+            .type = VM_TYPE_INT,
+            .int_value = -1
+    };
+}
+
 INSTR(syscall_byname) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
 

@@ -26,7 +26,7 @@ Instruction_Implementation instruction_implementations[256] = {
         /* 0x08 */    &instr_debug_leavescope,
         /* 0x09 */    &instr_unlink,
         /* 0x0A */    &NOT_IMPLEMENTED,
-        /* 0x0B */    &NOT_IMPLEMENTED,
+        /* 0x0B */    &instr_syscall_getindex_pop,
         /* 0x0C */    &instr_syscall_getindex,
         /* 0x0D */    &instr_syscall_byname,
         /* 0x0E */    &instr_syscall,

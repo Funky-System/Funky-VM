@@ -52,6 +52,7 @@ INSTR(debug_enterscope);
 INSTR(debug_leavescope);
 INSTR(syscall);
 INSTR(syscall_getindex);
+INSTR(syscall_getindex_pop);
 INSTR(syscall_byname);
 INSTR(syscall_pop);
 
