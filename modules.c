@@ -79,7 +79,7 @@ Module module_load(Memory *mem, const char* name) {
     // grab sufficient memory for the buffer to hold the text
     //unsigned char *module_addr = k_calloc(mem, numbytes, sizeof(unsigned char));
     //module.addr = (vm_type_t) (module_addr - mem->main_memory);
-    vm_pointer_t module_addr = vm_calloc(mem, numbytes, sizeof(unsigned char));
+    vm_pointer_t module_addr = vm_calloc(mem, numbytes + 1, sizeof(unsigned char));
     unsigned char* native_module_addr = vm_pointer_to_native(mem, module_addr, unsigned char*);
     module.addr = module_addr;
 

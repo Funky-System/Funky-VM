@@ -22,12 +22,6 @@ extern Instruction_Implementation instruction_implementations[256];
 #define USE_ARGS() vm_value_t *args = ((vm_value_t *)(state->memory->main_memory + state->ap))
 
 int is_ptr_in_static_memory(CPU_State *state, vm_value_t *val);
-void retain(CPU_State *state, vm_value_t *ptr);
-void release(CPU_State *state, vm_value_t *ptr);
-void release_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr);
-void retain_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr);
-char *cstr_pointer_from_vm_pointer_t(CPU_State* state, vm_pointer_t ptr);
-char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val);
 void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel);
 void str_eq(CPU_State *state);
 
@@ -50,6 +44,8 @@ INSTR(debug_enterscope);
 INSTR(debug_leavescope);
 INSTR(syscall);
 INSTR(syscall_getindex);
+INSTR(syscall_byname);
+INSTR(syscall_pop);
 
 INSTR(ld_int);
 INSTR(ld_uint);

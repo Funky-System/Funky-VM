@@ -9,6 +9,7 @@
 #define OPTPARSE_IMPLEMENTATION
 #define OPTPARSE_API static
 #include "optparse.h"
+#include "bindings.h"
 
 int main(int argc, char **argv) {
     static_assert(sizeof(vm_type_t) == sizeof(vm_type_signed_t), "vm_type_t and vm_type_signed_t must be of equal size");
@@ -65,6 +66,8 @@ int main(int argc, char **argv) {
     int kernel_set = 0;
 
     CPU_State state = cpu_init(&memory);
+
+    register_bindings(&state);
 
     char *filename;
     while ((filename = optparse_arg(&options))) {

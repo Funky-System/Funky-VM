@@ -7,6 +7,8 @@
 
 #include "vm.h"
 
+#define STACK_VALUE(STATE, i) ((vm_value_t *)(STATE->memory->main_memory + STATE->sp + i * sizeof(vm_value_t)))
+
 typedef void (*vm_syscall_t)(CPU_State *state);
 
 typedef struct vm_syscall_table_t {

@@ -27,4 +27,11 @@ extern void     k_free(Memory *,void *);	        	///< The standard function.
 #define vm_calloc(MEMORY, NUM, SIZE) ((vm_pointer_t) ((unsigned char *)k_calloc(MEMORY, NUM, SIZE) - MEMORY->main_memory))
 #define vm_free(MEMORY, POINTER) k_free(MEMORY, MEMORY->main_memory + POINTER)
 
+void retain(CPU_State *state, vm_value_t *ptr);
+void release(CPU_State *state, vm_value_t *ptr);
+void release_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr);
+void retain_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t ptr);
+char *cstr_pointer_from_vm_pointer_t(CPU_State* state, vm_pointer_t ptr);
+char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val);
+
 #endif //VM_MEMORY_H

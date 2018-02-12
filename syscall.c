@@ -1,5 +1,6 @@
 #include <string.h>
 #include "instructions.h"
+#include "vm.h"
 
 int register_syscall(CPU_State* state, const char* name, vm_syscall_t fn) {
     state->num_syscalls++;
@@ -28,6 +29,12 @@ INSTR(syscall) {
     state->syscall_table[GET_OPERAND()].fn(state);
 }
 
+INSTR(syscall_pop) {
+    AJS_STACK(-1);
+    USE_STACK();
+    state->syscall_table[(stack + 1)->int_value].fn(state);
+}
+
 INSTR(syscall_getindex) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
 
@@ -48,4 +55,18 @@ INSTR(syscall_getindex) {
             .type = VM_TYPE_INT,
             .int_value = -1
     };
+}
+
+INSTR(syscall_byname) {
+    char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
+
+    for (int i = 0; i < state->num_syscalls; i++) {
+        if (strcmp(state->syscall_table[i].name, name) == 0) {
+            state->syscall_table[i].fn(state);
+            return;
+        }
+    }
+
+    vm_error(state, "Invalid syscall '%s'", name);
+    vm_exit(state, EXIT_FAILURE);
 }

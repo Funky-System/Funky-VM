@@ -10,7 +10,7 @@ add_library(funky-vm
         instr_convert.c instr_string.c memory.c instr_array.c
         liballoc_1_1.c modules.c instr_mod.c instr_map.c boxing.c boxing.h error_handling.c error_handling.h syscall.c syscall.h)
 
-add_executable(funky-vm-bin vm.c)
+add_executable(funky-vm-bin vm.c bindings.c bindings.h)
 target_link_libraries(funky-vm-bin m funky-vm)
 target_link_libraries(funky-vm m)
 set_target_properties(funky-vm-bin PROPERTIES OUTPUT_NAME funky-vm)
