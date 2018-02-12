@@ -7,6 +7,7 @@ typedef struct CPU_State CPU_State;
 #include "vm.h"
 #include "memory.h"
 #include "modules.h"
+#include "syscall.h"
 
 typedef struct Stacktrace_Frame {
     const char* name;
@@ -37,6 +38,9 @@ typedef struct CPU_State {
 
     Module* modules;
     vm_type_t num_modules;
+
+    vm_syscall_table_t* syscall_table;
+    vm_type_t num_syscalls;
 
     struct boxing {
         vm_pointer_t proto_int;

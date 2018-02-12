@@ -29,6 +29,9 @@ CPU_State cpu_init(Memory* memory) {
     state.modules = k_malloc(memory, 0);
     state.num_modules = 0;
 
+    state.syscall_table = k_malloc(memory, 0);
+    state.num_syscalls = 0;
+
     initialize_boxing_prototypes(&state);
 
     return state;
