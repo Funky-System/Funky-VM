@@ -45,6 +45,8 @@ INSTR(link) {
     *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = reserved_mem};
 }
 
+INSTR_NOT_IMPLEMENTED(unlink);
+
 INSTR(ld_extern) {
     char *module = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);

@@ -48,6 +48,7 @@ INSTR(strcat) {
 
     AJS_STACK(-1);
 }
+
 INSTR(substr) {
     USE_STACK();
     vm_assert(state, (stack - 2)->type == VM_TYPE_STRING, "Substring on non-string value");
@@ -58,7 +59,7 @@ INSTR(substr) {
     vm_type_signed_t orig_length = (vm_type_signed_t) strlen(cstr_pointer_from_vm_value(state, stack - 2));
 
     if (length < 0) {
-        length = orig_length - start + length;
+        length = orig_length - start + length + 1;
         if (length < 0) length = 0;
     }
 
@@ -146,4 +147,17 @@ void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
 
 INSTR(conv_str) {
     instr_conv_str_rel(state, 0);
+}
+
+void str_eq(CPU_State *state) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_STRING, "String concatenation with non-string left operand");
+    vm_assert(state, (stack - 1)->type == VM_TYPE_STRING, "String concatenation with non-string right operand");
+
+    const char *str1 = cstr_pointer_from_vm_value(state, stack - 1);
+    const char *str2 = cstr_pointer_from_vm_value(state, stack);
+
+    (stack - 1)->type = VM_TYPE_INT;
+    (stack - 1)->int_value = strcmp(str1, str2) == 0;
+    AJS_STACK(-1);
 }

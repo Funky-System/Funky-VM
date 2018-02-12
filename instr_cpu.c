@@ -189,6 +189,11 @@ INSTR(trap) {
                         vm_type_t arr_len = *(arr_reserved_mem + 1);
 
                         printf("array (%4d)  | Array of length %-4d          |\n", arr_ref_count, arr_len);
+                    } else if (val.type == VM_TYPE_MAP) {
+                        vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value, vm_type_t*);
+                        vm_type_t ref_count = *(reserved_mem);
+
+                        printf("map (%4d)    | Map                           |\n", ref_count);
                     } else if (val.type == VM_TYPE_EMPTY) {
                         printf("Empty         |                               |\n");
                     } else {

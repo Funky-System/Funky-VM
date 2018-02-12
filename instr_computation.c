@@ -254,6 +254,14 @@ INSTR(cmp) {
     instr_sub(state);
 }
 INSTR(eq) {
+    {
+        USE_STACK();
+        if ((stack - 1)->type == VM_TYPE_STRING && stack->type == VM_TYPE_STRING) {
+            str_eq(state);
+            return;
+        }
+    }
+
     COMPARE_OPERATOR(==);
 }
 INSTR(ne) {

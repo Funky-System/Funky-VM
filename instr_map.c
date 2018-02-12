@@ -86,7 +86,7 @@ INSTR(ld_mapitem_pop) {
 
     vm_value_t val;
 
-    vm_map_elem_t *elem = ld_mapitem(state, stack->pointer_value, name);
+    vm_map_elem_t *elem = ld_mapitem(state, (stack - 1)->pointer_value, name);
     if (elem == NULL) {
         val.type = VM_TYPE_EMPTY;
     } else {
@@ -159,7 +159,9 @@ INSTR(st_mapitem_pop) {
     USE_STACK();
     vm_assert(state, (stack - 1)->type == VM_TYPE_MAP, "value is not a map type");
     vm_assert(state, (stack)->type == VM_TYPE_STRING, "map reference is not of string type");
+
     const char *name = cstr_pointer_from_vm_value(state, stack);
+
     st_mapitem(state, (stack - 1)->pointer_value, name, stack - 2);
     release(state, stack - 1); // release the map
     release(state, stack); // release the name
@@ -438,4 +440,117 @@ INSTR(map_getprototype) {
         release(state, stack);
         *stack = (vm_value_t) { .type = VM_TYPE_MAP, .pointer_value = *prototype_ptr };
     }
+}
+
+vm_type_t map_rename_key(CPU_State *state, vm_pointer_t map_ptr, const char* old_name, const char* new_name) {
+    vm_pointer_t *item_ptr = vm_pointer_to_native(state->memory, map_ptr, vm_pointer_t*) + 1;
+
+    if (*item_ptr == 0) return 0;
+
+    vm_map_elem_t *item = vm_pointer_to_native(state->memory, *item_ptr, vm_map_elem_t*);
+
+    while (item != 0) {
+        if (strcmp(old_name, vm_pointer_to_native(state->memory, item->name, const char*)) == 0) {
+            vm_free(state->memory, item->name);
+            item->name = vm_malloc(state->memory, strlen(new_name) + 1);
+            strcpy(vm_pointer_to_native(state->memory, item->name, char*), new_name);
+            return 1;
+        }
+        if (item->next == 0) break;
+        item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
+    }
+
+    return 0;
+}
+
+INSTR(map_renamekey) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_MAP, "value is not a map type"); // the map
+
+    vm_pointer_t old_name_ptr = get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
+    const char *old_name = cstr_pointer_from_vm_pointer_t(state, old_name_ptr);
+
+    vm_pointer_t new_name_ptr = get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
+    const char *new_name = cstr_pointer_from_vm_pointer_t(state, new_name_ptr);
+
+    map_rename_key(state, stack->pointer_value, old_name, new_name);
+
+    AJS_STACK(-1);
+}
+
+INSTR(map_renamekey_pop) {
+    USE_STACK();
+    vm_assert(state, (stack - 2)->type == VM_TYPE_MAP, "value is not a map type");
+    vm_assert(state, (stack - 1)->type == VM_TYPE_STRING, "value is not a string");
+    vm_assert(state, (stack)->type == VM_TYPE_STRING, "value is not a string");
+
+    const char *new_name = cstr_pointer_from_vm_value(state, stack);
+    const char *old_name = cstr_pointer_from_vm_value(state, stack - 1);
+
+    map_rename_key(state, (stack - 2)->pointer_value, old_name, new_name);
+
+    AJS_STACK(-3);
+}
+
+INSTR(map_getkeys) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_MAP, "value is not a map type");
+
+    vm_value_t arrayval;
+    arrayval.type = VM_TYPE_ARRAY;
+
+    vm_pointer_t reserved_mem = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for length
+    vm_type_t *ref_count      = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
+    vm_type_t *length         = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*) + 1;
+    vm_pointer_t *array_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 2;
+
+    *ref_count = 1;
+
+    vm_pointer_t *item_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 1;
+    vm_type_t len = 0;
+
+    if (*item_ptr != 0) {
+        vm_map_elem_t *item = vm_pointer_to_native(state->memory, *item_ptr, vm_map_elem_t*);
+
+        while (1) {
+            len++;
+
+            if (item->next == 0) break;
+            item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
+        }
+    }
+
+    *length = len;
+
+    *array_ptr = vm_malloc(state->memory, *length * sizeof(vm_value_t));
+    vm_value_t *array = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
+
+    item_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 1;
+    if (*item_ptr != 0) {
+        vm_map_elem_t *item = vm_pointer_to_native(state->memory, *item_ptr, vm_map_elem_t*);
+        int i = 0;
+        while (1) {
+            // create string
+            vm_pointer_t str_reserved_mem = vm_malloc(state->memory,
+                                                  sizeof(vm_type_t)
+                                                  + strlen(cstr_pointer_from_vm_pointer_t(state, item->name))
+                                                  + 1);
+            vm_type_t *str_ref_count = vm_pointer_to_native(state->memory, str_reserved_mem, vm_type_t*);
+            char *str = vm_pointer_to_native(state->memory, str_reserved_mem + sizeof(vm_type_t), char*);
+            *str_ref_count = 1;
+            strcpy(str, cstr_pointer_from_vm_pointer_t(state, item->name));
+
+            array[i] = (vm_value_t) { .type = VM_TYPE_STRING, .pointer_value = str_reserved_mem };
+
+            if (item->next == 0) break;
+            item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
+            i++;
+        }
+    }
+
+    release(state, stack);
+
+    arrayval.pointer_value = reserved_mem;
+
+    *stack = arrayval;
 }

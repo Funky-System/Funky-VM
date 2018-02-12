@@ -29,6 +29,7 @@ void retain_pointer(CPU_State *state, enum vm_value_type_t type, vm_pointer_t pt
 char *cstr_pointer_from_vm_pointer_t(CPU_State* state, vm_pointer_t ptr);
 char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val);
 void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel);
+void str_eq(CPU_State *state);
 
 void arr_release(CPU_State* state, vm_pointer_t ptr);
 void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm_type_signed_t index);
@@ -42,6 +43,7 @@ INSTR(halt);
 INSTR(trap);
 INSTR(int);
 INSTR(link);
+INSTR(unlink);
 INSTR(debug_break);
 INSTR(debug_setcontext);
 INSTR(debug_enterscope);
@@ -176,5 +178,8 @@ INSTR(map_setprototype);
 INSTR(box);
 INSTR(unbox);
 INSTR(ld_boxingproto);
+INSTR(map_renamekey);
+INSTR(map_renamekey_pop);
+INSTR(map_getkeys);
 
 #endif //PROCESSOR_INSTRUCTIONS_H

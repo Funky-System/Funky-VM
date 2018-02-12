@@ -2,8 +2,9 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 run_test_expect() {
-    cat /dev/stdin > .tmp_test.fasm
-    echo -e "\ntrap 2\n" >> .tmp_test.fasm
+    echo -e "locals.res 0\n\n" > .tmp_test.fasm
+    cat /dev/stdin >> .tmp_test.fasm
+    echo -e "st.reg %r0\nlocals.cleanup\nld.reg %r0\ntrap 2\npop\n" >> .tmp_test.fasm
     printf "%-50s" "$1"
     ${DIR}/funky-as .tmp_test.fasm -o .tmp_test.funk
     output=$(${DIR}/funky-vm .tmp_test)
@@ -255,6 +256,9 @@ st.arrelem
 ld.local 0
 ld.int 2
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (init)" 3 << EOF
@@ -296,6 +300,9 @@ st.arrelem
 
 ld.local 0
 arr.len
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (delete)" 33 << EOF
@@ -325,6 +332,9 @@ del.arrelem
 ld.local 0
 ld.int 2
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (insert 1)" 666 << EOF
@@ -355,6 +365,9 @@ arr.insert
 ld.local 0
 ld.int 3
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (insert 2)" 33 << EOF
@@ -385,6 +398,9 @@ arr.insert
 ld.local 0
 ld.int 4
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (insert 3)" 44 << EOF
@@ -415,6 +431,9 @@ arr.insert
 ld.local 0
 ld.int 5
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (slice)" 22 << EOF
@@ -448,6 +467,9 @@ ld.int 3
 arr.slice
 ld.int 1
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (slice)" 4 << EOF
@@ -480,6 +502,9 @@ ld.int 1
 ld.int -2
 arr.slice
 arr.len
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (concat 1)" 4 << EOF
@@ -513,6 +538,9 @@ ld.local 0
 ld.local 1
 arr.concat
 arr.len
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (concat 2)" 3 << EOF
@@ -547,6 +575,9 @@ ld.local 1
 arr.concat
 ld.int 2
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (+ operator)" 3 << EOF
@@ -581,6 +612,9 @@ ld.local 1
 add
 ld.int 2
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (+ operator, length)" 3 << EOF
@@ -604,6 +638,9 @@ ld.int 88
 ld.local 0
 add
 arr.len
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (+ operator, append)" 88 << EOF
@@ -629,6 +666,9 @@ add
 
 ld.int 2
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
 
 run_test_expect "Arrays (copy)" 2 << EOF
@@ -660,4 +700,7 @@ st.arrelem
 ld.local 1
 ld.int 1
 ld.arrelem
+st.reg %r0
+locals.cleanup
+ld.reg %r0
 EOF
