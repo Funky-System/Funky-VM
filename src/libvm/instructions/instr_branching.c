@@ -181,6 +181,20 @@ INSTR(st_arg) {
     USE_STACK();
     USE_ARGS();
     vm_value_t *dst = args + GET_OPERAND_SIGNED();
+    if (dst == stack) return;
+    release(state, dst);
+    *dst = *stack;
+    AJS_STACK(-1);
+}
+
+INSTR(st_arg_pop) {
+    AJS_STACK(-1);
+    USE_STACK();
+    vm_type_signed_t rel = (stack + 1)->int_value;
+
+    USE_ARGS();
+    vm_value_t *dst = args + rel;
+    if (dst == stack) return;
     release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);

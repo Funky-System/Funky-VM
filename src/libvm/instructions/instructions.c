@@ -162,7 +162,7 @@ Instruction_Implementation instruction_implementations[256] = {
         /* 0x90 */    &instr_ld_extern,
         /* 0x91 */    &instr_ld_empty,
         /* 0x92 */    &instr_st_stack_pop,
-        /* 0x93 */    &NOT_IMPLEMENTED,
+        /* 0x93 */    &instr_st_arg_pop,
         /* 0x94 */    &NOT_IMPLEMENTED,
         /* 0x95 */    &NOT_IMPLEMENTED,
         /* 0x96 */    &NOT_IMPLEMENTED,

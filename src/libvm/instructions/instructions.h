@@ -72,6 +72,7 @@ INSTR(pop);
 INSTR(st_reg);
 INSTR(st_stack);
 INSTR(st_stack_pop);
+INSTR(st_arg_pop);
 INSTR(st_local);
 INSTR(st_ref);
 INSTR(st_addr);
