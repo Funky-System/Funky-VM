@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <funkyvm/funkyvm.h>
 
 #include "instructions.h"
 #include "../../../include/funkyvm/cpu.h"
@@ -281,6 +282,18 @@ INSTR(st_reg) {
 INSTR(st_stack) {
     USE_STACK();
     vm_value_t *dst = stack + GET_OPERAND_SIGNED();
+    if (dst == stack) return;
+    release(state, dst);
+    *dst = *stack;
+    AJS_STACK(-1);
+}
+
+INSTR(st_stack_pop) {
+    AJS_STACK(-1);
+    USE_STACK();
+    vm_type_signed_t rel = (stack + 1)->int_value;
+
+    vm_value_t *dst = stack + rel;
     if (dst == stack) return;
     release(state, dst);
     *dst = *stack;

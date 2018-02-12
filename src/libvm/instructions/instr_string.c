@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <memory.h>
+#include <funkyvm/funkyvm.h>
 #include "instructions.h"
 #include "../../../include/funkyvm/funkyvm.h"
 #include "../../../include/funkyvm/cpu.h"
@@ -94,7 +95,7 @@ INSTR(strlen) {
     stack->type = VM_TYPE_UINT;
 }
 
-void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
+int instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
     USE_STACK();
     vm_pointer_t reserved_mem = vm_malloc(state->memory,
                                           sizeof(vm_type_t)
@@ -131,8 +132,31 @@ void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
             // TODO
             //break;
         case VM_TYPE_MAP:
-            // TODO
-            //break;
+            {
+                vm_map_elem_t *elem = ld_mapitem(state, (stack + rel)->pointer_value, "string");
+                if (elem != NULL) {
+                    state->r1 = *(stack + rel);
+
+                    state->r7.type = VM_TYPE_INT;
+                    state->r7.int_value = rel;
+
+                    AJS_STACK(+2);
+                    USE_STACK();
+                    vm_type_t addr = elem->value.pointer_value;
+                    vm_type_t num_args = 0;
+                    (stack - 1)->uint_value = state->pc - 1;
+                    (stack - 1)->type = VM_TYPE_REF;
+
+                    state->pc = addr;
+
+                    *stack = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = num_args };
+                    return 1;
+                } else {
+                    strcpy(str, "(map)");
+                    (stack + rel)->pointer_value = reserved_mem;
+                }
+            }
+            break;
         case VM_TYPE_ARRAY:
             // TODO
             //break;
@@ -143,6 +167,8 @@ void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
             vm_exit(state, EXIT_FAILURE);
     }
     (stack + rel)->type = VM_TYPE_STRING;
+
+    return 0;
 }
 
 INSTR(conv_str) {
@@ -152,11 +178,11 @@ INSTR(conv_str) {
 void str_eq(CPU_State *state) {
     USE_STACK();
     if (stack->type != VM_TYPE_STRING) {
-        instr_conv_str_rel(state, 0);
+        if (instr_conv_str_rel(state, 0)) return;
     }
 
     if ((stack - 1)->type != VM_TYPE_STRING) {
-        instr_conv_str_rel(state, -1);
+        if (instr_conv_str_rel(state, -1)) return;
     }
 
     const char *str1 = cstr_pointer_from_vm_value(state, stack - 1);
