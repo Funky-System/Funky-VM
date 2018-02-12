@@ -57,6 +57,10 @@ void memory_init(Memory *mem, unsigned char *main_memory) {
     mem->lock = 0;
 }
 
+void memory_destroy(Memory *mem) {
+    free(mem->bitmap);
+}
+
 int memory_is_free(Memory* mem, vm_type_t addr) {
     vm_type_t i = addr >> bitshift;
     vm_type_t bit = addr / PAGE_SIZE % 8;

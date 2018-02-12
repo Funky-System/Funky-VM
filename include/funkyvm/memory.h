@@ -13,6 +13,7 @@ typedef struct {
 } Memory;
 
 void memory_init(Memory *mem, unsigned char *main_memory);
+void memory_destroy(Memory *mem);
 void memory_print_bitmap_debug(Memory *mem);
 
 extern void    *k_malloc(Memory *,size_t);				///< The standard function.

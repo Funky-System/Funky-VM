@@ -62,7 +62,7 @@ INSTR(add) {
     if ((stack - 1)->type == VM_TYPE_STRING) {
         // lhs is string, this is string concatenation
         if (stack->type != VM_TYPE_STRING) {
-            if (instr_conv_str_rel(state, 0)) return;
+            if (conv_str_rel(state, 0)) return;
         }
         instr_strcat(state);
         return;
@@ -71,7 +71,7 @@ INSTR(add) {
     if (stack->type == VM_TYPE_STRING) {
         // rhs is string, this is string concatenation
         if ((stack - 1)->type != VM_TYPE_STRING) {
-            if (instr_conv_str_rel(state, -1)) return;
+            if (conv_str_rel(state, -1)) return;
         }
         instr_strcat(state);
         return;

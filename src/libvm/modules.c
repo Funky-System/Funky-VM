@@ -19,7 +19,7 @@
 Module module_load(Memory *mem, const char* name) {
     Module module;
 
-    char* filename = malloc(strlen(name) + 1 + 4);
+    char* filename = malloc(strlen(name) + 1 + 5);
     strcpy(filename, name);
     strcat(filename, ".funk");
 
@@ -66,6 +66,8 @@ Module module_load(Memory *mem, const char* name) {
                (unsigned int) sizeof(vm_type_t) * 8);
         vm_exit(state, EXIT_FAILURE);
     }
+
+    free(filename);
 
     vm_type_t num_exports, start_of_code;
     fread(&num_exports, sizeof(vm_type_t), 1, fp);

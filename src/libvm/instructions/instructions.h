@@ -22,7 +22,7 @@ extern Instruction_Implementation instruction_implementations[256];
 #define USE_ARGS() vm_value_t *args = ((vm_value_t *)(state->memory->main_memory + state->ap))
 
 int is_ptr_in_static_memory(CPU_State *state, vm_value_t *val);
-int instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel);
+int conv_str_rel(CPU_State *state, vm_type_signed_t rel);
 void str_eq(CPU_State *state);
 void str_ne(CPU_State *state);
 void ld_arrelem_str(CPU_State *state);

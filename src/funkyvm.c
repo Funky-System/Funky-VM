@@ -9,7 +9,7 @@
 #define OPTPARSE_IMPLEMENTATION
 #define OPTPARSE_API static
 #include "optparse.h"
-#include "libvm/bindings.h"
+#include "bindings.h"
 
 int main(int argc, char **argv) {
     static_assert(sizeof(vm_type_t) == sizeof(vm_type_signed_t), "vm_type_t and vm_type_signed_t must be of equal size");
@@ -84,6 +84,7 @@ int main(int argc, char **argv) {
     vm_type_t ret = cpu_run(&state);
 
     free(main_memory);
+    memory_destroy(&memory);
 
     return ret;
 }

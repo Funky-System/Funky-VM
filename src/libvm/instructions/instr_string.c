@@ -95,7 +95,7 @@ INSTR(strlen) {
     stack->type = VM_TYPE_UINT;
 }
 
-int instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
+int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
     USE_STACK();
     vm_pointer_t reserved_mem = vm_malloc(state->memory,
                                           sizeof(vm_type_t)
@@ -172,17 +172,17 @@ int instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel) {
 }
 
 INSTR(conv_str) {
-    instr_conv_str_rel(state, 0);
+    conv_str_rel(state, 0);
 }
 
 void str_eq(CPU_State *state) {
     USE_STACK();
     if (stack->type != VM_TYPE_STRING) {
-        if (instr_conv_str_rel(state, 0)) return;
+        if (conv_str_rel(state, 0)) return;
     }
 
     if ((stack - 1)->type != VM_TYPE_STRING) {
-        if (instr_conv_str_rel(state, -1)) return;
+        if (conv_str_rel(state, -1)) return;
     }
 
     const char *str1 = cstr_pointer_from_vm_value(state, stack - 1);
@@ -201,11 +201,11 @@ void str_eq(CPU_State *state) {
 void str_ne(CPU_State *state) {
     USE_STACK();
     if (stack->type != VM_TYPE_STRING) {
-        instr_conv_str_rel(state, 0);
+        conv_str_rel(state, 0);
     }
 
     if ((stack - 1)->type != VM_TYPE_STRING) {
-        instr_conv_str_rel(state, -1);
+        conv_str_rel(state, -1);
     }
     const char *str1 = cstr_pointer_from_vm_value(state, stack - 1);
     const char *str2 = cstr_pointer_from_vm_value(state, stack);
