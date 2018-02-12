@@ -151,13 +151,45 @@ INSTR(conv_str) {
 
 void str_eq(CPU_State *state) {
     USE_STACK();
-    vm_assert(state, stack->type == VM_TYPE_STRING, "String concatenation with non-string left operand");
-    vm_assert(state, (stack - 1)->type == VM_TYPE_STRING, "String concatenation with non-string right operand");
+    if (stack->type != VM_TYPE_STRING) {
+        instr_conv_str_rel(state, 0);
+    }
+
+    if ((stack - 1)->type != VM_TYPE_STRING) {
+        instr_conv_str_rel(state, -1);
+    }
 
     const char *str1 = cstr_pointer_from_vm_value(state, stack - 1);
     const char *str2 = cstr_pointer_from_vm_value(state, stack);
 
+    vm_type_signed_t eq = strcmp(str1, str2) == 0;
+
+    release(state, stack);
+    release(state, stack - 1);
+
     (stack - 1)->type = VM_TYPE_INT;
-    (stack - 1)->int_value = strcmp(str1, str2) == 0;
+    (stack - 1)->int_value = eq;
+    AJS_STACK(-1);
+}
+
+void str_ne(CPU_State *state) {
+    USE_STACK();
+    if (stack->type != VM_TYPE_STRING) {
+        instr_conv_str_rel(state, 0);
+    }
+
+    if ((stack - 1)->type != VM_TYPE_STRING) {
+        instr_conv_str_rel(state, -1);
+    }
+    const char *str1 = cstr_pointer_from_vm_value(state, stack - 1);
+    const char *str2 = cstr_pointer_from_vm_value(state, stack);
+
+    vm_type_signed_t ne = strcmp(str1, str2) != 0;
+
+    release(state, stack);
+    release(state, stack - 1);
+
+    (stack - 1)->type = VM_TYPE_INT;
+    (stack - 1)->int_value = ne;
     AJS_STACK(-1);
 }

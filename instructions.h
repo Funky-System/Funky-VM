@@ -24,11 +24,14 @@ extern Instruction_Implementation instruction_implementations[256];
 int is_ptr_in_static_memory(CPU_State *state, vm_value_t *val);
 void instr_conv_str_rel(CPU_State* state, vm_type_signed_t rel);
 void str_eq(CPU_State *state);
+void str_ne(CPU_State *state);
 
 void arr_release(CPU_State* state, vm_pointer_t ptr);
 void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm_type_signed_t index);
 vm_type_t arr_len(CPU_State *state, vm_value_t *arrayval);
 void instr_conv_arr_rel(CPU_State* state, vm_type_signed_t rel);
+void arr_eq(CPU_State *state);
+void arr_ne(CPU_State *state);
 
 void map_release(CPU_State* state, vm_pointer_t ptr);
 

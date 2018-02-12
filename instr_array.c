@@ -434,3 +434,55 @@ INSTR(arr_range) {
 
     AJS_STACK(-1);
 }
+
+void arr_compare(CPU_State *state, Instruction_Implementation compare_instr) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_ARRAY, "right operand is not an array");
+    vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "left operand is not an array");
+
+    vm_type_t *a_reserved_mem = vm_pointer_to_native(state->memory, (stack - 1)->pointer_value, vm_type_t*);
+    vm_type_t *a_len = a_reserved_mem + 1;
+    vm_pointer_t *a_array_ptr = a_reserved_mem + 2;
+    vm_value_t *a_array = vm_pointer_to_native(state->memory, *a_array_ptr, vm_value_t*);
+
+    vm_type_t *b_reserved_mem = vm_pointer_to_native(state->memory, (stack)->pointer_value, vm_type_t*);
+    vm_type_t *b_len = b_reserved_mem + 1;
+    vm_pointer_t *b_array_ptr = b_reserved_mem + 2;
+    vm_value_t *b_array = vm_pointer_to_native(state->memory, *b_array_ptr, vm_value_t*);
+
+    vm_type_t eq = 1;
+
+    if (*a_len != *b_len) {
+        eq = 0;
+    } else {
+        for (int i = 0; i < *a_len; i++) {
+            *(stack + 1) = a_array[i];
+            *(stack + 2) = b_array[i];
+            retain(state, &a_array[i]);
+            retain(state, &b_array[i]);
+            AJS_STACK(+2);
+            compare_instr(state);
+            vm_type_signed_t res = (stack + 1)->int_value;
+            AJS_STACK(-1);
+            if (!res) {
+                eq = 0;
+                break;
+            }
+        }
+    }
+
+    release(state, stack);
+    release(state, stack - 1);
+
+    (stack - 1)->type = VM_TYPE_INT;
+    (stack - 1)->int_value = eq;
+    AJS_STACK(-1);
+}
+
+void arr_eq(CPU_State *state) {
+    arr_compare(state, instr_eq);
+}
+
+void arr_ne(CPU_State *state) {
+    arr_compare(state, instr_ne);
+}
