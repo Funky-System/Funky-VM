@@ -1,0 +1,61 @@
+- instruction: link
+  category: modules
+  opcode: "0x04"
+  description: Loads a funk module into memory and pushes a map with named references.
+  operands:
+    - type: string
+      description: Name of module
+  stack_post:
+    - type: map
+      description: Named references that have been exported from module
+  
+- instruction: strcat
+  category: strings
+  opcode: "0x60"
+  description: Concatenate two strings.
+  stack_pre:
+    - type: string
+      description: the second string
+    - type: string
+      description: the first string
+  stack_post:
+    - type: string
+      description: Concatenation of first + second string
+  
+- instruction: substr
+  category: strings
+  opcode: "0x61"
+  description: Pushes a substring of string on top of stack.
+  stack_pre:
+    - type: int
+      description: length (negative length counts from end)
+    - type: int
+      description: start index
+    - type: string
+      description: the string
+  stack_post:
+    - type: string
+      description: substring result
+  
+- instruction: strlen
+  category: strings
+  opcode: "0x62"
+  description: Puts length of string on the stack.
+  stack_pre:
+    - type: string
+      description: the string
+  stack_post:
+    - type: uint
+      description: length of string
+  
+- instruction: conv.str
+  category: strings
+  opcode: "0x23"
+  description: Convert top of stack to string.
+  stack_pre:
+    - type: any
+      description: any value convertable to string
+  stack_post:
+    - type: string
+      description: converted string
+  

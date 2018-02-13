@@ -8,6 +8,19 @@
 #include "funkyvm/funkyvm.h"
 #include "../boxing.h"
 
+/**!
+ * instruction: link
+ * category: modules
+ * opcode: "0x04"
+ * description: Loads a funk module into memory and pushes a map with named references.
+ * extra_info: If the name does not end in <code>.funk</code>, the VM adds it.
+ * operands:
+ *   - type: string
+ *     description: Name of module
+ * stack_post:
+ *   - type: map
+ *     description: Named references that have been exported from module
+ */
 INSTR(link) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
 
