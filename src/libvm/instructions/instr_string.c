@@ -95,6 +95,16 @@ INSTR(strlen) {
     stack->type = VM_TYPE_UINT;
 }
 
+/**
+ * Converts a value on the stack to string. Do not call this function after calls to GET_OPERAND() and such, which alter
+ * the Program Counter (PC). If you must, rewind the PC to the first byte right after the current instruction before
+ * calling this function.
+ * @param the current CPU state
+ * @param rel the offset from the top of the stack to the value to convert
+ * @return 1 if the exection of the current instruction needs to be aborted A.S.A.P. It will be called again once
+ *         the value has been converted to a string.
+ *         0 if the value has been converted, execution may resume.
+ */
 int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
     USE_STACK();
     vm_pointer_t reserved_mem = vm_malloc(state->memory,

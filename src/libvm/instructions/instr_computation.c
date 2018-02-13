@@ -243,9 +243,9 @@ INSTR(rsh) {
         else if (stack->type == VM_TYPE_FLOAT) \
             (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->float_value OP stack->float_value); \
     } else { \
-        /*vm_error(state, "Operator %s has not been defined for stack type %d", #OP, (stack - 1)->type); \
-        vm_exit(state, 1);*/ \
-        (stack - 1)->uint_value = (vm_type_t) (1 OP 0); \
+        vm_error(state, "Operator %s has not been defined for stack type %d", #OP, (stack - 1)->type); \
+        vm_exit(state, 1); \
+        /*(stack - 1)->uint_value = (vm_type_t) (1 OP 0);*/ \
     } \
     (stack - 1)->type = VM_TYPE_UINT; \
 }
