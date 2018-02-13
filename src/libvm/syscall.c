@@ -1,6 +1,6 @@
 #include <string.h>
-#include "instructions/instructions.h"
 #include "funkyvm/funkyvm.h"
+#include "instructions/instructions.h"
 
 int register_syscall(CPU_State* state, const char* name, vm_syscall_t fn) {
     state->num_syscalls++;
@@ -57,15 +57,36 @@ INSTR(syscall_getindex) {
     };
 }
 
+#define VM_SYSCALL_REWRITE_BYNAME  1
+#define VM_INSTR_SYSCALL           0x0E
+
 INSTR(syscall_byname) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
 
-    for (int i = 0; i < state->num_syscalls; i++) {
-        if (strcmp(state->syscall_table[i].name, name) == 0) {
-            state->syscall_table[i].fn(state);
-            return;
+    #if !VM_SYSCALL_REWRITE_BYNAME
+        for (int i = 0; i < state->num_syscalls; i++) {
+            if (strcmp(state->syscall_table[i].name, name) == 0) {
+                state->syscall_table[i].fn(state);
+                return;
+            }
         }
-    }
+    #else
+        for (vm_type_t i = 0; i < state->num_syscalls; i++) {
+            if (strcmp(state->syscall_table[i].name, name) == 0) {
+                // rewrite this machine instruction to call the index next time, instead of doing this string lookup
+                // version which is much slower.
+                unsigned char* instr = (state->memory->main_memory + state->pc - sizeof(vm_type_t) - 1);
+                vm_type_t* index = (vm_type_t*)(state->memory->main_memory + state->pc - sizeof(vm_type_t));
+                *instr = VM_INSTR_SYSCALL;
+                *index = i;
+
+                state->syscall_table[i].fn(state);
+                return;
+            }
+        }
+    #endif
+
+
 
     vm_error(state, "Invalid syscall '%s'", name);
     vm_exit(state, EXIT_FAILURE);
