@@ -2,12 +2,164 @@
   category: modules
   opcode: "0x04"
   description: Loads a funk module into memory and pushes a map with named references.
+  extra_info: If the name does not end in <code>.funk</code>, the VM adds it.
   operands:
     - type: string
       description: Name of module
   stack_post:
     - type: map
       description: Named references that have been exported from module
+  
+- instruction: ld.extern
+  category: modules
+  opcode: "0x90"
+  description: Load a reference to an exported symbol from a module.
+  extra_info: If the name does not end in <code>.funk</code>, the VM adds it.
+  operands:
+    - type: string
+      description: Name of module
+    - type: string
+      description: Name of symbol
+  stack_post:
+    - type: reference
+      description: Reference to symbol
+  
+- instruction: ld.arr
+  category: Arrays
+  opcode: "0x68"
+  description: Load a new, empty array on the stack.
+  stack_post:
+    - type: array
+      description: New empty array
+  
+- instruction: ld.arrelem
+  category: Arrays
+  opcode: "0x69"
+  description: Load an element from an array
+  extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+  stack_pre:
+    - type: int
+      description: Index
+    - type: array
+      description: The array
+  stack_post:
+    - type: any
+      description: The value of element at index
+  
+- instruction: st.arrelem
+  category: Arrays
+  opcode: "0x6A"
+  description: Store value at array index
+  extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+              Storing at an index higher than the length of the array minus one resizes the array. When resizing the array,
+              each element that is created other than at the index gets the 'empty' value.
+  stack_pre:
+    - type: any
+      description: The value to store
+    - type: int
+      description: Index
+    - type: array
+      description: The array 
+- instruction: del.arrelem
+  category: Arrays
+  opcode: "0x6B"
+  description: Delete an element from an array
+  extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+              This operation removes the element from the array, and moves all following elements one to the left. The
+              length of the array is decreased by one.
+  stack_pre:
+    - type: int
+      description: Index
+    - type: array
+      description: The array 
+- instruction: arr.len
+  category: Arrays
+  opcode: "0x6C"
+  description: Get the array length
+  extra_info: Arrays are zero indexed. Length is the index of the last element plus one.
+  stack_pre:
+    - type: array
+      description: The array
+  stack_post:
+    - type: uint
+      description: Length of array
+  
+- instruction: arr.insert
+  category: Arrays
+  opcode: "0x6D"
+  description: Insert a value before index
+  extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+              This operation moves all element at index 'index' and higher to make room for a new element at index 'index'.
+  stack_pre:
+    - type: any
+      description: The value to insert
+    - type: int
+      description: Index
+    - type: array
+      description: The array 
+- instruction: arr.slice
+  category: Arrays
+  opcode: "0x6E"
+  description: Get a subsection of array
+  extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+  stack_pre:
+    - type: int
+      description: End index (inclusive)
+    - type: int
+      description: Start index (inclusive)
+    - type: array
+      description: The array 
+- instruction: arr.concat
+  category: Arrays
+  opcode: "0x6F"
+  description: Concatenate two arrays
+  extra_info: This operation creates a new array that does not reference the original arrays. It's values may still reference
+              the same values.
+              The resulting array contains all the items of the first array followed by all the items of the second array.
+  stack_pre:
+    - type: array
+      description: The second array
+    - type: array
+      description: The first array
+  
+- instruction: arr.copy
+  category: Arrays
+  opcode: "0x67"
+  description: Copy an array
+  extra_info: This operation creates a new array that does not reference the original array but contains all the same elements.
+  stack_pre:
+    - type: array
+      description: The array to copy
+  stack_post:
+    - type: array
+      description: The copied array
+  
+- instruction: conv.array
+  category: Conversions
+  opcode: "0x80"
+  description: Converts a value to an array value
+  extra_info: This operation creates a new array representing the value to be converted.
+  stack_pre:
+    - type: any
+      description: The value to convert
+  stack_post:
+    - type: array
+      description: The resulting array
+  
+- instruction: arr.range
+  category: Arrays
+  opcode: "0x81"
+  description: Create an array with values from a range
+  extra_info: This operation creates a new array that has all the values from the range start..end.
+              For example, the range 1..5 creates the array [1, 2, 3, 4, 5].
+  stack_pre:
+    - type: int
+      description: The last value (inclusive)
+    - type: int
+      description: The first value (inclusive)
+  stack_post:
+    - type: array
+      description: The array containing the range
   
 - instruction: strcat
   category: strings

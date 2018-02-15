@@ -12,6 +12,15 @@
 // Arrays are refcounted
 // Arrays are mutable. That means that arrays are changed in-place
 
+/**!
+ * instruction: ld.arr
+ * category: Arrays
+ * opcode: "0x68"
+ * description: Load a new, empty array on the stack.
+ * stack_post:
+ *   - type: array
+ *     description: New empty array
+ */
 INSTR(ld_arr) {
     USE_STACK();
 
@@ -41,6 +50,21 @@ INSTR(ld_arr) {
     AJS_STACK(-(*length) + 1);
 }
 
+/**!
+ * instruction: ld.arrelem
+ * category: Arrays
+ * opcode: "0x69"
+ * description: Load an element from an array
+ * extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+ * stack_pre:
+ *   - type: int
+ *     description: Index
+ *   - type: array
+ *     description: The array
+ * stack_post:
+ *   - type: any
+ *     description: The value of element at index
+ */
 INSTR(ld_arrelem) {
     USE_STACK();
 
@@ -76,6 +100,23 @@ INSTR(ld_arrelem) {
     AJS_STACK(-1);
 }
 
+/**!
+ * instruction: st.arrelem
+ * category: Arrays
+ * opcode: "0x6A"
+ * description: Store value at array index
+ * extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+ *             Storing at an index higher than the length of the array minus one resizes the array. When resizing the array,
+ *             each element that is created other than at the index gets the 'empty' value.
+ * stack_pre:
+ *   - type: any
+ *     description: The value to store
+ *   - type: int
+ *     description: Index
+ *   - type: array
+ *     description: The array
+ *
+ */
 INSTR(st_arrelem) {
     USE_STACK();
 
@@ -118,6 +159,21 @@ INSTR(st_arrelem) {
     AJS_STACK(-3);
 }
 
+/**!
+ * instruction: del.arrelem
+ * category: Arrays
+ * opcode: "0x6B"
+ * description: Delete an element from an array
+ * extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+ *             This operation removes the element from the array, and moves all following elements one to the left. The
+ *             length of the array is decreased by one.
+ * stack_pre:
+ *   - type: int
+ *     description: Index
+ *   - type: array
+ *     description: The array
+ *
+ */
 INSTR(del_arrelem) {
     USE_STACK();
     vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "value is not an array");
@@ -162,6 +218,19 @@ INSTR(del_arrelem) {
     AJS_STACK(-2);
 }
 
+/**!
+ * instruction: arr.len
+ * category: Arrays
+ * opcode: "0x6C"
+ * description: Get the array length
+ * extra_info: Arrays are zero indexed. Length is the index of the last element plus one.
+ * stack_pre:
+ *   - type: array
+ *     description: The array
+ * stack_post:
+ *   - type: uint
+ *     description: Length of array
+ */
 INSTR(arr_len) {
     USE_STACK();
     vm_assert(state, stack->type == VM_TYPE_ARRAY, "value is not an array");
@@ -181,7 +250,6 @@ vm_type_t arr_len(CPU_State *state, vm_value_t *arrayval) {
 
     return *len;
 }
-
 
 void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm_type_signed_t index) {
     vm_assert(state, arrayval->type == VM_TYPE_ARRAY, "value is not an array");
@@ -227,6 +295,22 @@ void arr_insert_at(CPU_State *state, vm_value_t *arrayval, vm_value_t *value, vm
 
 }
 
+/**!
+ * instruction: arr.insert
+ * category: Arrays
+ * opcode: "0x6D"
+ * description: Insert a value before index
+ * extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+ *             This operation moves all element at index 'index' and higher to make room for a new element at index 'index'.
+ * stack_pre:
+ *   - type: any
+ *     description: The value to insert
+ *   - type: int
+ *     description: Index
+ *   - type: array
+ *     description: The array
+
+ */
 INSTR(arr_insert) {
     USE_STACK();
     vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "value is not an array");
@@ -241,6 +325,21 @@ INSTR(arr_insert) {
     AJS_STACK(-3);
 }
 
+/**!
+ * instruction: arr.slice
+ * category: Arrays
+ * opcode: "0x6E"
+ * description: Get a subsection of array
+ * extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
+ * stack_pre:
+ *   - type: int
+ *     description: End index (inclusive)
+ *   - type: int
+ *     description: Start index (inclusive)
+ *   - type: array
+ *     description: The array
+
+ */
 INSTR(arr_slice) {
     USE_STACK();
 
@@ -301,6 +400,21 @@ INSTR(arr_slice) {
     AJS_STACK(-2);
 }
 
+/**!
+ * instruction: arr.concat
+ * category: Arrays
+ * opcode: "0x6F"
+ * description: Concatenate two arrays
+ * extra_info: This operation creates a new array that does not reference the original arrays. It's values may still reference
+ *             the same values.
+ *             The resulting array contains all the items of the first array followed by all the items of the second array.
+ * stack_pre:
+ *   - type: array
+ *     description: The second array
+ *   - type: array
+ *     description: The first array
+ */
+
 INSTR(arr_concat) {
     USE_STACK();
     vm_assert(state, (stack - 1)->type == VM_TYPE_ARRAY, "left operand is not an array");
@@ -345,6 +459,19 @@ INSTR(arr_concat) {
     AJS_STACK(-1);
 }
 
+/**!
+ * instruction: arr.copy
+ * category: Arrays
+ * opcode: "0x67"
+ * description: Copy an array
+ * extra_info: This operation creates a new array that does not reference the original array but contains all the same elements.
+ * stack_pre:
+ *   - type: array
+ *     description: The array to copy
+ * stack_post:
+ *   - type: array
+ *     description: The copied array
+ */
 INSTR(arr_copy) {
     USE_STACK();
     vm_assert(state, stack->type == VM_TYPE_ARRAY, "value is not an array");
@@ -412,10 +539,39 @@ void instr_conv_arr_rel(CPU_State* state, vm_type_signed_t rel) {
     *(stack + rel) = arrayval;
 }
 
+/**!
+ * instruction: conv.array
+ * category: Conversions
+ * opcode: "0x80"
+ * description: Converts a value to an array value
+ * extra_info: This operation creates a new array representing the value to be converted.
+ * stack_pre:
+ *   - type: any
+ *     description: The value to convert
+ * stack_post:
+ *   - type: array
+ *     description: The resulting array
+ */
 INSTR(conv_arr) {
     instr_conv_arr_rel(state, 0);
 }
 
+/**!
+ * instruction: arr.range
+ * category: Arrays
+ * opcode: "0x81"
+ * description: Create an array with values from a range
+ * extra_info: This operation creates a new array that has all the values from the range start..end.
+ *             For example, the range 1..5 creates the array [1, 2, 3, 4, 5].
+ * stack_pre:
+ *   - type: int
+ *     description: The last value (inclusive)
+ *   - type: int
+ *     description: The first value (inclusive)
+ * stack_post:
+ *   - type: array
+ *     description: The array containing the range
+ */
 INSTR(arr_range) {
     USE_STACK();
 
