@@ -4,8 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
 #include <assert.h>
+#include <funkyvm/funkyvm.h>
 
 #include "funkyvm/modules.h"
 #include "funkyvm/memory.h"
@@ -14,14 +16,30 @@
 #include "error_handling.h"
 
 #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
-#define FLAG_LITTLE_ENDIAN 1
+#define FLAG_LITTLE_ENDIAN 1u
 
-Module module_load(Memory *mem, const char* name) {
-    Module module;
+static char *strlwr(char *s) {
+    char *tmp = s;
 
+    for (; *tmp; ++tmp) {
+        *tmp = (char) tolower((unsigned char) *tmp);
+    }
+
+    return s;
+}
+
+Module module_load_name(Memory *mem, const char* name) {
     char* filename = malloc(strlen(name) + 1 + 5);
     strcpy(filename, name);
-    strcat(filename, ".funk");
+
+    strlwr(filename);
+    char *dot = strrchr(filename, '.');
+    if (dot && !strcmp(dot, ".funk")) {
+        strcpy(filename, name); // restore original casing
+    } else {
+        strcpy(filename, name); // restone original casing
+        strcat(filename, ".funk");
+    }
 
     FILE *fp;
     fp = fopen(filename, "r");
@@ -32,8 +50,7 @@ Module module_load(Memory *mem, const char* name) {
         vm_exit(state, EXIT_FAILURE);
     }
 
-    module.name = k_malloc(mem, strlen(name) + 1);
-    strcpy(module.name, name);
+    free(filename);
 
     // Get the number of bytes
     fseek(fp, 0L, SEEK_END);
@@ -42,47 +59,57 @@ Module module_load(Memory *mem, const char* name) {
     // reset the file position indicator to the beginning of the file
     fseek(fp, 0L, SEEK_SET);
 
-    char header[6];
+    byte_t *bytes = malloc(numbytes);
+    fread(bytes, sizeof(byte_t), numbytes, fp);
+    fclose(fp);
 
-    if (numbytes < (long) sizeof(header)) {
-        printf("%s is not a valid BSMB file\n", filename);
+    funky_bytecode_t bytecode = (funky_bytecode_t) {
+            .bytes = bytes,
+            .length = numbytes
+    };
+
+    Module module = module_load(mem, name, bytecode);
+
+    free(bytes);
+
+    return module;
+}
+
+Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
+    Module module;
+
+    module.name = strdup(name);
+
+    if (bc.length < 6 + 2 * sizeof(vm_type_t)) {
+        printf("%s is not a valid BSMB file\n", name);
         vm_exit(state, EXIT_FAILURE);
     }
 
-    fread(&header, sizeof(char), sizeof(header), fp);
-
-    if (header[0] != 'f' || header[1] != 'u' || header[2] != 'n' | header[3] != 'k') {
-        printf("%s is not a valid Funky bytecode file\n", filename);
+    if (bc.bytes[0] != 'f' || bc.bytes[1] != 'u' || bc.bytes[2] != 'n' || bc.bytes[3] != 'k') {
+        printf("%s is not a valid Funky bytecode file\n", name);
         vm_exit(state, EXIT_FAILURE);
     }
 
-    if ((header[4] & FLAG_LITTLE_ENDIAN) == 0 && !IS_BIG_ENDIAN) {
-        printf("%s is compiled for big endian systems. This system is little endian.\n", filename);
+    if ((bc.bytes[4] & FLAG_LITTLE_ENDIAN) == 0 && !IS_BIG_ENDIAN) {
+        printf("%s is compiled for big endian systems. This system is little endian.\n", name);
         vm_exit(state, EXIT_FAILURE);
     }
 
-    if (header[5] != sizeof(vm_type_t)) {
-        printf("%s is compiled for %d virtual bits. This system is %u virtual bits.\n", filename, header[5] * 8,
+    if (bc.bytes[5] != sizeof(vm_type_t)) {
+        printf("%s is compiled for %d virtual bits. This system is %u virtual bits.\n", name, bc.bytes[5] * 8,
                (unsigned int) sizeof(vm_type_t) * 8);
         vm_exit(state, EXIT_FAILURE);
     }
 
-    free(filename);
-
-    vm_type_t num_exports, start_of_code;
-    fread(&num_exports, sizeof(vm_type_t), 1, fp);
-    fread(&start_of_code, sizeof(vm_type_t), 1, fp);
-
-    module.num_exports = num_exports;
-    module.start_of_code = start_of_code;
-
-    numbytes -= sizeof(header) + sizeof(vm_type_t) * 2;
+    module.num_exports = *(vm_type_t*)(bc.bytes + 6);
+    module.start_of_code = *(((vm_type_t*)(bc.bytes + 6)) + 1);
+    module.size = (vm_type_t)bc.length - (6 + sizeof(vm_type_t) * 2);
 
     // grab sufficient memory for the buffer to hold the text
     //unsigned char *module_addr = k_calloc(mem, numbytes, sizeof(unsigned char));
     //module.addr = (vm_type_t) (module_addr - mem->main_memory);
-    vm_pointer_t module_addr = vm_calloc(mem, numbytes + 1, sizeof(unsigned char));
-    unsigned char* native_module_addr = vm_pointer_to_native(mem, module_addr, unsigned char*);
+    vm_pointer_t module_addr = vm_calloc(mem, module.size + 1, sizeof(unsigned char));
+    unsigned char* native_module_addr = vm_pointer_to_native(mem, module_addr, byte_t*);
     module.addr = module_addr;
 
     if (module_addr == 0) {
@@ -90,12 +117,9 @@ Module module_load(Memory *mem, const char* name) {
         vm_exit(state, EXIT_FAILURE);
     }
 
-    fread(native_module_addr, sizeof(char), numbytes, fp);
-    fclose(fp);
-    native_module_addr[numbytes] = 0x5C; // ret
-    numbytes++;
+    memcpy(native_module_addr, bc.bytes + 6 + 2 * sizeof(vm_type_t), module.size);
 
-    module.size = (vm_type_t)numbytes;
+    native_module_addr[module.size] = 0x5C; // ret
 
     return module;
 }

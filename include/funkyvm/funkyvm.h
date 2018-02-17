@@ -5,6 +5,7 @@
 #ifndef VM_H
 #define VM_H
 
+#include <stdlib.h>
 #include <stdint.h>
 
 #ifndef VM_ARCH_BITS
@@ -72,6 +73,12 @@ typedef struct {
     vm_pointer_t next;
     vm_pointer_t prev;
 } vm_map_elem_t;
+
+typedef unsigned char byte_t;
+typedef struct {
+    byte_t* bytes;
+    size_t length;
+} funky_bytecode_t;
 
 #include "cpu.h"
 #include "modules.h"
