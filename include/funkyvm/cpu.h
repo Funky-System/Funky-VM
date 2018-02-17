@@ -33,6 +33,7 @@ typedef struct CPU_State {
 
     // state
     int running;
+    int in_error_state;
 
     Memory* memory;
 

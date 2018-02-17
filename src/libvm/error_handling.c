@@ -27,6 +27,9 @@ void vm_vaerror(CPU_State* state, const char* error_message, va_list vl) {
         }
         state = &unknown_state;
     }
+
+    state->in_error_state = 1;
+
     fprintf(stderr, "Error: ");
     vfprintf(stderr, error_message, vl);
     fprintf(stderr, "\n");
