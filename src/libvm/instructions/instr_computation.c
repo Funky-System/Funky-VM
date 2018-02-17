@@ -253,9 +253,9 @@ INSTR(neg) {
     if (stack->type == VM_TYPE_UINT) {
         stack->int_value = (vm_type_signed_t) -stack->uint_value;
         stack->type = VM_TYPE_INT;
-    } else if ((stack - 1)->type == VM_TYPE_INT) {
+    } else if (stack->type == VM_TYPE_INT) {
         stack->int_value = (vm_type_signed_t) -stack->int_value;
-    } else if ((stack - 1)->type == VM_TYPE_FLOAT) {
+    } else if (stack->type == VM_TYPE_FLOAT) {
         stack->float_value = (vm_type_float_t) -stack->float_value;
     } else {
         vm_error(state, "Unary operator - has not been defined for stack type %d", (stack - 1)->type);
@@ -268,10 +268,10 @@ INSTR(not) {
 
     if (stack->type == VM_TYPE_UINT) {
         stack->int_value = (vm_type_t) ~stack->uint_value;
-    } else if ((stack - 1)->type == VM_TYPE_INT) {
-        stack->int_value = (vm_type_signed_t) ~stack->int_value;
+    } else if (stack->type == VM_TYPE_INT) {
+        stack->int_value = (vm_type_signed_t) ~stack->uint_value;
     } else {
-        vm_error(state, "Unary operator - has not been defined for stack type %d", (stack - 1)->type);
+        vm_error(state, "Unary operator ~ has not been defined for stack type %d", (stack - 1)->type);
         vm_exit(state, 1);
     }
 }
