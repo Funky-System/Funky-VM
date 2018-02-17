@@ -7,8 +7,7 @@
 
 #include "funkyvm/funkyvm.h"
 
-#define vm_exit(state, res) exit(res)
-
+void vm_exit(CPU_State* state, int res);
 void vm_assert(CPU_State* state, int res, const char* error_message, ...);
 void vm_error(CPU_State* state, const char* error_message, ...);
 

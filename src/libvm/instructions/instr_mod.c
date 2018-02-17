@@ -32,7 +32,7 @@ INSTR(link) {
         return;
     }
 
-    Module module = module_load_name(state->memory, name);
+    Module module = module_load_name(state, name);
 
     vm_pointer_t reserved_mem     = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for first item
     vm_type_t *ref_count          = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);

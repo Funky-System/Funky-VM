@@ -20,7 +20,7 @@ typedef struct Module {
     vm_pointer_t ref_map;
 } Module;
 
-Module module_load_name(Memory *mem, const char* name);
+Module module_load_name(CPU_State* state, const char* name);
 Module module_load(Memory *mem, const char* name, funky_bytecode_t bc);
 void module_unload(Memory *mem, Module* module);
 int module_register(CPU_State *state, Module module);

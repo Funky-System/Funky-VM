@@ -86,6 +86,7 @@ vm_type_t memory_alloc(Memory* mem, vm_type_t num_pages) {
 
     vm_error(NULL, "Memory exhausted");
     vm_exit(NULL, EXIT_FAILURE);
+    return 0;
 }
 
 void memory_free(Memory *mem, vm_type_t addr, vm_type_t num_pages) {

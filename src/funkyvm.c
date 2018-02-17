@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 
     char *filename;
     while ((filename = optparse_arg(&options))) {
-        Module module = module_load_name(&memory, filename);
+        Module module = module_load_name(&state, filename);
         if (!kernel_set) {
             kernel = module;
             kernel_set = 1;

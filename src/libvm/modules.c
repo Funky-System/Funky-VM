@@ -28,7 +28,7 @@ static char *strlwr(char *s) {
     return s;
 }
 
-Module module_load_name(Memory *mem, const char* name) {
+Module module_load_name(CPU_State* state, const char* name) {
     char* filename = malloc(strlen(name) + 1 + 5);
     strcpy(filename, name);
 
@@ -46,7 +46,7 @@ Module module_load_name(Memory *mem, const char* name) {
     if (fp == NULL) {
         int errnum = errno;
         fprintf(stderr, "Error: Could not open file %s\n", filename);
-        vm_error(NULL, "%s", strerror(errnum));
+        vm_error(state, "%s", strerror(errnum));
         vm_exit(state, EXIT_FAILURE);
     }
 
@@ -68,7 +68,7 @@ Module module_load_name(Memory *mem, const char* name) {
             .length = numbytes
     };
 
-    Module module = module_load(mem, name, bytecode);
+    Module module = module_load(state->memory, name, bytecode);
 
     free(bytes);
 
@@ -82,23 +82,23 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
 
     if (bc.length < 6 + 2 * sizeof(vm_type_t)) {
         printf("%s is not a valid BSMB file\n", name);
-        vm_exit(state, EXIT_FAILURE);
+        vm_exit(NULL, EXIT_FAILURE);
     }
 
     if (bc.bytes[0] != 'f' || bc.bytes[1] != 'u' || bc.bytes[2] != 'n' || bc.bytes[3] != 'k') {
         printf("%s is not a valid Funky bytecode file\n", name);
-        vm_exit(state, EXIT_FAILURE);
+        vm_exit(NULL, EXIT_FAILURE);
     }
 
     if ((bc.bytes[4] & FLAG_LITTLE_ENDIAN) == 0 && !IS_BIG_ENDIAN) {
         printf("%s is compiled for big endian systems. This system is little endian.\n", name);
-        vm_exit(state, EXIT_FAILURE);
+        vm_exit(NULL, EXIT_FAILURE);
     }
 
     if (bc.bytes[5] != sizeof(vm_type_t)) {
         printf("%s is compiled for %d virtual bits. This system is %u virtual bits.\n", name, bc.bytes[5] * 8,
                (unsigned int) sizeof(vm_type_t) * 8);
-        vm_exit(state, EXIT_FAILURE);
+        vm_exit(NULL, EXIT_FAILURE);
     }
 
     module.num_exports = *(vm_type_t*)(bc.bytes + 6);
@@ -114,7 +114,7 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
 
     if (module_addr == 0) {
         fprintf(stderr, "Memory allocation error\nDo you have enough free memory?\n");
-        vm_exit(state, EXIT_FAILURE);
+        vm_exit(NULL, EXIT_FAILURE);
     }
 
     memcpy(native_module_addr, bc.bytes + 6 + 2 * sizeof(vm_type_t), module.size);

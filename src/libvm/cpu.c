@@ -32,6 +32,8 @@ CPU_State cpu_init(Memory* memory) {
     state.syscall_table = k_malloc(memory, 0);
     state.num_syscalls = 0;
 
+    state.running = 1;
+
     initialize_boxing_prototypes(&state);
 
     return state;
@@ -42,8 +44,6 @@ void cpu_set_entry_to_module(CPU_State *state, Module *mod) {
 }
 
 vm_type_t cpu_run(CPU_State *state) {
-    state->running = 1;
-
     while (state->running) {
         unsigned char opcode = *(state->memory->main_memory + state->pc);
         state->pc++;

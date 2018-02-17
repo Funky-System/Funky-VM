@@ -16,6 +16,10 @@ static CPU_State unknown_state = (CPU_State) {
     }
 };
 
+void vm_exit(CPU_State* state, int res) {
+    exit(res);
+}
+
 void vm_vaerror(CPU_State* state, const char* error_message, va_list vl) {
     if (state == NULL) {
         state = &unknown_state;
