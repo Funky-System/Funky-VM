@@ -77,7 +77,7 @@ typedef struct {
 typedef unsigned char byte_t;
 typedef struct {
     byte_t* bytes;
-    vm_type_t length;
+    unsigned long length;
 } funky_bytecode_t;
 
 #include "cpu.h"
