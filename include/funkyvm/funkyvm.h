@@ -74,11 +74,14 @@ typedef struct {
     vm_pointer_t prev;
 } vm_map_elem_t;
 
+#ifndef FUNKY_BYTECODE_TYPES_DEFINED
+#define FUNKY_BYTECODE_TYPES_DEFINED
 typedef unsigned char byte_t;
-typedef struct {
+typedef struct funky_bytecode_t {
     byte_t* bytes;
     unsigned long length;
 } funky_bytecode_t;
+#endif
 
 #include "cpu.h"
 #include "modules.h"
