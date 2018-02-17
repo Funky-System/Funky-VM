@@ -54,6 +54,8 @@ void memory_init(Memory *mem, unsigned char *main_memory) {
         memory_set_used(mem, addr);
     }*/
 
+    liballoc_reset(); // reset the global variables from liballoc
+
     mem->lock = 0;
 }
 
