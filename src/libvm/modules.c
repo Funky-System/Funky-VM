@@ -123,6 +123,8 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
 
     native_module_addr[module.size] = 0x5C; // ret
 
+    module.ref_map = 0;
+
     return module;
 }
 

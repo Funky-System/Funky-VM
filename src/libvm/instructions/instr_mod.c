@@ -25,7 +25,7 @@ INSTR(link) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
 
     Module *existing = module_get(state, name);
-    Module *module = malloc(sizeof(Module));
+    Module *module = calloc(1, sizeof(Module));
     Module *orig_module = module;
     if (existing != NULL) {
         if (existing->ref_map != 0) {
