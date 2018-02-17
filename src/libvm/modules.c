@@ -48,6 +48,8 @@ Module module_load_name(CPU_State* state, const char* name) {
         fprintf(stderr, "Error: Could not open file %s\n", filename);
         vm_error(state, "%s", strerror(errnum));
         vm_exit(state, EXIT_FAILURE);
+        free(filename);
+        return (Module) { .name = strdup(name), .addr = 0, .size = 0, .num_exports = 0, .start_of_code = 0 };
     }
 
     free(filename);
