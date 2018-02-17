@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
-#include "funkyvm.h"
-#include "memory.h"
-#include "../../src/libvm/liballoc_1_1.h"
-#include "cpu.h"
-#include "../../src/libvm/error_handling.h"
+#include "funkyvm/funkyvm.h"
+#include "funkyvm/memory.h"
+#include "liballoc_1_1.h"
+#include "funkyvm/cpu.h"
+#include "error_handling.h"
 
 #define SET_BIT(var, bit) var |= (1 << bit)
 #define CLEAR_BIT(var, bit) var &= ~(1 << bit)
