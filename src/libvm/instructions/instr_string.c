@@ -25,6 +25,20 @@ char *cstr_pointer_from_vm_value(CPU_State* state, vm_value_t* val) {
     return cstr_pointer_from_vm_pointer_t(state, val->pointer_value + sizeof(vm_type_t));
 }
 
+/**!
+ * instruction: strcat
+ * category: strings
+ * opcode: "0x60"
+ * description: Concatenate two strings.
+ * stack_pre:
+ *   - type: string
+ *     description: the second string
+ *   - type: string
+ *     description: the first string
+ * stack_post:
+ *   - type: string
+ *     description: Concatenation of first + second string
+ */
 INSTR(strcat) {
     USE_STACK();
     vm_assert(state, stack->type == VM_TYPE_STRING, "String concatenation with non-string left operand");
@@ -49,7 +63,22 @@ INSTR(strcat) {
 
     AJS_STACK(-1);
 }
-
+/**!
+ * instruction: substr
+ * category: strings
+ * opcode: "0x61"
+ * description: Pushes a substring of string on top of stack.
+ * stack_pre:
+ *   - type: int
+ *     description: length (negative length counts from end)
+ *   - type: int
+ *     description: start index
+ *   - type: string
+ *     description: the string
+ * stack_post:
+ *   - type: string
+ *     description: substring result
+ */
 INSTR(substr) {
     USE_STACK();
     vm_assert(state, (stack - 2)->type == VM_TYPE_STRING, "Substring on non-string value");
@@ -85,6 +114,18 @@ INSTR(substr) {
     AJS_STACK(-2);
 }
 
+/**!
+ * instruction: strlen
+ * category: strings
+ * opcode: "0x62"
+ * description: Puts length of string on the stack.
+ * stack_pre:
+ *   - type: string
+ *     description: the string
+ * stack_post:
+ *   - type: uint
+ *     description: length of string
+ */
 INSTR(strlen) {
     USE_STACK();
     vm_assert(state, stack->type == VM_TYPE_STRING, "Can't get string length from non-string value");
@@ -95,6 +136,16 @@ INSTR(strlen) {
     stack->type = VM_TYPE_UINT;
 }
 
+/**
+ * Converts a value on the stack to string. Do not call this function after calls to GET_OPERAND() and such, which alter
+ * the Program Counter (PC). If you must, rewind the PC to the first byte right after the current instruction before
+ * calling this function.
+ * @param the current CPU state
+ * @param rel the offset from the top of the stack to the value to convert
+ * @return 1 if the exection of the current instruction needs to be aborted A.S.A.P. It will be called again once
+ *         the value has been converted to a string.
+ *         0 if the value has been converted, execution may resume.
+ */
 int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
     USE_STACK();
     vm_pointer_t reserved_mem = vm_malloc(state->memory,
@@ -171,6 +222,18 @@ int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
     return 0;
 }
 
+/**!
+ * instruction: conv.str
+ * category: strings
+ * opcode: "0x23"
+ * description: Convert top of stack to string.
+ * stack_pre:
+ *   - type: any
+ *     description: any value convertable to string
+ * stack_post:
+ *   - type: string
+ *     description: converted string
+ */
 INSTR(conv_str) {
     conv_str_rel(state, 0);
 }

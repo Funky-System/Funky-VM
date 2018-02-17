@@ -37,7 +37,25 @@
     } \
 }
 
-/// Addition. Replaces 2 top stack values with the addition of those values.
+/**!
+ * instruction: add
+ * category: Arithmetics
+ * opcode: "0x30"
+ * description: Adds two values.
+ * extra_info: Combines two values using the 'add' operator; <i>first</i> <code>+</code> <i>second</i>.
+ *             <p>If <i>first</i> is an array, then this operation adds <i>second</i> to the end of that array.</p>
+ *             <p>If <i>second</i> is an array, then this operation adds <i>first</i> to the beginning of that array.</p>
+ *             <p>If both <i>first</i> and <i>second</i> are an array, then this operation equals <code>arr.concat</code>.</p>
+ *             <p>If <i>first</i> or <i>second</i> is a string, then both <i>first</i> and <i>second</i> are converted to string (if they didn't already were) and concatenated with <code>str.concat</code>.</p>
+ * stack_pre:
+ *   - type: any
+ *     description: Second value
+ *   - type: any
+ *     description: First value
+ * stack_post:
+ *   - type: undefined
+ *     description: Result is of the same type of the most specific type of <i>first</i> or <i>second</i>
+ */
 INSTR(add) {
     USE_STACK();
 
@@ -80,17 +98,78 @@ INSTR(add) {
     ARITH_OPERATOR(+);
 }
 
-/// Substraction. Replaces 2 top stack values with the subtraction of those values.
+/**!
+ * instruction: sub
+ * category: Arithmetics
+ * opcode: "0x31"
+ * description: Subtracts two values.
+ * extra_info: Combines two values using the 'subtract' operator; <i>first</i> <code>-</code> <i>second</i>.
+ * stack_pre:
+ *   - type: any
+ *     description: Second value
+ *   - type: any
+ *     description: First value
+ * stack_post:
+ *   - type: undefined
+ *     description: Result is of the same type of the most specific type of <i>first</i> or <i>second</i>
+ */
 INSTR(sub) {
     ARITH_OPERATOR(-);
 }
 
+/**!
+ * instruction: mul
+ * category: Arithmetics
+ * opcode: "0x32"
+ * description: Multiplies two values.
+ * extra_info: Combines two values using the 'multiply' operator; <i>first</i> <code>*</code> <i>second</i>.
+ * stack_pre:
+ *   - type: any
+ *     description: Second value
+ *   - type: any
+ *     description: First value
+ * stack_post:
+ *   - type: undefined
+ *     description: Result is of the same type of the most specific type of <i>first</i> or <i>second</i>
+ */
 INSTR(mul) {
     ARITH_OPERATOR(*);
 }
+
+/**!
+ * instruction: div
+ * category: Arithmetics
+ * opcode: "0x33"
+ * description: Divides two values.
+ * extra_info: Combines two values using the 'division' operator; <i>first</i> <code>/</code> <i>second</i>.
+ * stack_pre:
+ *   - type: any
+ *     description: Second value
+ *   - type: any
+ *     description: First value
+ * stack_post:
+ *   - type: undefined
+ *     description: Result is of the same type of the most specific type of <i>first</i> or <i>second</i>
+ */
 INSTR(div) {
     ARITH_OPERATOR(/);
 }
+
+/**!
+ * instruction: mod
+ * category: Arithmetics
+ * opcode: "0x34"
+ * description: Modulus operator.
+ * extra_info: Combines two values using the 'modulus' operator; <i>first</i> <code>%</code> <i>second</i>.
+ * stack_pre:
+ *   - type: any
+ *     description: Second value
+ *   - type: any
+ *     description: First value
+ * stack_post:
+ *   - type: undefined
+ *     description: Result is of the same type of the most specific type of <i>first</i> or <i>second</i>
+ */
 INSTR(mod) {
     USE_STACK();
     AJS_STACK(-1);
@@ -121,6 +200,22 @@ INSTR(mod) {
         vm_exit(state, 1);
     }
 }
+
+/**!
+ * instruction: pow
+ * category: Arithmetics
+ * opcode: "0x41"
+ * description: Exponentiation operator.
+ * extra_info: Computes the value of base raised to the power exponent; <i>base</i> <code>**</code> <i>exponent</i>.
+ * stack_pre:
+ *   - type: any
+ *     description: Exponent value
+ *   - type: any
+ *     description: Base value
+ * stack_post:
+ *   - type: undefined
+ *     description: Result is of the same type of the most specific type of <i>first</i> or <i>second</i>
+ */
 INSTR(pow) {
     USE_STACK();
     AJS_STACK(-1);
@@ -243,9 +338,9 @@ INSTR(rsh) {
         else if (stack->type == VM_TYPE_FLOAT) \
             (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->float_value OP stack->float_value); \
     } else { \
-        /*vm_error(state, "Operator %s has not been defined for stack type %d", #OP, (stack - 1)->type); \
-        vm_exit(state, 1);*/ \
-        (stack - 1)->uint_value = (vm_type_t) (1 OP 0); \
+        vm_error(state, "Operator %s has not been defined for stack type %d", #OP, (stack - 1)->type); \
+        vm_exit(state, 1); \
+        /*(stack - 1)->uint_value = (vm_type_t) (1 OP 0);*/ \
     } \
     (stack - 1)->type = VM_TYPE_UINT; \
 }
