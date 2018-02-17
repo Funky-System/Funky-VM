@@ -2,7 +2,7 @@
 // Created by Bas du Pré on 01-02-18.
 //
 
-#include <strings.h>
+#include <string.h>
 
 #include "instructions.h"
 #include "funkyvm/funkyvm.h"

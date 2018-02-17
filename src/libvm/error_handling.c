@@ -7,14 +7,7 @@
 
 #include "error_handling.h"
 
-static CPU_State unknown_state = (CPU_State) {
-    .debug_context = (Debug_Context) {
-            .filename = "<unknown>",
-            .col = 0,
-            .line = 0,
-            .num_stacktrace = 0
-    }
-};
+static CPU_State unknown_state = {0};
 
 void vm_exit(CPU_State* state, int res) {
     state->running = 0;
@@ -22,6 +15,16 @@ void vm_exit(CPU_State* state, int res) {
 
 void vm_vaerror(CPU_State* state, const char* error_message, va_list vl) {
     if (state == NULL) {
+        if (unknown_state.debug_context.filename == 0) {
+            unknown_state = (CPU_State) {
+                    .debug_context = (Debug_Context) {
+                            .filename = "<unknown>",
+                            .col = 0,
+                            .line = 0,
+                            .num_stacktrace = 0
+                    }
+            };
+        }
         state = &unknown_state;
     }
     fprintf(stderr, "Error: ");
