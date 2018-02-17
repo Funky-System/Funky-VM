@@ -25,14 +25,20 @@ INSTR(link) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
 
     Module *existing = module_get(state, name);
+    Module *module = malloc(sizeof(Module));
+    Module *orig_module = module;
     if (existing != NULL) {
-        AJS_STACK(+1);
-        USE_STACK();
-        *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = existing->ref_map};
-        return;
+        if (existing->ref_map != 0) {
+            AJS_STACK(+1);
+            USE_STACK();
+            *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = existing->ref_map};
+            free(orig_module);
+            return;
+        }
+        module = existing;
+    } else {
+        *module = module_load_name(state, name);
     }
-
-    Module module = module_load_name(state, name);
 
     vm_pointer_t reserved_mem     = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for first item
     vm_type_t *ref_count          = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
@@ -43,29 +49,33 @@ INSTR(link) {
     *first_ptr = 0;
     *prototype_ptr = 0;
 
-    char *addr = vm_pointer_to_native(state->memory, module.addr, char*);
+    char *addr = vm_pointer_to_native(state->memory, module->addr, char*);
     int num_found = 0;
-    while (num_found < module.num_exports) {
+    while (num_found < module->num_exports) {
         const char *curname = addr;
         while (*(addr++) != '\0') {}
         vm_type_t ref = *((vm_type_t *) addr);
-        vm_value_t refval = (vm_value_t) {.type = VM_TYPE_REF, .pointer_value = module.addr + ref};
+        vm_value_t refval = (vm_value_t) {.type = VM_TYPE_REF, .pointer_value = module->addr + ref};
         st_mapitem(state, reserved_mem, curname, &refval);
 
         num_found++;
         addr += sizeof(vm_type_t);
     }
 
-    vm_value_t refval = (vm_value_t) {.type = VM_TYPE_REF, .pointer_value = module.addr + module.start_of_code};
+    vm_value_t refval = (vm_value_t) {.type = VM_TYPE_REF, .pointer_value = module->addr + module->start_of_code};
     st_mapitem(state, reserved_mem, "@init", &refval);
 
     AJS_STACK(+1);
     USE_STACK();
     *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = reserved_mem};
 
-    module.ref_map = reserved_mem;
+    module->ref_map = reserved_mem;
 
-    module_register(state, module);
+    if (!existing) {
+        module_register(state, *module);
+    }
+
+    free(orig_module);
 }
 
 INSTR_NOT_IMPLEMENTED(unlink);
