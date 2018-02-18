@@ -105,7 +105,7 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
 
     module.num_exports = *(vm_type_t*)(bc.bytes + 6);
     module.start_of_code = *(((vm_type_t*)(bc.bytes + 6)) + 1);
-    module.size = (vm_type_t)bc.length - (6 + sizeof(vm_type_t) * 2) + 1;
+    module.size = (vm_type_t)bc.length - (6 + sizeof(vm_type_t) * 2);
 
     // grab sufficient memory for the buffer to hold the text
     //unsigned char *module_addr = k_calloc(mem, numbytes, sizeof(unsigned char));
@@ -122,6 +122,7 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
     memcpy(native_module_addr, bc.bytes + 6 + 2 * sizeof(vm_type_t), module.size);
 
     native_module_addr[module.size] = 0x5C; // ret
+    module.size++;
 
     module.ref_map = 0;
 
