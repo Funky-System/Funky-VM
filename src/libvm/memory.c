@@ -19,7 +19,7 @@ void memory_print_bitmap_debug(Memory *mem) {
     }
 }
 
-vm_type_t bitshift = 0;
+static vm_type_t bitshift = 0;
 
 void memory_set_used(Memory* mem, vm_type_t addr) {
     vm_type_t i = addr >> bitshift;
