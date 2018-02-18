@@ -10,7 +10,7 @@ add_definitions(-DVM_ARCH_BITS=32)
 add_library(funky-vm
         src/libvm/cpu.c src/libvm/instructions/instructions.c src/libvm/instructions/instr_cpu.c src/libvm/instructions/instr_mem.c src/libvm/instructions/instr_computation.c src/libvm/instructions/instr_branching.c
         src/libvm/instructions/instr_convert.c src/libvm/instructions/instr_string.c src/libvm/memory.c src/libvm/instructions/instr_array.c
-        src/libvm/liballoc_1_1.c src/libvm/modules.c src/libvm/instructions/instr_mod.c src/libvm/instructions/instr_map.c src/libvm/boxing.c src/libvm/boxing.h src/libvm/error_handling.c src/libvm/error_handling.h src/libvm/syscall.c include/funkyvm/syscall.h)
+        src/libvm/liballoc_1_1.c src/libvm/modules.c src/libvm/instructions/instr_mod.c src/libvm/instructions/instr_map.c src/libvm/boxing.c src/libvm/boxing.h src/libvm/error_handling.c src/libvm/error_handling.h src/libvm/syscall.c include/funkyvm/syscall.h src/libvm/os.c src/libvm/os.h include/funkyvm/os.h)
 
 add_executable(funky-vm-bin src/funkyvm.c src/bindings.c src/bindings.h)
 target_link_libraries(funky-vm-bin m funky-vm)

@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "os.h"
+
 #ifndef VM_ARCH_BITS
 #define VM_ARCH_BITS 32
 #endif

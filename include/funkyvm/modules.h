@@ -26,6 +26,7 @@ void module_unload(Memory *mem, Module* module);
 int module_register(CPU_State *state, Module module);
 int module_release(CPU_State *state, const char* name);
 Module *module_get(CPU_State *state, const char* name);
+int module_register_path(CPU_State *state, const char* path);
 
 Module* get_current_module(CPU_State *state);
 

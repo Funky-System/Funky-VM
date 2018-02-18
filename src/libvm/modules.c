@@ -3,6 +3,7 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -28,7 +29,21 @@ static char *strlwr(char *s) {
     return s;
 }
 
-Module module_load_name(CPU_State* state, const char* name) {
+int module_register_path(CPU_State *state, const char* path) {
+    state->num_module_paths++;
+    state->module_paths = realloc(state->module_paths, sizeof(char*) * state->num_module_paths);
+    state->module_paths[state->num_module_paths - 1] = strdup(path);
+    return state->num_module_paths;
+}
+
+static const char* path_separator =
+#ifdef _WIN32
+        "\\";
+#else
+        "/";
+#endif
+
+char* module_find_filename(CPU_State *state, const char* name) {
     char* filename = malloc(strlen(name) + 1 + 5);
     strcpy(filename, name);
 
@@ -39,6 +54,36 @@ Module module_load_name(CPU_State* state, const char* name) {
     } else {
         strcpy(filename, name); // restone original casing
         strcat(filename, ".funk");
+    }
+
+    if (access(filename, F_OK) != -1) {
+        // file exists
+        return filename;
+    }
+
+    for (int i = 0; i < state->num_module_paths; i++) {
+        char *path = malloc(strlen(filename) + strlen(state->module_paths[i] + 16));
+        strcpy(path, state->module_paths[i]);
+        strcat(path, path_separator);
+        strcat(path, filename);
+        if (access(path, F_OK) != -1) {
+            // file exists
+            free(filename);
+            return path;
+        }
+        free(path);
+    }
+    free(filename);
+    return NULL;
+}
+
+Module module_load_name(CPU_State* state, const char* name) {
+    char *filename = module_find_filename(state, name);
+
+    if (filename == NULL) {
+        fprintf(stderr, "Error: Module not found: %s\n", name);
+        vm_exit(state, EXIT_FAILURE);
+        return (Module) { .name = strdup(name), .addr = 0, .size = 0, .num_exports = 0, .start_of_code = 0 };
     }
 
     FILE *fp;

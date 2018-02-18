@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "funkyvm/funkyvm.h"
+#include "libvm/os.h"
 
 #define OPTPARSE_IMPLEMENTATION
 #define OPTPARSE_API static
@@ -17,11 +18,20 @@ int main(int argc, char **argv) {
     static_assert(sizeof(vm_pointer_t) <= sizeof(vm_type_t), "vm_pointer_t must be equal or smaller than vm_type_t");
     static_assert(sizeof(enum vm_value_type_t) <= sizeof(vm_type_t), "vm_value_type_t must be equal or smaller than vm_type_t");
 
+    unsigned char *main_memory = malloc(VM_MEMORY_LIMIT);
+    Memory memory;
+    memory_init(&memory, main_memory);
+    Module kernel;
+    int kernel_set = 0;
+
+    CPU_State state = cpu_init(&memory);
+
     struct optparse_long longopts[] = {
             {"amend", 'a', OPTPARSE_NONE},
             {"brief", 'b', OPTPARSE_NONE},
             {"color", 'c', OPTPARSE_REQUIRED},
             {"delay", 'd', OPTPARSE_OPTIONAL},
+            {"library-search-path", 'L', OPTPARSE_REQUIRED},
             {0}
     };
 
@@ -45,6 +55,9 @@ int main(int argc, char **argv) {
             case 'c':
                 color = options.optarg;
                 break;
+            case 'L':
+                module_register_path(&state, options.optarg);
+                break;
             case 'd':
                 delay = options.optarg ? atoi(options.optarg) : 1;
                 break;
@@ -59,13 +72,22 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    unsigned char *main_memory = malloc(VM_MEMORY_LIMIT);
-    Memory memory;
-    memory_init(&memory, main_memory);
-    Module kernel;
-    int kernel_set = 0;
+#if defined(FUNKY_VM_OS_MACOS)
+    module_register_path(&state, "/usr/local/lib/funky");
+    module_register_path(&state, "/usr/lib/funky");
+    module_register_path(&state, "/lib/funky");
+    module_register_path(&state, "/System/Library/Funky");
+    module_register_path(&state, "/Library/Funky");
+    module_register_path(&state, "~/Library/Funky");
+#elif defined(FUNKY_VM_OS_LINUX)
+    module_register_path(&state, "/usr/local/lib/funky");
+    module_register_path(&state, "/usr/lib/funky");
+    module_register_path(&state, "/lib/funky");
+#elif defined(FUNKY_VM_OS_WINDOWS)
 
-    CPU_State state = cpu_init(&memory);
+#endif
+
+    module_register_path(&state, get_executable_path("stdlib"));
 
     register_bindings(&state);
 
@@ -85,6 +107,7 @@ int main(int argc, char **argv) {
 
     free(main_memory);
     memory_destroy(&memory);
+    cpu_destroy(&state);
 
     return ret;
 }

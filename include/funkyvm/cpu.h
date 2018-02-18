@@ -39,6 +39,8 @@ typedef struct CPU_State {
 
     Module* modules;
     vm_type_t num_modules;
+    char** module_paths;
+    vm_type_t num_module_paths;
 
     vm_syscall_table_t* syscall_table;
     vm_type_t num_syscalls;
@@ -57,6 +59,7 @@ typedef struct CPU_State {
 } CPU_State;
 
 CPU_State cpu_init(Memory* memory);
+void cpu_destroy(CPU_State *state);
 void cpu_set_entry_to_module(CPU_State *state, Module *mod);
 vm_type_t cpu_run(CPU_State *state);
 

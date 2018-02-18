@@ -31,6 +31,9 @@ CPU_State cpu_init(Memory* memory) {
     state.modules = k_malloc(memory, 0);
     state.num_modules = 0;
 
+    state.module_paths = malloc(0);
+    state.num_module_paths = 0;
+
     state.syscall_table = k_malloc(memory, 0);
     state.num_syscalls = 0;
 
@@ -39,6 +42,13 @@ CPU_State cpu_init(Memory* memory) {
     initialize_boxing_prototypes(&state);
 
     return state;
+}
+
+void cpu_destroy(CPU_State *state) {
+    for (int i = 0; i < state->num_module_paths; i++) {
+        free (state->module_paths[i]);
+    }
+    free(state->module_paths);
 }
 
 void cpu_set_entry_to_module(CPU_State *state, Module *mod) {
