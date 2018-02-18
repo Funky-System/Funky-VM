@@ -187,6 +187,7 @@ int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
                 vm_map_elem_t *elem = ld_mapitem(state, (stack + rel)->pointer_value, "string");
                 if (elem != NULL) {
                     state->r1 = *(stack + rel);
+                    retain(state, stack + rel);
 
                     state->r7.type = VM_TYPE_INT;
                     state->r7.int_value = rel;
@@ -201,6 +202,7 @@ int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
                     state->pc = addr;
 
                     *stack = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = num_args };
+                    vm_free(state->memory, reserved_mem);
                     return 1;
                 } else {
                     strcpy(str, "(map)");
