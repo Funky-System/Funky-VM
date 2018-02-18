@@ -57,7 +57,7 @@ INSTR(box) {
         vm_exit(state, EXIT_FAILURE);
     }
 
-    st_mapitem(state, reserved_mem, "@value", &unboxed_value);
+    st_mapitem(state, reserved_mem, "value", &unboxed_value);
 
     *stack = (vm_value_t) { .type = VM_TYPE_MAP, .pointer_value = reserved_mem };
 }
@@ -65,7 +65,7 @@ INSTR(box) {
 INSTR(unbox) {
     USE_STACK();
     vm_assert(state, stack->type == VM_TYPE_MAP, "value is not an unboxable type");
-    vm_map_elem_t *box_value = ld_mapitem(state, stack->pointer_value, "@value");
+    vm_map_elem_t *box_value = ld_mapitem(state, stack->pointer_value, "value");
     if (box_value == NULL) {
         vm_error(state, "Value is not a boxed type");
         vm_exit(state, EXIT_FAILURE);
