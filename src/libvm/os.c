@@ -83,6 +83,7 @@ char* get_executable_filepath() {
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdio.h>
+#include <string.h>
 
 char* get_executable_filepath() {
     char path[PATH_MAX];
