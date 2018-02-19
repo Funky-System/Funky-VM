@@ -576,8 +576,8 @@ void ld_arrelem_map(CPU_State *state) {
 
     release(state, stack - 1); // release the map
     release(state, stack); // release the name
-    *stack = val;
-    AJS_STACK(-2);
+    *(stack - 1) = val;
+    AJS_STACK(-1);
 }
 
 void st_arrelem_map(CPU_State *state) {
