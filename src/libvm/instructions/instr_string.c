@@ -325,9 +325,29 @@ void st_arrelem_str(CPU_State *state) {
 
     // Negative index is index from end
     if (index < 0) index = len + index;
+
     if (index < 0) {
         vm_error(state, "Error: index is out of range");
         vm_exit(state, EXIT_FAILURE);
+    }
+
+    if (index > len - 1) {
+        vm_pointer_t reserved_mem = vm_malloc(state->memory,
+                                              sizeof(vm_type_t)
+                                              + index + 1
+                                              + 1);
+        vm_type_t *ref_count = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
+        char *str2 = vm_pointer_to_native(state->memory, reserved_mem + sizeof(vm_type_t), char*);
+
+        *ref_count = 1;
+        strcpy(str2, str);
+        for (int i = 0; i < index - (len - 1); i++) {
+            strcat(str2, " ");
+        }
+        str = str2;
+        release(state, stack - 1);
+
+        (stack-1)->pointer_value = reserved_mem;
     }
 
     str[index] = (char)((stack - 2)->uint_value);
@@ -346,7 +366,9 @@ void arr_slice_str(CPU_State *state) {
     vm_value_t* start = stack - 1;
     vm_value_t* end = stack;
 
-    end->int_value -= start->int_value - 1;
+    if (end->int_value >= 0) {
+        end->int_value -= start->int_value - 1;
+    }
 
     instr_substr(state);
 }
