@@ -73,6 +73,11 @@ INSTR(ld_arrelem) {
         return;
     }
 
+    if ((stack-1)->type == VM_TYPE_MAP) {
+        ld_arrelem_map(state);
+        return;
+    }
+
     vm_assert(state, (stack-1)->type == VM_TYPE_ARRAY, "value is not an array");
     instr_conv_int(state); // ensure top of stack is an unsigned integer, aka: the index
 
@@ -122,6 +127,11 @@ INSTR(st_arrelem) {
 
     if ((stack-1)->type == VM_TYPE_STRING) {
         st_arrelem_str(state);
+        return;
+    }
+
+    if ((stack-1)->type == VM_TYPE_MAP) {
+        st_arrelem_map(state);
         return;
     }
 

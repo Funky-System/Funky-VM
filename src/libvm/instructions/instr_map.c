@@ -1,5 +1,6 @@
 #include <memory.h>
 #include <assert.h>
+#include <funkyvm/funkyvm.h>
 #include "instructions.h"
 #include "../../../include/funkyvm/funkyvm.h"
 #include "../error_handling.h"
@@ -553,4 +554,44 @@ INSTR(map_getkeys) {
     arrayval.pointer_value = reserved_mem;
 
     *stack = arrayval;
+}
+
+void ld_arrelem_map(CPU_State *state) {
+    USE_STACK();
+
+    vm_assert(state, (stack-1)->type == VM_TYPE_MAP, "value is not a map");
+    instr_conv_str(state); // ensure top of stack is a string, aka: the index
+
+    const char *name = cstr_pointer_from_vm_value(state, stack);
+
+    vm_value_t val;
+
+    vm_map_elem_t *elem = ld_mapitem(state, (stack - 1)->pointer_value, name);
+    if (elem == NULL) {
+        val.type = VM_TYPE_EMPTY;
+    } else {
+        val = elem->value;
+        retain(state, &val);
+    }
+
+    release(state, stack - 1); // release the map
+    release(state, stack); // release the name
+    *stack = val;
+}
+
+void st_arrelem_map(CPU_State *state) {
+    USE_STACK();
+
+    vm_assert(state, (stack-1)->type == VM_TYPE_MAP, "value is not a map");
+    instr_conv_str(state); // ensure top of stack is a string, aka: the index
+
+    vm_assert(state, (stack)->type == VM_TYPE_STRING, "map reference is not of string type");
+
+    const char *name = cstr_pointer_from_vm_value(state, stack);
+
+    st_mapitem(state, (stack - 1)->pointer_value, name, stack - 2);
+    release(state, stack - 1); // release the map
+    release(state, stack); // release the name
+    // no release/retain for value, as it is reduced by one because of stack pop, but added by one because of array storage
+    AJS_STACK(-3);
 }

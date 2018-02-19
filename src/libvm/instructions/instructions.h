@@ -39,6 +39,8 @@ void arr_ne(CPU_State *state);
 void map_release(CPU_State* state, vm_pointer_t ptr);
 vm_type_t map_contains_key(CPU_State *state, vm_pointer_t map_ptr, const char* name);
 vm_map_elem_t* ld_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name);
+void ld_arrelem_map(CPU_State *state);
+void st_arrelem_map(CPU_State *state);
 
 INSTR(nop);
 INSTR(halt);
