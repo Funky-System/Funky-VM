@@ -108,6 +108,7 @@ INSTR(and);
 INSTR(or);
 INSTR(xor);
 INSTR(not);
+INSTR(not_bitwise);
 INSTR(cmp);
 INSTR(eq);
 INSTR(ne);

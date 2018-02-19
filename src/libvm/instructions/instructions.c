@@ -83,7 +83,7 @@ Instruction_Implementation instruction_implementations[256] = {
         /* 0x41 */    &instr_pow,
         /* 0x42 */    &instr_lsh,
         /* 0x43 */    &instr_rsh,
-        /* 0x44 */    &NOT_IMPLEMENTED,
+        /* 0x44 */    &instr_not_bitwise,
         /* 0x45 */    &NOT_IMPLEMENTED,
         /* 0x46 */    &NOT_IMPLEMENTED,
         /* 0x47 */    &NOT_IMPLEMENTED,
