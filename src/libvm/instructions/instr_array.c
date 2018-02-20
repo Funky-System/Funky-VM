@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <funkyvm/funkyvm.h>
 #include "instructions.h"
 #include "../../../include/funkyvm/funkyvm.h"
 
@@ -162,7 +163,9 @@ INSTR(st_arrelem) {
         *len = (vm_type_t) (index + 1);
     }
 
-    release(state, &array[index]);
+    if (array[index].pointer_value != (stack - 2)->pointer_value) {
+        release(state, &array[index]);
+    }
     array[index] = *(stack - 2);
 
     release(state, stack - 1); // release the array
@@ -521,6 +524,8 @@ void arr_release(CPU_State* state, vm_pointer_t ptr) {
     for (int i = 0; i < *len; i++) {
         release(state, &array[i]);
     }
+
+    vm_free(state->memory, *array_ptr);
 }
 
 void instr_conv_arr_rel(CPU_State* state, vm_type_signed_t rel) {
