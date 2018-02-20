@@ -444,7 +444,12 @@ INSTR(eq_id) {
 }
 
 INSTR(ne_id) {
-	USE_TYPECHECK();
+    USE_STACK();
+    if (stack->type != (stack - 1)->type) {
+        AJS_STACK(-1);
+        *(stack - 1) = (vm_value_t) { .uint_value = 1, .type = VM_TYPE_UINT };
+        return;
+    }
 	instr_ne(state);
 }
 
