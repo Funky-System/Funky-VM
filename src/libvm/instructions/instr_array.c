@@ -157,14 +157,14 @@ INSTR(st_arrelem) {
     if (index > (vm_type_signed_t)*len - 1) {
         *array_ptr = vm_realloc(state->memory, *array_ptr, (index + 1) * sizeof(vm_value_t));
         array = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
-        for (int i = (vm_type_signed_t)*len; i < index; i++) {
+        for (int i = (vm_type_signed_t)*len; i <= index; i++) {
             array[i] = (vm_value_t) { .type = VM_TYPE_EMPTY };
         }
         *len = (vm_type_t) (index + 1);
-    }
-
-    if (array[index].pointer_value != (stack - 2)->pointer_value) {
-        release(state, &array[index]);
+    } else {
+        if (array[index].pointer_value != (stack - 2)->pointer_value) {
+            release(state, &array[index]);
+        }
     }
     array[index] = *(stack - 2);
 
@@ -225,6 +225,8 @@ INSTR(del_arrelem) {
             array[i - 1] = array[i];
         }
         (*len)--;
+
+        *array_ptr = vm_realloc(state->memory, *array_ptr, *len * sizeof(vm_value_t));
 
         release(state, stack - 1); // release the array
     }
