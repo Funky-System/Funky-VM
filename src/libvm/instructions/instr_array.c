@@ -162,6 +162,7 @@ INSTR(st_arrelem) {
         *len = (vm_type_t) (index + 1);
     }
 
+    release(state, &array[index]);
     array[index] = *(stack - 2);
 
     release(state, stack - 1); // release the array
