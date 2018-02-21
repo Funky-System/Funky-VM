@@ -6,6 +6,7 @@
 
 #include "funkyvm/funkyvm.h"
 #include "libvm/os.h"
+#include "version.h"
 
 #define OPTPARSE_IMPLEMENTATION
 #define OPTPARSE_API static
@@ -32,6 +33,7 @@ int main(int argc, char **argv) {
             {"color", 'c', OPTPARSE_REQUIRED},
             {"delay", 'd', OPTPARSE_OPTIONAL},
             {"library-search-path", 'L', OPTPARSE_REQUIRED},
+            {"version", 'v', OPTPARSE_NONE},
             {0}
     };
 
@@ -61,6 +63,9 @@ int main(int argc, char **argv) {
             case 'd':
                 delay = options.optarg ? atoi(options.optarg) : 1;
                 break;
+            case 'v':
+                printf("Funky VM version %s.%s.%s\nBuilt on %s %s\n", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, __DATE__, __TIME__);
+                return 0;
             case '?':
                 fprintf(stderr, "%s: %s\n", argv[0], options.errmsg);
                 exit(EXIT_FAILURE);
