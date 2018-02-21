@@ -14,6 +14,9 @@
 #elif defined(__linux__) || defined(linux) || defined(__linux)
 #define FUNKY_VM_OS_LINUX
 #define FUNKY_VM_OS "Linux"
+#elif defined(EMSCRIPTEN)
+#define FUNKY_VM_OS_EMSCRIPTEN
+#define FUNKY_VM_OS "emscripten"
 #else
 #error Funky VM is not supported on this Operating System
 #endif
