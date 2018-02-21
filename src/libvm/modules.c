@@ -19,7 +19,7 @@
 #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
 #define FLAG_LITTLE_ENDIAN 1u
 
-static char *strlwr(char *s) {
+static char *vm_strlwr(char *s) {
     char *tmp = s;
 
     for (; *tmp; ++tmp) {
@@ -47,7 +47,7 @@ char* module_find_filename(CPU_State *state, const char* name) {
     char* filename = malloc(strlen(name) + 1 + 5);
     strcpy(filename, name);
 
-    strlwr(filename);
+    vm_strlwr(filename);
     char *dot = strrchr(filename, '.');
     if (dot && !strcmp(dot, ".funk")) {
         strcpy(filename, name); // restore original casing
