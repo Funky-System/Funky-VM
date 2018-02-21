@@ -20,3 +20,5 @@ set_target_properties(funky-vm-bin PROPERTIES OUTPUT_NAME funky-vm)
 configure_file(test/test_vm.sh ${CMAKE_BINARY_DIR}/bin/test_vm.sh COPYONLY)
 
 file(COPY include DESTINATION ${CMAKE_BINARY_DIR})
+
+install(TARGETS funky-vm-bin DESTINATION bin)
