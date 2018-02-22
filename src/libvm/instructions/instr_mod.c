@@ -3,6 +3,7 @@
 //
 
 #include <string.h>
+#include <funkyvm/funkyvm.h>
 
 #include "instructions.h"
 #include "funkyvm/funkyvm.h"
@@ -166,3 +167,20 @@ INSTR(ld_extern) {
         }
     }
 }
+
+INSTR(mod_exists) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_STRING, "map reference is not of string type");
+    const char *name = cstr_pointer_from_vm_value(state, stack);
+    stack->int_value = module_exists(state, name);
+    stack->type = VM_TYPE_UINT;
+}
+
+INSTR(mod_isloaded) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_STRING, "map reference is not of string type");
+    const char *name = cstr_pointer_from_vm_value(state, stack);
+    stack->int_value = module_get(state, name) != NULL;
+    stack->type = VM_TYPE_UINT;
+}
+

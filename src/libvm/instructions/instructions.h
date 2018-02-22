@@ -64,6 +64,8 @@ INSTR(syscall_getindex);
 INSTR(syscall_getindex_pop);
 INSTR(syscall_byname);
 INSTR(syscall_pop);
+INSTR(mod_exists);
+INSTR(mod_isloaded);
 
 INSTR(ld_int);
 INSTR(ld_uint);

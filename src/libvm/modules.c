@@ -77,6 +77,16 @@ char* module_find_filename(CPU_State *state, const char* name) {
     return NULL;
 }
 
+int module_exists(CPU_State *state, const char* name) {
+    char *filename = module_find_filename(state, name);
+    if (filename != NULL) {
+        free(filename);
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 Module module_load_name(CPU_State* state, const char* name) {
     char *filename = module_find_filename(state, name);
 
