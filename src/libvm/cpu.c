@@ -66,8 +66,8 @@ void cpu_emscripten_yield(CPU_State *state) {
 }
 
 void emscripten_loop(void *arg) {
-    state->emscripten_yield = 0;
     CPU_State *state = (CPU_State *) arg;
+    state->emscripten_yield = 0;
     while (!state->emscripten_yield && state->running) {
         unsigned char opcode = *(state->memory->main_memory + state->pc);
         state->pc++;
