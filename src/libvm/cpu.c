@@ -4,6 +4,11 @@
 #include "funkyvm/memory.h"
 #include "boxing.h"
 
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+#include <emscripten/emscripten.h>
+#pragma pack(1)
+#endif
+
 CPU_State cpu_init(Memory* memory) {
     CPU_State state;
     state.memory = memory;
@@ -55,7 +60,18 @@ void cpu_set_entry_to_module(CPU_State *state, Module *mod) {
     state->pc = mod->addr + mod->start_of_code;
 }
 
+void emscripten_loop(void *arg) {
+    CPU_State *state = (CPU_State*)arg;
+    unsigned char opcode = *(state->memory->main_memory + state->pc);
+    state->pc++;
+    instruction_implementations[opcode](state);
+}
+
 vm_type_t cpu_run(CPU_State *state) {
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+    emscripten_set_main_loop_arg(emscripten_loop, state, 0, 1);
+        return 0;
+#else
     while (state->running) {
         unsigned char opcode = *(state->memory->main_memory + state->pc);
         state->pc++;
@@ -63,4 +79,5 @@ vm_type_t cpu_run(CPU_State *state) {
     }
 
     return state->rr.uint_value;
+#endif
 }

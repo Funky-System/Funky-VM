@@ -155,8 +155,8 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
     // grab sufficient memory for the buffer to hold the text
     //unsigned char *module_addr = k_calloc(mem, numbytes, sizeof(unsigned char));
     //module.addr = (vm_type_t) (module_addr - mem->main_memory);
-    vm_pointer_t module_addr = vm_calloc(mem, module.size + 1, sizeof(unsigned char));
-    unsigned char* native_module_addr = vm_pointer_to_native(mem, module_addr, byte_t*);
+    vm_pointer_t module_addr = vm_calloc(mem, module.size + 1, sizeof(byte_t));
+    byte_t* native_module_addr = vm_pointer_to_native(mem, module_addr, byte_t*);
     module.addr = module_addr;
 
     if (module_addr == 0) {

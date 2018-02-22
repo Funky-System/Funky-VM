@@ -8,6 +8,11 @@
 #include "../../../include/funkyvm/cpu.h"
 #include "../error_handling.h"
 
+#include "../../../include/funkyvm/os.h"
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+#pragma pack(1)
+#endif
+
 /* -- Strings --
  * Arrays are saved in memory as a packed tuple:
  *   vm_type_t length
@@ -45,10 +50,10 @@ INSTR(strcat) {
     vm_assert(state, (stack - 1)->type == VM_TYPE_STRING, "String concatenation with non-string right operand");
 
     vm_pointer_t reserved_mem = vm_malloc(state->memory,
-            sizeof(vm_type_t)
-            + strlen(cstr_pointer_from_vm_value(state, stack))
-            + strlen(cstr_pointer_from_vm_value(state, stack - 1))
-            + 1);
+                                          sizeof(vm_type_t)
+                                          + strlen(cstr_pointer_from_vm_value(state, stack))
+                                          + strlen(cstr_pointer_from_vm_value(state, stack - 1))
+                                          + 1);
     vm_type_t *ref_count = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
     char *str = vm_pointer_to_native(state->memory, reserved_mem + sizeof(vm_type_t), char*);
 
@@ -183,32 +188,32 @@ int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
             // TODO
             //break;
         case VM_TYPE_MAP:
-            {
-                vm_map_elem_t *elem = ld_mapitem(state, (stack + rel)->pointer_value, "string");
-                if (elem != NULL) {
-                    state->r1 = *(stack + rel);
-                    retain(state, stack + rel);
+        {
+            vm_map_elem_t *elem = ld_mapitem(state, (stack + rel)->pointer_value, "string");
+            if (elem != NULL) {
+                state->r1 = *(stack + rel);
+                retain(state, stack + rel);
 
-                    state->r7.type = VM_TYPE_INT;
-                    state->r7.int_value = rel;
+                state->r7.type = VM_TYPE_INT;
+                state->r7.int_value = rel;
 
-                    AJS_STACK(+2);
-                    USE_STACK();
-                    vm_type_t addr = elem->value.pointer_value;
-                    vm_type_t num_args = 0;
-                    (stack - 1)->uint_value = state->pc - 1;
-                    (stack - 1)->type = VM_TYPE_REF;
+                AJS_STACK(+2);
+                USE_STACK();
+                vm_type_t addr = elem->value.pointer_value;
+                vm_type_t num_args = 0;
+                (stack - 1)->uint_value = state->pc - 1;
+                (stack - 1)->type = VM_TYPE_REF;
 
-                    state->pc = addr;
+                state->pc = addr;
 
-                    *stack = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = num_args };
-                    vm_free(state->memory, reserved_mem);
-                    return 1;
-                } else {
-                    strcpy(str, "(map)");
-                    (stack + rel)->pointer_value = reserved_mem;
-                }
+                *stack = (vm_value_t) { .type = VM_TYPE_UINT, .uint_value = num_args };
+                vm_free(state->memory, reserved_mem);
+                return 1;
+            } else {
+                strcpy(str, "(map)");
+                (stack + rel)->pointer_value = reserved_mem;
             }
+        }
             break;
         case VM_TYPE_ARRAY:
             // TODO
