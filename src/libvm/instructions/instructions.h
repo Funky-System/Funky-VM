@@ -6,6 +6,11 @@
 #include "../../../include/funkyvm/cpu.h"
 #include "../error_handling.h"
 
+#include "../../../include/funkyvm/os.h"
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+#pragma pack(1)
+#endif
+
 typedef void (*Instruction_Implementation)(CPU_State *state);    /* A pointer to a handler function */
 
 extern Instruction_Implementation instruction_implementations[256];

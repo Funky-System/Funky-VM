@@ -11,7 +11,7 @@
 
 typedef void (*vm_syscall_t)(CPU_State *state);
 
-typedef struct vm_syscall_table_t {
+typedef __attribute__((aligned(1))) struct vm_syscall_table_t {
     const char* name;
     vm_syscall_t fn;
 } vm_syscall_table_t;

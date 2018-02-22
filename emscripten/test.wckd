@@ -1,0 +1,27 @@
+syscall print(str)
+
+class A
+    var i = 4
+    function new()
+        this.i = 44
+    end
+
+   function setFloat()
+        this.i = 4.6
+   end
+
+end
+
+
+function main()
+    for i in 1..10 do
+        print("hi " + i + "!\n")
+    end
+end
+
+main()
+
+var a = new A()
+print("i: " + a.i + "\n")
+a.setFloat()
+print("i: " + a.i + "\n")

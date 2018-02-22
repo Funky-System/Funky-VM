@@ -1,6 +1,11 @@
 #ifndef PROCESSOR_CPU_H
 #define PROCESSOR_CPU_H
 
+#include "os.h"
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+#pragma pack(1)
+#endif
+
 typedef struct CPU_State CPU_State;
 
 #include <stdint.h>

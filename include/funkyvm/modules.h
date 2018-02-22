@@ -11,7 +11,7 @@ typedef struct Module Module;
 #include "memory.h"
 #include "cpu.h"
 
-typedef struct Module {
+typedef __attribute__((aligned(1))) struct Module {
     char* name;
     vm_pointer_t addr;
     vm_type_t num_exports;

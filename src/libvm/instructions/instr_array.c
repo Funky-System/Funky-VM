@@ -3,6 +3,11 @@
 #include "instructions.h"
 #include "../../../include/funkyvm/funkyvm.h"
 
+#include "../../../include/funkyvm/os.h"
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+#pragma pack(1)
+#endif
+
 /* -- Arrays --
  * Arrays are saved in memory as a packed tuple:
  *   vm_type_t length
@@ -619,6 +624,7 @@ INSTR(arr_range) {
     for (int i = 0; i < *length; i++) {
         array[i] = (vm_value_t) { .type = VM_TYPE_INT, .int_value = start + i * step };
     }
+    printf("hier\n");
 
     arrayval.pointer_value = reserved_mem;
 

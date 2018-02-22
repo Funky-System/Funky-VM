@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "funkyvm/funkyvm.h"
 #include "os.h"
 
@@ -98,6 +100,12 @@ char* get_executable_filepath() {
         return strdup(dest);
     }
     return NULL;
+}
+#endif
+
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+char* get_executable_filepath() {
+    return strdup("");
 }
 #endif
 

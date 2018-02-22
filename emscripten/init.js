@@ -1,0 +1,1 @@
+Module['arguments'] = ['test.funk'];

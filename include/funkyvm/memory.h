@@ -5,7 +5,7 @@
 
 #define PAGE_SIZE 4096
 
-typedef struct {
+typedef __attribute__((aligned(1))) struct {
     unsigned char* main_memory;
     unsigned char* bitmap;
     vm_type_t bitmap_size;

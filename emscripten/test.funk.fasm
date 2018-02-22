@@ -1,0 +1,253 @@
+section .data
+@filename: data "test.wckd"
+section .text
+
+section .data
+A: var
+section .text
+ld.map
+st.ref A
+section .data
+@global_0: var
+
+section .text
+# Syscall name: print
+jmp @print__end
+print: 
+debug.enterscope "print"
+args.accept 1
+ld.arg 0
+syscall.byname "print"
+ajs -1
+args.cleanup
+debug.leavescope
+ret
+@print__end: 
+debug.setcontext @filename, 3, 0
+# Class name: A
+# alloc A
+# var: i
+ld.int 4
+ld.deref A
+st.mapitem "i"
+
+# function: new
+ld.ref A.new
+ld.deref A
+st.mapitem "new"
+# function: setFloat
+ld.ref A.setFloat
+ld.deref A
+st.mapitem "setFloat"
+# Function name: A.new
+jmp @A.new__end
+A.new: 
+debug.enterscope "A.new"
+args.accept 0
+locals.res 1
+ld.reg %r1
+st.local 0
+debug.setcontext @filename, 6, 8
+ld.int 44
+debug.setcontext @filename, 6, 8
+ld.local 0
+debug.setcontext @filename, 6, 13
+ld.stack -1
+st.reg %r2
+st.mapitem "i"
+ld.reg %r2
+pop
+locals.cleanup
+args.cleanup
+ld.int 0
+st.reg %rr
+debug.leavescope
+ret
+@A.new__end: # end
+
+# Function name: A.setFloat
+jmp @A.setFloat__end
+A.setFloat: 
+debug.enterscope "A.setFloat"
+args.accept 0
+locals.res 1
+ld.reg %r1
+st.local 0
+debug.setcontext @filename, 10, 8
+ld.float 4.6
+debug.setcontext @filename, 10, 8
+ld.local 0
+debug.setcontext @filename, 10, 13
+ld.stack -1
+st.reg %r2
+st.mapitem "i"
+ld.reg %r2
+pop
+locals.cleanup
+args.cleanup
+ld.int 0
+st.reg %rr
+debug.leavescope
+ret
+@A.setFloat__end: # end
+
+#allocator
+jmp @A__end
+@alloc_A:
+debug.enterscope "@alloc_A"
+ld.map
+ld.deref A
+ld.stack -1
+map.setprototype
+ld.uint 1
+ld.stack -1
+st.mapitem "@is_instance"
+st.reg %rr
+debug.leavescope
+ret
+@A__end:
+ld.ref @alloc_A
+ld.deref A
+st.mapitem "@alloc"
+
+
+# Function name: main
+jmp @main__end
+main: 
+debug.enterscope "main"
+args.accept 0
+locals.res 2
+ld.reg %r1
+st.local 0
+debug.setcontext @filename, 17, 4
+ld.int 1
+ld.int 10
+arr.range
+dup
+arr.len
+ld.int 0
+startfor_0:
+ld.stack 0
+ld.stack -2
+cmp
+bge endfor_0
+ld.stack -2
+ld.stack -1
+ld.arrelem
+st.local 1
+debug.setcontext @filename, 18, 8
+debug.setcontext @filename, 18, 8
+ld.ref print
+debug.setcontext @filename, 18, 13
+ld.str "hi "
+debug.setcontext @filename, 18, 22
+ld.local 1
+add
+ld.str "!\n"
+add
+ld.empty
+st.reg %r1
+ld.stack -1
+call.pop 1
+pop
+ld.reg %rr
+pop
+@end_1: # end
+continue_0: ld.stack 0
+ld.int 1
+add
+st.stack -1
+jmp startfor_0
+endfor_0:
+ajs -3
+locals.cleanup
+args.cleanup
+ld.int 0
+st.reg %rr
+debug.leavescope
+ret
+@main__end: # end
+
+debug.setcontext @filename, 22, 0
+debug.setcontext @filename, 22, 0
+ld.ref main
+debug.setcontext @filename, 22, 4
+ld.empty
+st.reg %r1
+ld.stack -0
+call.pop 0
+pop
+ld.reg %rr
+pop
+debug.setcontext @filename, 24, 0
+debug.setcontext @filename, 24, 8
+debug.setcontext @filename, 24, 12
+ld.deref A
+ld.mapitem "@alloc"
+call.pop 0
+ld.reg %rr
+dup
+ld.mapitem "new"
+is.empty
+brtrue @skip_2
+debug.setcontext @filename, 24, 13
+ld.stack -1
+st.reg %r1
+ld.stack -0
+call.pop 0
+@skip_2:
+pop
+@end_2:
+st.ref @global_0
+debug.setcontext @filename, 25, 0
+debug.setcontext @filename, 25, 0
+ld.ref print
+debug.setcontext @filename, 25, 5
+ld.str "i: "
+debug.setcontext @filename, 25, 14
+ld.deref @global_0
+debug.setcontext @filename, 25, 16
+ld.mapitem "i"
+add
+ld.str "\n"
+add
+ld.empty
+st.reg %r1
+ld.stack -1
+call.pop 1
+pop
+ld.reg %rr
+pop
+debug.setcontext @filename, 26, 0
+debug.setcontext @filename, 26, 0
+ld.deref @global_0
+debug.setcontext @filename, 26, 2
+dup
+ld.mapitem "setFloat"
+ld.stack -1
+st.reg %r1
+ld.stack -0
+call.pop 0
+pop
+pop
+ld.reg %rr
+pop
+debug.setcontext @filename, 27, 0
+debug.setcontext @filename, 27, 0
+ld.ref print
+debug.setcontext @filename, 27, 5
+ld.str "i: "
+debug.setcontext @filename, 27, 14
+ld.deref @global_0
+debug.setcontext @filename, 27, 16
+ld.mapitem "i"
+add
+ld.str "\n"
+add
+ld.empty
+st.reg %r1
+ld.stack -1
+call.pop 1
+pop
+ld.reg %rr
+pop

@@ -14,7 +14,7 @@
 #elif defined(__linux__) || defined(linux) || defined(__linux)
 #define FUNKY_VM_OS_LINUX
 #define FUNKY_VM_OS "Linux"
-#elif defined(EMSCRIPTEN)
+#elif defined(__EMSCRIPTEN__)
 #define FUNKY_VM_OS_EMSCRIPTEN
 #define FUNKY_VM_OS "emscripten"
 #else
