@@ -372,7 +372,7 @@ void arr_slice_str(CPU_State *state) {
     vm_value_t* end = stack;
 
     if (end->int_value >= 0) {
-        end->int_value -= start->int_value - 1;
+        end->int_value -= start->int_value;
     }
 
     instr_substr(state);
