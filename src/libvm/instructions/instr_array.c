@@ -354,7 +354,7 @@ INSTR(arr_insert) {
  * extra_info: A negative index is valid and indexes from the end of the array. -1 is equal to the index of the last element.
  * stack_pre:
  *   - type: int
- *     description: End index (inclusive)
+ *     description: End index (exclusive)
  *   - type: int
  *     description: Start index (inclusive)
  *   - type: array
@@ -382,13 +382,13 @@ INSTR(arr_slice) {
     vm_type_signed_t start = (stack - 1)->int_value;
     vm_type_signed_t end = (stack)->int_value;
 
-    if (start < 0) start = *orig_len + start;
-    if (start < 0 || start > *orig_len - 1) {
+    if (start < 0) start = *orig_len + 1 + start;
+    if (start < 0 || start > *orig_len) {
         vm_error(state, "Error: index is out of range");
         vm_exit(state, EXIT_FAILURE);
     }
-    if (end < 0) end = *orig_len + end;
-    if (end < 0 || end > *orig_len - 1) {
+    if (end < 0) end = *orig_len + 1 + end;
+    if (end < 0 || end > *orig_len) {
         vm_error(state, "Error: index is out of range");
         vm_exit(state, EXIT_FAILURE);
     }
@@ -404,7 +404,7 @@ INSTR(arr_slice) {
     vm_pointer_t *array_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 2;
 
     *ref_count = 1;
-    *length = (vm_type_t) (end - start  + 1);
+    *length = (vm_type_t) (end - start);
 
     *array_ptr = vm_malloc(state->memory, *length * sizeof(vm_value_t));
     vm_value_t *new_array = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
@@ -585,10 +585,10 @@ INSTR(conv_arr) {
  * opcode: "0x81"
  * description: Create an array with values from a range
  * extra_info: This operation creates a new array that has all the values from the range start..end.
- *             For example, the range 1..5 creates the array [1, 2, 3, 4, 5].
+ *             For example, the range 1..5 creates the array [1, 2, 3, 4].
  * stack_pre:
  *   - type: int
- *     description: The last value (inclusive)
+ *     description: The last value (exclusive)
  *   - type: int
  *     description: The first value (inclusive)
  * stack_post:
@@ -616,7 +616,7 @@ INSTR(arr_range) {
     }
 
     *ref_count = 1;
-    *length = (vm_type_t) ((end - start + step) / step);
+    *length = (vm_type_t) ((end - start) / step);
 
     *array_ptr = vm_malloc(state->memory, *length * sizeof(vm_value_t));
     vm_value_t *array = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
