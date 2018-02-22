@@ -18,6 +18,7 @@ typedef __attribute__((aligned(1))) struct Module {
     vm_type_t start_of_code;
     vm_type_t size;
     vm_pointer_t ref_map;
+    vm_type_t num_links;
 } Module;
 
 Module module_load_name(CPU_State* state, const char* name);

@@ -117,6 +117,8 @@ Module module_load_name(CPU_State* state, const char* name) {
 
     Module module = module_load(state->memory, name, bytecode);
 
+    module.num_links = 0;
+
     free(bytes);
 
     return module;
@@ -176,6 +178,7 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
 
 void module_unload(Memory *mem, Module* module) {
     vm_free(mem, module->addr);
+    free(module->name);
 }
 
 int module_register(CPU_State *state, Module module) {
@@ -188,8 +191,6 @@ int module_register(CPU_State *state, Module module) {
 int module_release(CPU_State *state, const char* name) {
     for (int i = 0; i < state->num_modules; i++) {
         if (strcmp(state->modules[i].name, name) == 0) {
-            k_free(state->memory, state->modules[i].name);
-            vm_free(state->memory, state->modules[i].addr);
             for (int j = i + 1; j < state->num_modules; j++) {
                 state->modules[j - 1] = state->modules[j];
             }

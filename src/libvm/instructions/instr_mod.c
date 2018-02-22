@@ -33,6 +33,7 @@ INSTR(link) {
             USE_STACK();
             *stack = (vm_value_t) {.type = VM_TYPE_MAP, .pointer_value = existing->ref_map};
             free(orig_module);
+            existing->num_links++;
             return;
         }
         module = existing;
@@ -72,13 +73,36 @@ INSTR(link) {
     module->ref_map = reserved_mem;
 
     if (!existing) {
+        module->num_links = 1;
         module_register(state, *module);
+    } else {
+        existing->num_links++;
     }
 
     free(orig_module);
 }
 
-INSTR_NOT_IMPLEMENTED(unlink);
+INSTR(unlink) {
+    char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
+
+    Module *existing = module_get(state, name);
+    if (existing != NULL) {
+        if (existing->num_links > 1) {
+            existing->num_links--;
+        } else {
+            module_release(state, name);
+            if (existing->ref_map != 0) {
+                vm_type_t *ref_count = vm_pointer_to_native(state->memory, existing->ref_map, vm_type_t*);
+                *ref_count = 1;
+                release_pointer(state, VM_TYPE_MAP, existing->ref_map);
+            }
+            module_unload(state->memory, existing);
+        }
+    } else {
+        vm_error(state, "Error: Module not loaded: %s\n", name);
+        vm_exit(state, EXIT_FAILURE);
+    }
+}
 
 /**!
  * instruction: ld.extern
