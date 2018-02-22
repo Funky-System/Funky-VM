@@ -8,22 +8,7 @@
 #include "funkyvm/funkyvm.h"
 #include "../boxing.h"
 
-/**!
- * instruction: link
- * category: modules
- * opcode: "0x04"
- * description: Loads a funk module into memory and pushes a map with named references.
- * extra_info: If the name does not end in <code>.funk</code>, the VM adds it.
- * operands:
- *   - type: string
- *     description: Name of module
- * stack_post:
- *   - type: map
- *     description: Named references that have been exported from module
- */
-INSTR(link) {
-    char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
-
+void link(CPU_State *state, const char* name) {
     Module *existing = module_get(state, name);
     Module *module = calloc(1, sizeof(Module));
     Module *orig_module = module;
@@ -82,9 +67,34 @@ INSTR(link) {
     free(orig_module);
 }
 
-INSTR(unlink) {
+/**!
+ * instruction: link
+ * category: modules
+ * opcode: "0x04"
+ * description: Loads a funk module into memory and pushes a map with named references.
+ * extra_info: If the name does not end in <code>.funk</code>, the VM adds it.
+ * operands:
+ *   - type: string
+ *     description: Name of module
+ * stack_post:
+ *   - type: map
+ *     description: Named references that have been exported from module
+ */
+INSTR(link) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
 
+    link(state, name);
+}
+
+INSTR(link_pop) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_STRING, "map reference is not of string type");
+    const char *name = cstr_pointer_from_vm_value(state, stack);
+    AJS_STACK(-1);
+    link(state, name);
+}
+
+void unlink(CPU_State *state, const char *name) {
     Module *existing = module_get(state, name);
     if (existing != NULL) {
         if (existing->num_links > 1) {
@@ -102,6 +112,19 @@ INSTR(unlink) {
         vm_error(state, "Error: Module not loaded: %s\n", name);
         vm_exit(state, EXIT_FAILURE);
     }
+}
+
+INSTR(unlink) {
+    char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
+    unlink(state, name);
+}
+
+INSTR(unlink_pop) {
+    USE_STACK();
+    vm_assert(state, stack->type == VM_TYPE_STRING, "map reference is not of string type");
+    const char *name = cstr_pointer_from_vm_value(state, stack);
+    AJS_STACK(-1);
+    unlink(state, name);
 }
 
 /**!
