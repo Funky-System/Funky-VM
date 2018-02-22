@@ -50,6 +50,10 @@ typedef struct CPU_State {
     vm_syscall_table_t* syscall_table;
     vm_type_t num_syscalls;
 
+    #ifdef FUNKY_VM_OS_EMSCRIPTEN
+    int emscripten_yield;
+    #endif
+
     struct boxing {
         vm_pointer_t proto_int;
         vm_pointer_t proto_uint;
@@ -67,5 +71,9 @@ CPU_State cpu_init(Memory* memory);
 void cpu_destroy(CPU_State *state);
 void cpu_set_entry_to_module(CPU_State *state, Module *mod);
 vm_type_t cpu_run(CPU_State *state);
+
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+void cpu_emscripten_yield(CPU_State *state);
+#endif
 
 #endif //PROCESSOR_CPU_H

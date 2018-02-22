@@ -60,17 +60,27 @@ void cpu_set_entry_to_module(CPU_State *state, Module *mod) {
     state->pc = mod->addr + mod->start_of_code;
 }
 
-void emscripten_loop(void *arg) {
-    CPU_State *state = (CPU_State*)arg;
-    unsigned char opcode = *(state->memory->main_memory + state->pc);
-    state->pc++;
-    instruction_implementations[opcode](state);
+#ifdef FUNKY_VM_OS_EMSCRIPTEN
+void cpu_emscripten_yield(CPU_State *state) {
+    state->emscripten_yield = 1;
 }
+
+void emscripten_loop(void *arg) {
+    state->emscripten_yield = 0;
+    CPU_State *state = (CPU_State *) arg;
+    while (!state->emscripten_yield && state->running) {
+        unsigned char opcode = *(state->memory->main_memory + state->pc);
+        state->pc++;
+        instruction_implementations[opcode](state);
+    }
+    state->emscripten_yield = 1;
+}
+#endif
 
 vm_type_t cpu_run(CPU_State *state) {
 #ifdef FUNKY_VM_OS_EMSCRIPTEN
     emscripten_set_main_loop_arg(emscripten_loop, state, 0, 1);
-        return 0;
+    return 0;
 #else
     while (state->running) {
         unsigned char opcode = *(state->memory->main_memory + state->pc);
