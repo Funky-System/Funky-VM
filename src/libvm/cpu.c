@@ -79,7 +79,7 @@ void emscripten_loop(void *arg) {
 
 vm_type_t cpu_run(CPU_State *state) {
 #ifdef FUNKY_VM_OS_EMSCRIPTEN
-    emscripten_set_main_loop_arg(emscripten_loop, state, 0, 1);
+    emscripten_set_main_loop_arg(emscripten_loop, state, 0, 0);
     return 0;
 #else
     while (state->running) {
