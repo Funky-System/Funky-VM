@@ -8,7 +8,7 @@
 #include "funkyvm/funkyvm.h"
 #include "../boxing.h"
 
-void link(CPU_State *state, const char* name) {
+static void link(CPU_State *state, const char* name) {
     Module *existing = module_get(state, name);
     Module *module = calloc(1, sizeof(Module));
     Module *orig_module = module;
@@ -94,7 +94,7 @@ INSTR(link_pop) {
     link(state, name);
 }
 
-void unlink(CPU_State *state, const char *name) {
+static void unlink(CPU_State *state, const char *name) {
     Module *existing = module_get(state, name);
     if (existing != NULL) {
         if (existing->num_links > 1) {
