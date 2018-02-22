@@ -624,7 +624,6 @@ INSTR(arr_range) {
     for (int i = 0; i < *length; i++) {
         array[i] = (vm_value_t) { .type = VM_TYPE_INT, .int_value = start + i * step };
     }
-    printf("hier\n");
 
     arrayval.pointer_value = reserved_mem;
 
