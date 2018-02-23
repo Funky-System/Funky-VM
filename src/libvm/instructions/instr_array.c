@@ -167,9 +167,9 @@ INSTR(st_arrelem) {
         }
         *len = (vm_type_t) (index + 1);
     } else {
-        if (array[index].pointer_value != (stack - 2)->pointer_value) {
+        //if (array[index].pointer_value != (stack - 2)->pointer_value) {
             release(state, &array[index]);
-        }
+        //}
     }
     array[index] = *(stack - 2);
 

@@ -418,7 +418,7 @@ INSTR(map_setprototype) {
 
     vm_pointer_t *prototype_ptr = vm_pointer_to_native(state->memory, stack->pointer_value, vm_pointer_t*) + 2;
 
-    if (*prototype_ptr != 0 && *prototype_ptr != (stack - 1)->pointer_value) {
+    if (*prototype_ptr != 0) {
         release_pointer(state, VM_TYPE_MAP, *prototype_ptr);
     }
 
