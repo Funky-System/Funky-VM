@@ -104,6 +104,7 @@ INSTR(ld_mapitem_pop) {
 void st_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name, vm_value_t* value) {
     vm_pointer_t *first_ptr = vm_pointer_to_native(state->memory, map_ptr, vm_pointer_t*) + 1;
 
+    // first item
     if (*first_ptr == 0) {
         vm_pointer_t name_ptr = vm_malloc(state->memory, strlen(name) + 1);
         strcpy(vm_pointer_to_native(state->memory, name_ptr, char*), name);
@@ -118,6 +119,7 @@ void st_mapitem(CPU_State *state, vm_pointer_t map_ptr, const char* name, vm_val
         return;
     }
 
+    // existing item
     vm_map_elem_t *item = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
     while (1) {
         if (strcmp(name, vm_pointer_to_native(state->memory, item->name, char*)) == 0) {
@@ -302,6 +304,7 @@ INSTR(map_copy) {
         while (1) {
             const char *name = cstr_pointer_from_vm_pointer_t(state, item->name);
             st_mapitem(state, reserved_mem, name, &item->value);
+            // TODO: this might leak if both map 1 and 2 contains the same key
             retain(state, &item->value);
             if (item->next == 0) break;
             item = vm_pointer_to_native(state->memory, item->next, vm_map_elem_t*);
