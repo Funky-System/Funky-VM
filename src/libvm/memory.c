@@ -72,7 +72,11 @@ void memory_init(Memory *mem, unsigned char *main_memory) {
 }
 
 void memory_destroy(Memory *mem) {
-    free(mem->bitmap);
+    #if defined(VM_NATIVE_MALLOC) && VM_NATIVE_MALLOC
+        return;
+    #else
+        free(mem->bitmap);
+    #endif
 }
 
 int memory_is_free(Memory* mem, vm_type_t addr) {

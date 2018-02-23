@@ -1,3 +1,5 @@
+#pragma clang diagnostic ignored "-Wformat"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <memory.h>

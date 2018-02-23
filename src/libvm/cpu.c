@@ -49,10 +49,25 @@ CPU_State cpu_init(Memory* memory) {
 }
 
 void cpu_destroy(CPU_State *state) {
+    destroy_boxing_prototypes(state);
+
     for (int i = 0; i < state->num_module_paths; i++) {
-        free (state->module_paths[i]);
+        free(state->module_paths[i]);
     }
     free(state->module_paths);
+
+    for (int i = 0; i < state->num_modules; i++) {
+        free(state->modules[i].name);
+        vm_free(state->memory, state->modules[i].addr);
+    }
+    free(state->modules);
+
+    free(state->debug_context.stacktrace);
+
+    free(state->syscall_table);
+
+    vm_free(state->memory, state->stack_base);
+
 }
 
 void cpu_set_entry_to_module(CPU_State *state, Module *mod) {

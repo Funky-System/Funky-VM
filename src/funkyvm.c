@@ -96,7 +96,9 @@ int main(int argc, char **argv) {
 
 #endif
 
-    module_register_path(&state, get_executable_path("stdlib"));
+    char *stdlibpath = get_executable_path("stdlib");
+    module_register_path(&state, stdlibpath);
+    free(stdlibpath);
 
     register_bindings(&state);
 
@@ -115,8 +117,8 @@ int main(int argc, char **argv) {
     vm_type_t ret = cpu_run(&state);
 
     free(main_memory);
-    memory_destroy(&memory);
     cpu_destroy(&state);
+    memory_destroy(&memory);
 
     return ret;
 }

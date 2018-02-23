@@ -394,7 +394,7 @@ void map_release(CPU_State* state, vm_pointer_t ptr) {
     vm_pointer_t *prototype_ptr = reserved_mem + 2;
     vm_map_elem_t *elem = vm_pointer_to_native(state->memory, *first_ptr, vm_map_elem_t*);
 
-    while (1) {
+    while (*first_ptr != 0) {
         vm_free(state->memory, elem->name);
         release(state, &elem->value);
         vm_pointer_t next = elem->next;

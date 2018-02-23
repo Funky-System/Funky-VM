@@ -29,7 +29,26 @@ void initialize_boxing_prototypes(CPU_State *state) {
     state->boxing.proto_string = create_ptype(state);
     state->boxing.proto_array = create_ptype(state);
     state->boxing.proto_map = create_ptype(state);
+}
 
+void destroy_boxing_prototypes(CPU_State *state) {
+    map_release(state, state->boxing.proto_int);
+    vm_free(state->memory, state->boxing.proto_int);
+
+    map_release(state, state->boxing.proto_uint);
+    vm_free(state->memory, state->boxing.proto_uint);
+
+    map_release(state, state->boxing.proto_float);
+    vm_free(state->memory, state->boxing.proto_float);
+
+    map_release(state, state->boxing.proto_string);
+    vm_free(state->memory, state->boxing.proto_string);
+
+    map_release(state, state->boxing.proto_array);
+    vm_free(state->memory, state->boxing.proto_array);
+
+    map_release(state, state->boxing.proto_map);
+    vm_free(state->memory, state->boxing.proto_map);
 }
 
 INSTR(box) {

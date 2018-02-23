@@ -134,6 +134,7 @@ INSTR(ld_empty) {
     AJS_STACK(+1);
     USE_STACK();
     stack->type = VM_TYPE_EMPTY;
+    stack->int_value = 0;
 }
 
 /// Load Local. Pushes a value relative to the markpointer.
