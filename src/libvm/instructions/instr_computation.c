@@ -450,9 +450,13 @@ INSTR(eq_id) {
 INSTR(ne_id) {
     USE_STACK();
     if (stack->type != (stack - 1)->type) {
-        AJS_STACK(-1);
-        *(stack - 1) = (vm_value_t) { .uint_value = 1, .type = VM_TYPE_UINT };
-        return;
+        if ((stack->type == VM_TYPE_UINT && (stack - 1)->type == VM_TYPE_INT) || (stack->type == VM_TYPE_INT && (stack - 1)->type == VM_TYPE_UINT)) {
+            // we'll allow this
+        } else {
+            AJS_STACK(-1);
+            *(stack - 1) = (vm_value_t) {.uint_value = 1, .type = VM_TYPE_UINT};
+            return;
+        }
     }
 	instr_ne(state);
 }
