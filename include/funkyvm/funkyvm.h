@@ -19,7 +19,7 @@
 #endif
 
 #if VM_ARCH_BITS == 16
-typedef uint16_t vm_type_t;
+    typedef uint16_t vm_type_t;
     typedef uint16_t vm_type_t;
     typedef int16_t vm_type_signed_t;
     typedef __fp16 vm_type_float_t;
@@ -27,23 +27,23 @@ typedef uint16_t vm_type_t;
     #define VM_UNSIGNED_MAX UINT16_MAX
     #define VM_SIGNED_MAX INT16_MAX
 #elif VM_ARCH_BITS == 32
-#ifdef FUNKY_VM_OS_EMSCRIPTEN
-#define vm_type_t emscripten_align1_int
+    #ifdef FUNKY_VM_OS_EMSCRIPTEN
+        #define vm_type_t emscripten_align1_int
         #define vm_type_signed_t emscripten_align1_int
         #define vm_type_float_t emscripten_align1_float
         #define vm_pointer_t emscripten_align1_int
-#else
-typedef uint32_t vm_type_t;
-typedef int32_t vm_type_signed_t;
-typedef float vm_type_float_t;
-typedef vm_type_t vm_pointer_t;
-#endif
-#define VM_UNSIGNED_MAX UINT32_MAX
-#define VM_SIGNED_MAX INT32_MAX
+    #else
+        typedef uint32_t vm_type_t;
+        typedef int32_t vm_type_signed_t;
+        typedef float vm_type_float_t;
+        typedef vm_type_t vm_pointer_t;
+    #endif
+    #define VM_UNSIGNED_MAX UINT32_MAX
+    #define VM_SIGNED_MAX INT32_MAX
 #elif VM_ARCH_BITS == 64
-typedef uint64_t vm_type_t;
+    typedef uint64_t vm_type_t;
     typedef int64_t vm_type_signed_t;
-    typedef float vm_type_float_t;
+    typedef double vm_type_float_t;
     typedef vm_type_t vm_pointer_t;
     #define VM_UNSIGNED_MAX UINT64_MAX
     #define VM_SIGNED_MAX INT64_MAX

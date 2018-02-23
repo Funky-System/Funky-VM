@@ -253,7 +253,7 @@ INSTR(debug_break) {
 }
 
 INSTR(debug_setcontext) {
-    state->debug_context.filename = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND() + 4, const char*);
+    state->debug_context.filename = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t), const char*);
     state->debug_context.line = GET_OPERAND_SIGNED();
     state->debug_context.col = GET_OPERAND_SIGNED();
 }
@@ -262,7 +262,7 @@ INSTR(debug_enterscope) {
     state->debug_context.num_stacktrace++;
     state->debug_context.stacktrace = realloc(state->debug_context.stacktrace, sizeof(struct Stacktrace_Frame) * state->debug_context.num_stacktrace);
     state->debug_context.stacktrace[state->debug_context.num_stacktrace - 1] = (struct Stacktrace_Frame) {
-            .name = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND() + 4, const char*),
+            .name = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t), const char*),
             .filename = state->debug_context.filename,
             .col = state->debug_context.col,
             .line = state->debug_context.line

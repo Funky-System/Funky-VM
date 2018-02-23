@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 include_directories(include)
 
-add_definitions(-DVM_ARCH_BITS=32)
+add_definitions(-DVM_ARCH_BITS=64)
 
 add_library(funky-vm
         src/libvm/cpu.c src/libvm/instructions/instructions.c src/libvm/instructions/instr_cpu.c src/libvm/instructions/instr_mem.c src/libvm/instructions/instr_computation.c src/libvm/instructions/instr_branching.c
