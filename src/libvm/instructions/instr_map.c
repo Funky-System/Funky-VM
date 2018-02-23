@@ -60,8 +60,6 @@ INSTR(ld_mapitem) {
     USE_STACK();
     if (stack->type != VM_TYPE_MAP) {
         instr_box(state);
-        //vm_error(state, "Error: Not a map type\n");
-        //exit(EXIT_FAILURE);
     }
     vm_pointer_t name_ptr = get_current_module(state)->addr + GET_OPERAND();
     const char *name = cstr_pointer_from_vm_pointer_t(state, name_ptr) + sizeof(vm_type_t);
@@ -70,6 +68,7 @@ INSTR(ld_mapitem) {
     vm_map_elem_t *elem = ld_mapitem(state, stack->pointer_value, name);
     if (elem == NULL) {
         val.type = VM_TYPE_EMPTY;
+        val.int_value = 0;
     } else {
         val = elem->value;
         retain(state, &val);

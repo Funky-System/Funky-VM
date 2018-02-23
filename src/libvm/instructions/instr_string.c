@@ -275,11 +275,11 @@ void str_eq(CPU_State *state) {
 void str_ne(CPU_State *state) {
     USE_STACK();
     if (stack->type != VM_TYPE_STRING) {
-        conv_str_rel(state, 0);
+        if (conv_str_rel(state, 0)) return;
     }
 
     if ((stack - 1)->type != VM_TYPE_STRING) {
-        conv_str_rel(state, -1);
+        if (conv_str_rel(state, -1)) return;
     }
     const char *str1 = cstr_pointer_from_vm_value(state, stack - 1);
     const char *str2 = cstr_pointer_from_vm_value(state, stack);

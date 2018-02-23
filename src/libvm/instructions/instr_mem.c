@@ -306,8 +306,7 @@ INSTR(st_local) {
     USE_STACK();
     USE_MARK();
     vm_value_t *dst = mark + 1 + GET_OPERAND_SIGNED();
-    //if (dst->pointer_value != stack->pointer_value)
-        release(state, dst);
+    release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
 }
@@ -315,8 +314,7 @@ INSTR(st_local) {
 INSTR(st_addr) {
     USE_STACK();
     vm_value_t *dst = vm_pointer_to_native(state->memory, GET_OPERAND(), vm_value_t*);
-    //if (dst->pointer_value != stack->pointer_value)
-        release(state, dst);
+    release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
 }
@@ -324,8 +322,7 @@ INSTR(st_addr) {
 INSTR(st_ref) {
     USE_STACK();
     vm_value_t *dst = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND(), vm_value_t*);
-    //if (dst->pointer_value != stack->pointer_value)
-        release(state, dst);
+    release(state, dst);
     *dst = *stack;
     AJS_STACK(-1);
 }

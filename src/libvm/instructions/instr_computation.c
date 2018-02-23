@@ -363,54 +363,71 @@ INSTR(cmp) {
     instr_sub(state);
 }
 INSTR(eq) {
-    {
-        USE_STACK();
-        if ((stack - 1)->type == VM_TYPE_STRING || stack->type == VM_TYPE_STRING) {
-            str_eq(state);
-            return;
-        }
-        if ((stack - 1)->type == VM_TYPE_ARRAY && stack->type == VM_TYPE_ARRAY) {
-            arr_eq(state);
-            return;
-        }
-        if ((stack - 1)->type == VM_TYPE_EMPTY || stack->type == VM_TYPE_EMPTY) {
-            if ((stack - 1)->type == VM_TYPE_EMPTY && stack->type == VM_TYPE_EMPTY) {
-                (stack - 1)->uint_value = 1;
-            } else {
-                (stack - 1)->uint_value = 0;
-            }
-            (stack - 1)->type = VM_TYPE_UINT;
-            AJS_STACK(-1);
-            return;
-        }
+    USE_STACK();
+    if ((stack - 1)->type == VM_TYPE_STRING || stack->type == VM_TYPE_STRING) {
+        str_eq(state);
+        return;
     }
+    if ((stack - 1)->type == VM_TYPE_ARRAY && stack->type == VM_TYPE_ARRAY) {
+        arr_eq(state);
+        return;
+    }
+
+    vm_value_t val1 = *(stack - 1);
+    vm_value_t val2 = *(stack);
+
+    if ((stack - 1)->type == VM_TYPE_EMPTY || stack->type == VM_TYPE_EMPTY) {
+        if ((stack - 1)->type == VM_TYPE_EMPTY && stack->type == VM_TYPE_EMPTY) {
+            (stack - 1)->uint_value = 1;
+        } else {
+            (stack - 1)->uint_value = 0;
+        }
+        (stack - 1)->type = VM_TYPE_UINT;
+        AJS_STACK(-1);
+        release(state, &val1);
+        release(state, &val2);
+        return;
+    }
+
 
     COMPARE_OPERATOR(==);
+
+    release(state, &val1);
+    release(state, &val2);
 }
 INSTR(ne) {
-    {
-        USE_STACK();
-        if ((stack - 1)->type == VM_TYPE_STRING || stack->type == VM_TYPE_STRING) {
-            str_ne(state);
-            return;
-        }
-        if ((stack - 1)->type == VM_TYPE_ARRAY && stack->type == VM_TYPE_ARRAY) {
-            arr_ne(state);
-            return;
-        }
-        if ((stack - 1)->type == VM_TYPE_EMPTY || stack->type == VM_TYPE_EMPTY) {
-            if ((stack - 1)->type == VM_TYPE_EMPTY && stack->type == VM_TYPE_EMPTY) {
-                (stack - 1)->uint_value = 0;
-            } else {
-                (stack - 1)->uint_value = 1;
-            }
-            (stack - 1)->type = VM_TYPE_UINT;
-            AJS_STACK(-1);
-            return;
-        }
+
+    USE_STACK();
+    if ((stack - 1)->type == VM_TYPE_STRING || stack->type == VM_TYPE_STRING) {
+        str_ne(state);
+        return;
+    }
+    if ((stack - 1)->type == VM_TYPE_ARRAY && stack->type == VM_TYPE_ARRAY) {
+        arr_ne(state);
+        return;
     }
 
+    vm_value_t val1 = *(stack - 1);
+    vm_value_t val2 = *(stack);
+
+    if ((stack - 1)->type == VM_TYPE_EMPTY || stack->type == VM_TYPE_EMPTY) {
+        if ((stack - 1)->type == VM_TYPE_EMPTY && stack->type == VM_TYPE_EMPTY) {
+            (stack - 1)->uint_value = 0;
+        } else {
+            (stack - 1)->uint_value = 1;
+        }
+        (stack - 1)->type = VM_TYPE_UINT;
+        AJS_STACK(-1);
+        release(state, &val1);
+        release(state, &val2);
+        return;
+    }
+
+
     COMPARE_OPERATOR(!=);
+
+    release(state, &val1);
+    release(state, &val2);
 }
 INSTR(lt) {
     COMPARE_OPERATOR(<);
@@ -453,8 +470,14 @@ INSTR(ne_id) {
         if ((stack->type == VM_TYPE_UINT && (stack - 1)->type == VM_TYPE_INT) || (stack->type == VM_TYPE_INT && (stack - 1)->type == VM_TYPE_UINT)) {
             // we'll allow this
         } else {
+            vm_value_t val1 = *(stack - 1);
+            vm_value_t val2 = *(stack);
+
             AJS_STACK(-1);
             *(stack - 1) = (vm_value_t) {.uint_value = 1, .type = VM_TYPE_UINT};
+
+            release(state, &val1);
+            release(state, &val2);
             return;
         }
     }
