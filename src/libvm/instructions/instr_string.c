@@ -93,6 +93,10 @@ INSTR(substr) {
 
     vm_type_signed_t orig_length = (vm_type_signed_t) strlen(cstr_pointer_from_vm_value(state, stack - 2));
 
+    if (start < 0) {
+        start = orig_length + start  1;
+    }
+
     if (length < 0) {
         length = orig_length - start + length + 1;
         if (length < 0) length = 0;
