@@ -428,9 +428,13 @@ INSTR(ge) {
 #define USE_TYPECHECK() \
 	USE_STACK(); \
 	if (stack->type != (stack - 1)->type) { \
-        AJS_STACK(-1);\
-        *(stack - 1) = (vm_value_t) { .uint_value = 0, .type = VM_TYPE_UINT }; \
-        return; \
+        if ((stack->type == VM_TYPE_UINT && (stack - 1)->type == VM_TYPE_INT) || (stack->type == VM_TYPE_INT && (stack - 1)->type == VM_TYPE_UINT)) { \
+            \
+        } else {\
+            AJS_STACK(-1);\
+            *(stack - 1) = (vm_value_t) { .uint_value = 0, .type = VM_TYPE_UINT }; \
+            return; \
+        } \
     }
 
 INSTR(cmp_id) {
