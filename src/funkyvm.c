@@ -19,7 +19,11 @@ int main(int argc, char **argv) {
     static_assert(sizeof(vm_pointer_t) <= sizeof(vm_type_t), "vm_pointer_t must be equal or smaller than vm_type_t");
     static_assert(sizeof(enum vm_value_type_t) <= sizeof(vm_type_t), "vm_value_type_t must be equal or smaller than vm_type_t");
 
+#if defined(VM_NATIVE_MALLOC) && VM_NATIVE_MALLOC
+    unsigned char *main_memory = 0;
+#else
     unsigned char *main_memory = malloc(VM_MEMORY_LIMIT);
+#endif
     Memory memory;
     memory_init(&memory, main_memory);
     Module kernel;

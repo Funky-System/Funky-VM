@@ -1,3 +1,4 @@
+#if !defined(VM_NATIVE_MALLOC) && !VM_NATIVE_MALLOC
 
 #include "liballoc_1_1.h"
 
@@ -856,5 +857,7 @@ void*   PREFIX(realloc)(Memory *mem, void *p, size_t size)
 }
 
 
+#else
+char thishastobeherebecausethelinkerotherwisedoesntlikethis;
 
-
+#endif

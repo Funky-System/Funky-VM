@@ -4,9 +4,14 @@
 #include <assert.h>
 #include "funkyvm/funkyvm.h"
 #include "funkyvm/memory.h"
-#include "liballoc_1_1.h"
 #include "funkyvm/cpu.h"
 #include "error_handling.h"
+
+#if defined(VM_NATIVE_MALLOC) && VM_NATIVE_MALLOC
+
+#else
+#include "liballoc_1_1.h"
+#endif
 
 #define SET_BIT(var, bit) var |= (1 << bit)
 #define CLEAR_BIT(var, bit) var &= ~(1 << bit)
@@ -36,6 +41,11 @@ void memory_set_unused(Memory* mem, vm_type_t addr) {
 }
 
 void memory_init(Memory *mem, unsigned char *main_memory) {
+    #if defined(VM_NATIVE_MALLOC) && VM_NATIVE_MALLOC
+        mem->main_memory = main_memory;
+        return
+    #endif
+
     assert(VM_MEMORY_LIMIT % PAGE_SIZE == 0); // multiple of page size
     assert(sizeof(vm_value_t) < PAGE_SIZE); // at least one vm_value_t must fit in a page
 

@@ -1,6 +1,5 @@
 #include "funkyvm/cpu.h"
 #include "instructions/instructions.h"
-#include "liballoc_1_1.h"
 #include "funkyvm/memory.h"
 #include "boxing.h"
 
