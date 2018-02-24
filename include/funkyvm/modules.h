@@ -23,7 +23,7 @@ typedef __attribute__((aligned(1))) struct Module {
 
 Module module_load_name(CPU_State* state, const char* name);
 Module module_load(Memory *mem, const char* name, funky_bytecode_t bc);
-void module_unload(Memory *mem, Module* module);
+void module_unload(Memory *mem, Module module);
 int module_register(CPU_State *state, Module module);
 int module_release(CPU_State *state, const char* name);
 Module *module_get(CPU_State *state, const char* name);

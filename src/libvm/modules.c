@@ -186,9 +186,9 @@ Module module_load(Memory *mem, const char* name, funky_bytecode_t bc) {
     return module;
 }
 
-void module_unload(Memory *mem, Module* module) {
-    vm_free(mem, module->addr);
-    free(module->name);
+void module_unload(Memory *mem, Module module) {
+    vm_free(mem, module.addr);
+    free(module.name);
 }
 
 int module_register(CPU_State *state, Module module) {

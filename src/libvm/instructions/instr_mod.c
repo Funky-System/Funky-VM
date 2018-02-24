@@ -101,13 +101,14 @@ static void unlink(CPU_State *state, const char *name) {
         if (existing->num_links > 1) {
             existing->num_links--;
         } else {
-            module_release(state, name);
             if (existing->ref_map != 0) {
                 vm_type_t *ref_count = vm_pointer_to_native(state->memory, existing->ref_map, vm_type_t*);
                 *ref_count = 1;
                 release_pointer(state, VM_TYPE_MAP, existing->ref_map);
             }
-            module_unload(state->memory, existing);
+            Module backup = *existing;
+            module_release(state, name);
+            module_unload(state->memory, backup);
         }
     } else {
         vm_error(state, "Error: Module not loaded: %s\n", name);
