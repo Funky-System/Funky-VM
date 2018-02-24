@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <funkyvm/funkyvm.h>
 
 #include "instructions.h"
 #include "../../../include/funkyvm/funkyvm.h"
@@ -270,6 +271,9 @@ INSTR(not) {
         stack->int_value = (vm_type_t) !stack->uint_value;
     } else if (stack->type == VM_TYPE_INT) {
         stack->int_value = (vm_type_signed_t) !stack->uint_value;
+    } else if (stack->type == VM_TYPE_EMPTY) {
+        stack->int_value = (vm_type_signed_t) 1;
+        stack->type = VM_TYPE_INT;
     } else {
         vm_error(state, "Unary operator ! has not been defined for stack type %d", (stack - 1)->type);
         vm_exit(state, 1);
