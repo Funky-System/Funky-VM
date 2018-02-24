@@ -6,16 +6,14 @@ set(CMAKE_C_STANDARD 11)
 include_directories(include)
 
 if (NOT DEFINED VM_ARCH_BITS)
-    add_definitions(-DVM_ARCH_BITS=32)
-else()
-    add_definitions(-DVM_ARCH_BITS=${VM_ARCH_BITS})
+    set(VM_ARCH_BITS 32)
 endif()
+add_definitions(-DVM_ARCH_BITS=${VM_ARCH_BITS})
 
-if (NOT DEFINED DVM_NATIVE_MALLOC)
-    add_definitions(-DVM_NATIVE_MALLOC=0)
-else()
-    add_definitions(-DVM_NATIVE_MALLOC=${VM_NATIVE_MALLOC})
+if (NOT DEFINED VM_NATIVE_MALLOC)
+    set(VM_NATIVE_MALLOC 0)
 endif()
+add_definitions(-DVM_NATIVE_MALLOC=${VM_NATIVE_MALLOC})
 
 add_library(funky-vm
         src/libvm/cpu.c src/libvm/instructions/instructions.c src/libvm/instructions/instr_cpu.c src/libvm/instructions/instr_mem.c src/libvm/instructions/instr_computation.c src/libvm/instructions/instr_branching.c
