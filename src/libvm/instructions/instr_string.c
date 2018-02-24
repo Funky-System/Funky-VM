@@ -168,11 +168,11 @@ int conv_str_rel(CPU_State *state, vm_type_signed_t rel) {
 
     switch ((stack + rel)->type) {
         case VM_TYPE_UINT:
-            sprintf(str, "%llu", (stack + rel)->uint_value);
+            sprintf(str, "%llu", (unsigned long long) (stack + rel)->uint_value);
             (stack + rel)->pointer_value = reserved_mem;
             break;
         case VM_TYPE_INT:
-            sprintf(str, "%lld", (stack + rel)->int_value);
+            sprintf(str, "%lld", (long long) (stack + rel)->int_value);
             (stack + rel)->pointer_value = reserved_mem;
             break;
         case VM_TYPE_FLOAT: {

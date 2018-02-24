@@ -60,11 +60,11 @@ void cpu_destroy(CPU_State *state) {
         free(state->modules[i].name);
         vm_free(state->memory, state->modules[i].addr);
     }
-    free(state->modules);
+    k_free(state->memory, state->modules);
 
     free(state->debug_context.stacktrace);
 
-    free(state->syscall_table);
+    k_free(state->memory, state->syscall_table);
 
     vm_free(state->memory, state->stack_base);
 
