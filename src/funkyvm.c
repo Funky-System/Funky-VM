@@ -116,9 +116,9 @@ int main(int argc, char **argv) {
 
     vm_type_t ret = cpu_run(&state);
 
-    free(main_memory);
     cpu_destroy(&state);
     memory_destroy(&memory);
+    free(main_memory);
 
     return ret;
 }
