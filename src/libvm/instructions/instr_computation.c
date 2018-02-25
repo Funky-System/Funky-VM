@@ -337,19 +337,19 @@ INSTR(rsh) {
         if (stack->type == VM_TYPE_UINT) \
             (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->uint_value OP stack->uint_value); \
         else if (stack->type == VM_TYPE_INT) \
-            (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->uint_value OP stack->int_value); \
+            (stack - 1)->uint_value = (vm_type_t) ((vm_type_signed_t)(stack - 1)->uint_value OP stack->int_value); \
         else if (stack->type == VM_TYPE_FLOAT) \
-            (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->uint_value OP stack->float_value); \
+            (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->int_value OP stack->float_value); \
     } else if ((stack - 1)->type == VM_TYPE_INT) { \
         if (stack->type == VM_TYPE_UINT) \
-            (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->int_value OP stack->uint_value); \
+            (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->int_value OP (vm_type_signed_t)stack->uint_value); \
         else if (stack->type == VM_TYPE_INT) \
             (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->int_value OP stack->int_value); \
         else if (stack->type == VM_TYPE_FLOAT) \
             (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->int_value OP stack->float_value); \
     } else if ((stack - 1)->type == VM_TYPE_FLOAT) { \
         if (stack->type == VM_TYPE_UINT) \
-            (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->float_value OP stack->uint_value); \
+            (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->float_value OP (vm_type_signed_t)stack->uint_value); \
         else if (stack->type == VM_TYPE_INT) \
             (stack - 1)->uint_value = (vm_type_t) ((stack - 1)->float_value OP stack->int_value); \
         else if (stack->type == VM_TYPE_FLOAT) \
