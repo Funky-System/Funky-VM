@@ -381,3 +381,22 @@ void arr_slice_str(CPU_State *state) {
 
     instr_substr(state);
 }
+
+vm_value_t vm_create_string(CPU_State *state, const char* c_str) {
+    USE_STACK();
+
+    vm_pointer_t reserved_mem = vm_malloc(state->memory,
+                                          sizeof(vm_type_t)
+                                          + strlen(c_str)
+                                          + 1);
+    vm_type_t *ref_count = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
+    char *str = vm_pointer_to_native(state->memory, reserved_mem + sizeof(vm_type_t), char*);
+
+    *ref_count = 1;
+    strcpy(str, c_str);
+
+    return (vm_value_t) {
+        .type = VM_TYPE_STRING,
+        .pointer_value = reserved_mem
+    };
+}
