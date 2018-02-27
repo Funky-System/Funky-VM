@@ -698,7 +698,7 @@ vm_value_t vm_create_array(CPU_State *state) {
     return arrayval;
 }
 
-void vm_array_set(CPU_State *state, vm_value_t array, vm_type_t index, vm_value_t value) {
+void vm_array_set_at(CPU_State *state, vm_value_t array, vm_type_t index, vm_value_t value) {
     vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, array.pointer_value, vm_type_t*);
     vm_type_t *len = reserved_mem + 1;
     vm_pointer_t *array_ptr = reserved_mem + 2;
@@ -715,6 +715,12 @@ void vm_array_set(CPU_State *state, vm_value_t array, vm_type_t index, vm_value_
         release(state, &arr[index]);
     }
     arr[index] = value;
+}
+
+void vm_array_append(CPU_State *state, vm_value_t array, vm_value_t value) {
+    vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, array.pointer_value, vm_type_t*);
+    vm_type_t *len = reserved_mem + 1;
+    vm_array_set_at(state, array, *len, value);
 }
 
 void vm_array_resize(CPU_State *state, vm_value_t array, vm_type_t size) {

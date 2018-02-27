@@ -38,7 +38,8 @@ int release_syscall(CPU_State* state, const char* name);
 
 vm_value_t vm_create_string(CPU_State* state, const char* c_str);
 vm_value_t vm_create_array(CPU_State* state);
-void vm_array_set(CPU_State *state, vm_value_t array, vm_type_t index, vm_value_t value);
+void vm_array_set_at(CPU_State *state, vm_value_t array, vm_type_t index, vm_value_t value);
+void vm_array_append(CPU_State *state, vm_value_t array, vm_value_t value);
 void vm_array_resize(CPU_State *state, vm_value_t array, vm_type_t size);
 
 #endif //FUNKY_VM_SYSCALL_H
