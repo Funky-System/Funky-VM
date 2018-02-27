@@ -681,3 +681,57 @@ void arr_eq(CPU_State *state) {
 void arr_ne(CPU_State *state) {
     arr_compare(state, instr_ne);
 }
+
+vm_value_t vm_create_array(CPU_State *state) {
+    vm_value_t arrayval;
+    arrayval.type = VM_TYPE_ARRAY;
+
+    vm_pointer_t reserved_mem = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for length
+    vm_type_t *ref_count      = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
+    vm_type_t *length         = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*) + 1;
+
+    *ref_count = 1;
+    *length = 0;
+
+    arrayval.pointer_value = reserved_mem;
+
+    return arrayval;
+}
+
+void vm_array_set(CPU_State *state, vm_value_t array, vm_type_t index, vm_value_t value) {
+    vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, array.pointer_value, vm_type_t*);
+    vm_type_t *len = reserved_mem + 1;
+    vm_pointer_t *array_ptr = reserved_mem + 2;
+    vm_value_t *arr = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
+
+    if (index > (vm_type_signed_t)*len - 1) {
+        *array_ptr = vm_realloc(state->memory, *array_ptr, (index + 1) * sizeof(vm_value_t));
+        arr = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
+        for (int i = (vm_type_signed_t)*len; i <= index; i++) {
+            arr[i] = (vm_value_t) { .type = VM_TYPE_EMPTY };
+        }
+        *len = (vm_type_t) (index + 1);
+    } else {
+        release(state, &arr[index]);
+    }
+    arr[index] = value;
+}
+
+void vm_array_resize(CPU_State *state, vm_value_t array, vm_type_t size) {
+    vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, array.pointer_value, vm_type_t*);
+    vm_type_t *len = reserved_mem + 1;
+    vm_pointer_t *array_ptr = reserved_mem + 2;
+    vm_value_t *arr = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
+
+    if (size > *len) {
+        for (int i = (vm_type_signed_t)*len; i < size; i++) {
+            arr[i] = (vm_value_t) { .type = VM_TYPE_EMPTY };
+        }
+    } else if (size < *len) {
+        for (int i = size; i < *len; i++) {
+            release(state, &arr[i]);
+        }
+    }
+    *array_ptr = vm_realloc(state->memory, *array_ptr, size * sizeof(vm_value_t));
+    *len = (vm_type_t) size;
+}
