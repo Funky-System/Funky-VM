@@ -25,6 +25,10 @@
     STATE->rr = (vm_value_t) { .type = VM_TYPE_STRING, .pointer_value = vm_create_string(STATE, VAL) }; \
     return; \
 }
+#define VM_RETURN_EMPTY(STATE) { \
+    STATE->rr = (vm_value_t) { .type = VM_TYPE_EMPTY, .int_value = 0 }; \
+    return; \
+}
 
 typedef void (*vm_syscall_t)(CPU_State *state);
 
