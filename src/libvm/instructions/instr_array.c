@@ -689,6 +689,9 @@ vm_value_t vm_create_array(CPU_State *state) {
     vm_pointer_t reserved_mem = vm_malloc(state->memory, sizeof(vm_type_t) * 3); // first for refcount, second for length
     vm_type_t *ref_count      = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*);
     vm_type_t *length         = vm_pointer_to_native(state->memory, reserved_mem, vm_type_t*) + 1;
+    vm_pointer_t *array_ptr   = vm_pointer_to_native(state->memory, reserved_mem, vm_pointer_t*) + 2;
+
+    *array_ptr = vm_malloc(state->memory, 0);
 
     *ref_count = 1;
     *length = 0;
@@ -704,7 +707,7 @@ void vm_array_set_at(CPU_State *state, vm_value_t array, vm_type_t index, vm_val
     vm_pointer_t *array_ptr = reserved_mem + 2;
     vm_value_t *arr = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
 
-    if (index > (vm_type_signed_t)*len - 1) {
+    if ((vm_type_signed_t)index > (vm_type_signed_t)*len - 1) {
         *array_ptr = vm_realloc(state->memory, *array_ptr, (index + 1) * sizeof(vm_value_t));
         arr = vm_pointer_to_native(state->memory, *array_ptr, vm_value_t*);
         for (int i = (vm_type_signed_t)*len; i <= index; i++) {
