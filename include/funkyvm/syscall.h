@@ -21,12 +21,16 @@
     STATE->rr = (vm_value_t) { .type = VM_TYPE_FLOAT, .float_value = VAL }; \
     return; \
 }
-#define VM_RETURN_STRING(STATE, VAL) { \
-    STATE->rr = (vm_value_t) { .type = VM_TYPE_STRING, .pointer_value = vm_create_string(STATE, VAL) }; \
+#define VM_RETURN_STRING(STATE, c_str) { \
+    STATE->rr = (vm_value_t) { .type = VM_TYPE_STRING, .pointer_value = vm_create_string(STATE, c_str) }; \
     return; \
 }
 #define VM_RETURN_EMPTY(STATE) { \
     STATE->rr = (vm_value_t) { .type = VM_TYPE_EMPTY, .int_value = 0 }; \
+    return; \
+}
+#define VM_RETURN(STATE, VM_VALUE) { \
+    STATE->rr = VM_VALUE; \
     return; \
 }
 
