@@ -62,7 +62,7 @@ char* module_find_filename(CPU_State *state, const char* name) {
     }
 
     for (int i = 0; i < state->num_module_paths; i++) {
-        char *path = malloc(strlen(filename) + strlen(state->module_paths[i] + 16));
+        char *path = malloc(strlen(filename) + strlen(state->module_paths[i]) + 16);
         strcpy(path, state->module_paths[i]);
         strcat(path, path_separator);
         strcat(path, filename);
