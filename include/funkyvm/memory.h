@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#define PAGE_SIZE 4096
+#define VM_PAGE_SIZE 4096
 
 typedef __attribute__((aligned(1))) struct {
     __attribute__((aligned(1))) unsigned char* main_memory;

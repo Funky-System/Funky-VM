@@ -28,14 +28,14 @@ static vm_type_t bitshift = 0;
 
 void memory_set_used(Memory* mem, vm_type_t addr) {
     vm_type_t i = addr >> bitshift;
-    vm_type_t bit = addr / PAGE_SIZE % 8;
+    vm_type_t bit = addr / VM_PAGE_SIZE % 8;
 
     CLEAR_BIT(mem->bitmap[i], bit);
 }
 
 void memory_set_unused(Memory* mem, vm_type_t addr) {
     vm_type_t i = addr >> bitshift;
-    vm_type_t bit = addr / PAGE_SIZE % 8;
+    vm_type_t bit = addr / VM_PAGE_SIZE % 8;
 
     SET_BIT(mem->bitmap[i], bit);
 }
@@ -46,21 +46,21 @@ void memory_init(Memory *mem, unsigned char *main_memory) {
         return;
     #else
 
-        assert(VM_MEMORY_LIMIT % PAGE_SIZE == 0); // multiple of page size
-        assert(sizeof(vm_value_t) < PAGE_SIZE); // at least one vm_value_t must fit in a page
+        assert(VM_MEMORY_LIMIT % VM_PAGE_SIZE == 0); // multiple of page size
+        assert(sizeof(vm_value_t) < VM_PAGE_SIZE); // at least one vm_value_t must fit in a page
 
         mem->main_memory = main_memory;
 
-        mem->bitmap_size = VM_MEMORY_LIMIT / 8 / PAGE_SIZE;
+        mem->bitmap_size = VM_MEMORY_LIMIT / 8 / VM_PAGE_SIZE;
 
         unsigned char *bitmap = malloc(mem->bitmap_size);
 
-        bitshift = (vm_type_t)log2(PAGE_SIZE * 8);
+        bitshift = (vm_type_t)log2(VM_PAGE_SIZE * 8);
 
         mem->bitmap = bitmap;
         memset(bitmap, 0xFF, mem->bitmap_size);
 
-        /*for (vm_type_t addr = 0; addr < kernel_size + PAGE_SIZE - 1; addr += PAGE_SIZE) {
+        /*for (vm_type_t addr = 0; addr < kernel_size + VM_PAGE_SIZE - 1; addr += VM_PAGE_SIZE) {
             memory_set_used(mem, addr);
         }*/
 
@@ -81,22 +81,22 @@ void memory_destroy(Memory *mem) {
 
 int memory_is_free(Memory* mem, vm_type_t addr) {
     vm_type_t i = addr >> bitshift;
-    vm_type_t bit = addr / PAGE_SIZE % 8;
+    vm_type_t bit = addr / VM_PAGE_SIZE % 8;
     return IS_BIT_1(mem->bitmap[i], bit);
 }
 
 vm_type_t memory_alloc(Memory* mem, vm_type_t num_pages) {
-    for (vm_type_t addr = 0; addr < VM_MEMORY_LIMIT; addr += PAGE_SIZE) {
+    for (vm_type_t addr = 0; addr < VM_MEMORY_LIMIT; addr += VM_PAGE_SIZE) {
         int found_chunk = 1;
         for (vm_type_t i = 0; i < num_pages; i++) {
-            if (!memory_is_free(mem, addr + i * PAGE_SIZE)) {
+            if (!memory_is_free(mem, addr + i * VM_PAGE_SIZE)) {
                 found_chunk = 0;
                 break;
             }
         }
         if (found_chunk) {
             for (vm_type_t i = 0; i < num_pages; i++) {
-                memory_set_used(mem, addr + i * PAGE_SIZE);
+                memory_set_used(mem, addr + i * VM_PAGE_SIZE);
             }
             return addr;
         }
@@ -109,7 +109,7 @@ vm_type_t memory_alloc(Memory* mem, vm_type_t num_pages) {
 
 void memory_free(Memory *mem, vm_type_t addr, vm_type_t num_pages) {
     for (vm_type_t i = 0; i < num_pages; i++) {
-        memory_set_unused(mem, addr + i * PAGE_SIZE);
+        memory_set_unused(mem, addr + i * VM_PAGE_SIZE);
     }
 }
 
