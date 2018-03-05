@@ -11,7 +11,7 @@
 #elif defined(__APPLE__) || defined(__MACH__)
 #define FUNKY_VM_OS_MACOS
 #define FUNKY_VM_OS "MacOS"
-#elif defined(__linux__) || defined(linux) || defined(__linux)
+#elif defined(__linux__) || defined(linux) || defined(__linux) || defined(__CYGWIN__)
 #define FUNKY_VM_OS_LINUX
 #define FUNKY_VM_OS "Linux"
 #elif defined(__EMSCRIPTEN__)
