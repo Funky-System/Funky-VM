@@ -3,7 +3,6 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -15,6 +14,8 @@
 #include "funkyvm/cpu.h"
 #include "instructions/instructions.h"
 #include "error_handling.h"
+
+#define F_OK    0
 
 #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
 #define FLAG_LITTLE_ENDIAN 1u
@@ -97,7 +98,7 @@ Module module_load_name(CPU_State* state, const char* name) {
     }
 
     FILE *fp;
-    fp = fopen(filename, "r");
+    fp = fopen(filename, "rb");
     if (fp == NULL) {
         int errnum = errno;
         fprintf(stderr, "Error: Could not open file %s\n", filename);
@@ -117,8 +118,19 @@ Module module_load_name(CPU_State* state, const char* name) {
     fseek(fp, 0L, SEEK_SET);
 
     byte_t *bytes = malloc(numbytes);
-    fread(bytes, sizeof(byte_t), numbytes, fp);
+    size_t numread = fread(bytes, 1, numbytes, fp);
     fclose(fp);
+
+    if (numread != numbytes) {
+        fprintf(stderr, "Error: Module could not be read: %s\n", name);
+        if (ferror(fp)) {
+            fprintf(stderr, "error\n");
+        } else if (feof(fp)) {
+            fprintf(stderr, "Unexpected End Of File (EOF)\n");
+        }
+        vm_exit(state, EXIT_FAILURE);
+        return (Module) { .name = strdup(name), .addr = 0, .size = 0, .num_exports = 0, .start_of_code = 0 };
+    }
 
     funky_bytecode_t bytecode = (funky_bytecode_t) {
             .bytes = bytes,

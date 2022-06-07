@@ -5,9 +5,9 @@
 
 #define VM_PAGE_SIZE 4096
 
-typedef __attribute__((aligned(1))) struct {
-    __attribute__((aligned(1))) unsigned char* main_memory;
-    __attribute__((aligned(1))) unsigned char* bitmap;
+typedef struct {
+    unsigned char* main_memory;
+    unsigned char* bitmap;
     vm_type_t bitmap_size;
     int lock;
 } Memory;

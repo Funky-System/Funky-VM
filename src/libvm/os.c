@@ -47,7 +47,7 @@ char* get_executable_filepath() {
         {
             free(path);
             path = 0;
-            break;
+            return NULL;
         }
         else if (result == path_size - 1)
         {
@@ -56,25 +56,26 @@ char* get_executable_filepath() {
             if (ERROR_INSUFFICIENT_BUFFER != last_error)
             {
                 path = 0;
-                break;
+                free(path);
+                return NULL;
             }
             path_size = path_size * 2;
             path = malloc(path_size);
         }
         else
         {
-            break;
+            return path;
         }
     }
 
-    if (!path)
+    /*if (!path)
     {
         fprintf(stderr, "Failure: %d\n", last_error);
     }
     else
     {
         printf("path=%s\n", path);
-    }
+    }*/
 
 }
 #endif

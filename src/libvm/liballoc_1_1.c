@@ -79,14 +79,14 @@ typedef unsigned int __attribute__((aligned(1))) emscripten_align1_uint;
 /** A structure found at the top of all system allocated 
  * memory blocks. It details the usage of the memory block.
  */
-struct __attribute__((aligned(1))) liballoc_major
+struct liballoc_major
 {
-	struct __attribute__((aligned(1))) liballoc_major * prev;		///< Linked list information.
-	struct __attribute__((aligned(1))) liballoc_major * next;		///< Linked list information.
+	struct liballoc_major * prev;		///< Linked list information.
+	struct liballoc_major * next;		///< Linked list information.
 	liballoc_uint pages;					///< The number of pages in the block.
 	liballoc_uint size;					///< The number of pages in the block.
 	liballoc_uint usage;					///< The number of bytes used in the block.
-	struct __attribute__((aligned(1))) liballoc_minor * first;		///< A pointer to the first allocated memory in the block.
+	struct liballoc_minor * first;		///< A pointer to the first allocated memory in the block.
 };
 
 
@@ -94,19 +94,19 @@ struct __attribute__((aligned(1))) liballoc_major
  * sections in a major block which were allocated by a
  * malloc, calloc, realloc call.
  */
-struct __attribute__((aligned(1))) liballoc_minor
+struct liballoc_minor
 {
-	struct __attribute__((aligned(1))) liballoc_minor *prev;		///< Linked list information.
-	struct __attribute__((aligned(1))) liballoc_minor *next;		///< Linked list information.
-	struct __attribute__((aligned(1))) liballoc_major *block;		///< The owning block. A pointer to the major structure.
+	struct liballoc_minor *prev;		///< Linked list information.
+	struct liballoc_minor *next;		///< Linked list information.
+	struct liballoc_major *block;		///< The owning block. A pointer to the major structure.
 	liballoc_uint magic;					///< A magic number to idenfity correctness.
 	liballoc_uint size; 					///< The size of the memory allocated. Could be 1 byte or more.
 	liballoc_uint req_size;				///< The size of memory requested.
 };
 
 
-static struct __attribute__((aligned(1))) liballoc_major* l_memRoot = NULL;		///< The root memory block acquired from the system.
-static struct __attribute__((aligned(1))) liballoc_major* l_bestBet = NULL; 	///< The major with the most free memory.
+static struct liballoc_major* l_memRoot = NULL;		///< The root memory block acquired from the system.
+static struct liballoc_major* l_bestBet = NULL; 	///< The major with the most free memory.
 
 static const liballoc_uint l_pageSize  = 4096;		///< The size of an individual page. Set up in liballoc_init.
 static const liballoc_uint l_pageCount = 16;			///< The number of pages to request per chunk. Set up in liballoc_init.
@@ -274,9 +274,9 @@ void *PREFIX(malloc)(Memory * mem, size_t req_size)
 	unsigned long long bestSize = 0;
 	void *p = NULL;
 	liballoc_ptr_t diff;
-	struct __attribute__((aligned(1))) liballoc_major *maj;
-	struct __attribute__((aligned(1))) liballoc_minor *min;
-	struct __attribute__((aligned(1))) liballoc_minor *new_min;
+	struct liballoc_major *maj;
+	struct liballoc_minor *min;
+	struct liballoc_minor *new_min;
 	unsigned long size = req_size;
 
 	// For alignment, we adjust size so there's enough space to align.

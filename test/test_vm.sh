@@ -8,6 +8,7 @@ run_test_expect() {
     printf "%-50s" "$1"
     ${DIR}/funky-as .tmp_test.fasm -o .tmp_test.funk
     output=$(${DIR}/funky-vm .tmp_test)
+	output="${output//$'\r\n'/$'\n'}"
     if [ "$2" == "$output" ]; then
         echo -e "[  \033[32mOK\033[0m  ] ${output//$'\n'/\\\\n}"
     else
@@ -193,8 +194,7 @@ Main:
     ld.reg %rr
 EOF
 
-run_test_expect "Printing text" $"Hello!
-1" << EOF
+run_test_expect "Printing text" $'Hello!\n1' << EOF
 ld.int 'H'
 ld.int 'e'
 ld.int 'l'

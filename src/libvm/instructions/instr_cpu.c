@@ -58,11 +58,13 @@ INSTR(trap) {
                     char *str = vm_pointer_to_native(state->memory, val.pointer_value + sizeof(vm_type_t), char*);
                     if (ref_count == VM_UNSIGNED_MAX) ref_count = 0;
 
-                    char prstr[strlen(str) + 3];
+                    size_t prlen = strlen(str) + 3;
+                    char* prstr = malloc(prlen);
                     strcpy(prstr, "\"");
                     strcat(prstr, str);
                     strcat(prstr, "\"");
                     printf("| string (%4d) | %-29.29s |\n", ref_count, prstr);
+                    free(prstr);
                 } else if (val.type == VM_TYPE_ARRAY) {
                     vm_type_t *reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value, vm_type_t*);
                     vm_type_t ref_count = *(reserved_mem);
@@ -126,11 +128,13 @@ INSTR(trap) {
                     vm_type_t *str_reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value, vm_type_t*);
                     vm_type_t ref_count = *(str_reserved_mem);
                     if (ref_count == VM_UNSIGNED_MAX) ref_count = 0;
-                    char str[strlen(cstr_pointer_from_vm_value(state, &val)) + 3];
+                    size_t len = strlen(cstr_pointer_from_vm_value(state, &val)) + 3;
+                    char *str = malloc(len);
                     strcpy(str, "\"");
                     strcat(str, cstr_pointer_from_vm_value(state, &val));
                     strcat(str, "\"");
                     printf("string (%4d) | %-29.29s |\n", ref_count, str);
+                    free(str);
                 } else if (val.type == VM_TYPE_ARRAY) {
                     vm_type_t *arr_reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value, vm_type_t*);
                     vm_type_t arr_ref_count = *(arr_reserved_mem);
@@ -179,11 +183,13 @@ INSTR(trap) {
                                                                            vm_type_t*);
                         vm_type_t ref_count = *(str_reserved_mem);
                         if (ref_count == VM_UNSIGNED_MAX) ref_count = 0;
-                        char str[strlen(cstr_pointer_from_vm_value(state, &val)) + 3];
+                        size_t len = strlen(cstr_pointer_from_vm_value(state, &val)) + 3;
+                        char* str = malloc(len);
                         strcpy(str, "\"");
                         strcat(str, cstr_pointer_from_vm_value(state, &val));
                         strcat(str, "\"");
                         printf("string (%4d) | %-29.29s |\n", ref_count, str);
+                        free(str);
                     } else if (val.type == VM_TYPE_ARRAY) {
                         vm_type_t *arr_reserved_mem = vm_pointer_to_native(state->memory, val.pointer_value,
                                                                            vm_type_t*);

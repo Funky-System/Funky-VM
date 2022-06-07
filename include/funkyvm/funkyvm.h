@@ -66,7 +66,7 @@ enum vm_value_type_t {
     VM_TYPE_UNKNOWN
 };
 
-typedef __attribute__((aligned(1))) struct {
+typedef struct {
     union {
         enum vm_value_type_t type;
         vm_type_t __padding1;
@@ -79,7 +79,7 @@ typedef __attribute__((aligned(1))) struct {
     };
 } vm_value_t;
 
-typedef __attribute__((aligned(1))) struct {
+typedef struct {
     vm_pointer_t name;
     vm_value_t value;
 
@@ -89,8 +89,8 @@ typedef __attribute__((aligned(1))) struct {
 
 #ifndef FUNKY_BYTECODE_TYPES_DEFINED
 #define FUNKY_BYTECODE_TYPES_DEFINED
-typedef __attribute__((aligned(1))) unsigned char byte_t;
-typedef __attribute__((aligned(1))) struct funky_bytecode_t {
+typedef unsigned char byte_t;
+typedef struct funky_bytecode_t {
     byte_t* bytes;
     unsigned long length;
 } funky_bytecode_t;

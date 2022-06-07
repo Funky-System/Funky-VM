@@ -95,7 +95,7 @@ INSTR(link_pop) {
     link(state, name);
 }
 
-static void unlink(CPU_State *state, const char *name) {
+static void module_unlink(CPU_State *state, const char *name) {
     Module *existing = module_get(state, name);
     if (existing != NULL) {
         if (existing->num_links > 1) {
@@ -118,7 +118,7 @@ static void unlink(CPU_State *state, const char *name) {
 
 INSTR(unlink) {
     char *name = (char*)state->memory->main_memory + get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t);
-    unlink(state, name);
+    module_unlink(state, name);
 }
 
 INSTR(unlink_pop) {
@@ -126,7 +126,7 @@ INSTR(unlink_pop) {
     vm_assert(state, stack->type == VM_TYPE_STRING, "map reference is not of string type");
     const char *name = cstr_pointer_from_vm_value(state, stack);
     AJS_STACK(-1);
-    unlink(state, name);
+    module_unlink(state, name);
 }
 
 /**!

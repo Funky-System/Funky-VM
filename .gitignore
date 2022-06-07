@@ -5,3 +5,4 @@ cmake-build-debug/
 cmake-build-release/
 docs/instructions.yaml
 emscripten/emcc_build
+build/

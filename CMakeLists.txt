@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(funky-vm)
 
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
 include_directories(include)
 
@@ -21,8 +22,14 @@ add_library(funky-vm
         src/libvm/liballoc_1_1.c src/libvm/modules.c src/libvm/instructions/instr_mod.c src/libvm/instructions/instr_map.c src/libvm/boxing.c src/libvm/boxing.h src/libvm/error_handling.c src/libvm/error_handling.h src/libvm/syscall.c include/funkyvm/syscall.h src/libvm/os.c src/libvm/os.h include/funkyvm/os.h)
 
 add_executable(funky-vm-bin src/funkyvm.c src/bindings.c src/bindings.h)
-target_link_libraries(funky-vm-bin m funky-vm)
-target_link_libraries(funky-vm m)
+target_link_libraries(funky-vm-bin funky-vm)
+
+if (NOT MSVC)
+    message("NOT MSVC")
+    target_link_libraries(funky-vm-bin m)
+    target_link_libraries(funky-vm m)
+endif()
+
 set_target_properties(funky-vm-bin PROPERTIES OUTPUT_NAME funky-vm)
 
 configure_file(test/test_vm.sh ${CMAKE_BINARY_DIR}/bin/test_vm.sh COPYONLY)
