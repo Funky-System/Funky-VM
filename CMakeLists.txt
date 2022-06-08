@@ -4,6 +4,10 @@ project(funky-vm)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Default build type: Release" FORCE)
+endif()
+
 include_directories(include)
 
 if (NOT DEFINED VM_ARCH_BITS)
