@@ -9,6 +9,10 @@
 #include <assert.h>
 #include <funkyvm/funkyvm.h>
 
+#ifndef FUNKY_VM_OS_WINDOWS
+#include <unistd.h>
+#endif
+
 #include "funkyvm/modules.h"
 #include "funkyvm/memory.h"
 #include "funkyvm/cpu.h"
