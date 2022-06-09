@@ -33,5 +33,13 @@ jobs:
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: |
+        git clone --depth 1 --branch master https://github.com/Funky-System/Funky-Assembler
+        cd Funky-Assembler
+        cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        cmake --build ./build --config ${{env.BUILD_TYPE}}
+        cp ./build/${{env.BUILD_TYPE}}/funky-as ../${{env.BUILD_TYPE}}/funky-as
+        cp ${{github.workspace}}/test/test_vm.sh ../${{env.BUILD_TYPE}}/test_vm.sh
+        chmod a+x ../${{env.BUILD_TYPE}}/test_vm.sh
+        ../${{env.BUILD_TYPE}}/test_vm.sh
       
