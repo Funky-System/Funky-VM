@@ -29,7 +29,6 @@ add_executable(funky-vm-bin src/funkyvm.c src/bindings.c src/bindings.h)
 target_link_libraries(funky-vm-bin funky-vm)
 
 if (NOT MSVC)
-    message("NOT MSVC")
     target_link_libraries(funky-vm-bin m)
     target_link_libraries(funky-vm m)
 endif()
