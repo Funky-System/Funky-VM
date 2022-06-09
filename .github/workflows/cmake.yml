@@ -38,8 +38,8 @@ jobs:
         cd Funky-Assembler
         cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         cmake --build ./build --config ${{env.BUILD_TYPE}}
-        cp ./build/${{env.BUILD_TYPE}}/funky-as ../${{env.BUILD_TYPE}}/funky-as
-        cp ${{github.workspace}}/test/test_vm.sh ../${{env.BUILD_TYPE}}/test_vm.sh
-        chmod a+x ../${{env.BUILD_TYPE}}/test_vm.sh
-        ../${{env.BUILD_TYPE}}/test_vm.sh
+        cp ./build/funky-as ../funky-as
+        cp ${{github.workspace}}/test/test_vm.sh ../test_vm.sh
+        chmod a+x ../test_vm.sh
+        ../test_vm.sh
       
