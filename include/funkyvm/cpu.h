@@ -28,6 +28,7 @@ typedef struct Debug_Context {
 
     Stacktrace_Frame* stacktrace;
     int num_stacktrace;
+    int size_stacktrace;
 } Debug_Context;
 
 typedef struct CPU_State {
@@ -68,6 +69,7 @@ typedef struct CPU_State {
 } CPU_State;
 
 CPU_State cpu_init(Memory* memory);
+void cpu_reset(CPU_State *state);
 void cpu_destroy(CPU_State *state);
 void cpu_set_entry_to_module(CPU_State *state, Module *mod);
 vm_type_t cpu_run(CPU_State *state);

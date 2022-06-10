@@ -1,8 +1,7 @@
 # User-specific stuff:
 
 **/.idea/
-cmake-build-debug/
-cmake-build-release/
+cmake-build-*/
 docs/instructions.yaml
 emscripten/emcc_build
 build/

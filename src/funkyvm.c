@@ -12,6 +12,7 @@
 #define OPTPARSE_API static
 #include "optparse.h"
 #include "bindings.h"
+#include "performance.h"
 
 int main(int argc, char **argv) {
     static_assert(sizeof(vm_type_t) == sizeof(vm_type_signed_t), "vm_type_t and vm_type_signed_t must be of equal size");
@@ -35,6 +36,7 @@ int main(int argc, char **argv) {
             {"amend", 'a', OPTPARSE_NONE},
             {"brief", 'b', OPTPARSE_NONE},
             {"color", 'c', OPTPARSE_REQUIRED},
+            {"performance-test", 'P', OPTPARSE_REQUIRED},
             {"delay", 'd', OPTPARSE_OPTIONAL},
             {"library-search-path", 'L', OPTPARSE_REQUIRED},
             {"version", 'v', OPTPARSE_NONE},
@@ -45,6 +47,7 @@ int main(int argc, char **argv) {
     int brief = 0;
     const char *color = "white";
     int delay = 0;
+    int performance_test = 0;
 
     int option;
     struct optparse options;
@@ -66,6 +69,9 @@ int main(int argc, char **argv) {
                 break;
             case 'd':
                 delay = options.optarg ? atoi(options.optarg) : 1;
+                break;
+            case 'P':
+                performance_test = atoi(options.optarg);
                 break;
             case 'v':
                 printf("Funky VM version %s.%s.%s\nBuilt on %s %s\n", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, __DATE__, __TIME__);
@@ -114,7 +120,13 @@ int main(int argc, char **argv) {
 
     cpu_set_entry_to_module(&state, &kernel);
 
-    vm_type_t ret = cpu_run(&state);
+    vm_type_t ret = 0;
+    if (performance_test) {
+        double duration = performance_test_run(&state, performance_test);
+        printf("%9.6f", duration);
+    } else {
+         ret = cpu_run(&state);
+    }
 
     cpu_destroy(&state);
     memory_destroy(&memory);

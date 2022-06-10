@@ -268,7 +268,11 @@ INSTR(debug_setcontext) {
 
 INSTR(debug_enterscope) {
     state->debug_context.num_stacktrace++;
-    state->debug_context.stacktrace = realloc(state->debug_context.stacktrace, sizeof(struct Stacktrace_Frame) * state->debug_context.num_stacktrace);
+    if (state->debug_context.num_stacktrace > state->debug_context.size_stacktrace) {
+        state->debug_context.size_stacktrace++;
+        state->debug_context.stacktrace = realloc(state->debug_context.stacktrace, sizeof(struct Stacktrace_Frame) *
+                                                                                   state->debug_context.size_stacktrace);
+    }
     state->debug_context.stacktrace[state->debug_context.num_stacktrace - 1] = (struct Stacktrace_Frame) {
             .name = vm_pointer_to_native(state->memory, get_current_module(state)->addr + GET_OPERAND() + sizeof(vm_type_t), const char*),
             .filename = state->debug_context.filename,
@@ -281,5 +285,4 @@ INSTR(debug_leavescope) {
     state->debug_context.num_stacktrace--;
     if (state->debug_context.num_stacktrace < 0)
         state->debug_context.num_stacktrace = 0;
-    state->debug_context.stacktrace = realloc(state->debug_context.stacktrace, sizeof(struct Stacktrace_Frame) * state->debug_context.num_stacktrace);
 }
