@@ -55,9 +55,9 @@ jobs:
           cmake --build ./build --config ${{env.BUILD_TYPE}}
           cp ./build/funky-as ../funky-as
           cd ..
-          cp ${{github.workspace}}/test/test_vm.sh test_vm.sh
-          chmod a+x test_vm.sh
-          test_vm.sh
+          cp ${{github.workspace}}/test/test_vm.sh ./test_vm.sh
+          chmod a+x ./test_vm.sh
+          ./test_vm.sh
           sudo apt-get install gcovr
           gcovr -r ${{github.workspace}} ${{github.workspace}}/build --sonarqube coverage.xml
       - name: Run sonar-scanner
