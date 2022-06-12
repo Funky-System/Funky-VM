@@ -40,10 +40,26 @@ jobs:
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCOVERAGE=true
       - name: Run build-wrapper
         run: |
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        # Execute tests defined by the CMake configuration.  
+        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+        run: |
+          git clone --depth 1 --branch master https://github.com/Funky-System/Funky-Assembler
+          cd Funky-Assembler
+          cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          cmake --build ./build --config ${{env.BUILD_TYPE}}
+          cp ./build/funky-as ../funky-as
+          cd ..
+          cp ${{github.workspace}}/test/test_vm.sh test_vm.sh
+          chmod a+x test_vm.sh
+          test_vm.sh
+          sudo apt-get install gcovr
+          gcovr -r ${{github.workspace}} ${{github.workspace}}/build --sonarqube coverage.xml
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
